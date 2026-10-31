@@ -1,7 +1,8 @@
-// Keeps Rekenuil working without internet.
-// Change VERSION whenever index.html changes, so tablets pick up the new version.
-const VERSION = 'rekenuil-v1';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png'];
+// Keeps Toverschool Sterrenlicht working without internet.
+// Change VERSION whenever a file changes, so tablets pick up the new version.
+const VERSION = 'toverschool-v1';
+const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './css/app.css',
+  './js/util.js', './js/i18n.js', './js/visuals.js', './js/art.js', './js/fun.js', './js/rekenen.js', './js/taal.js', './js/papiamentu.js', './js/app.js', './js/extra.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(VERSION).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));
