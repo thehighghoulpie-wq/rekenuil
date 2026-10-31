@@ -5,18 +5,38 @@
    ===================================================================== */
 
 /* ---------- personage-keuzes (gedeeld door intro en kledingkamer) ---------- */
+// De Toverspiegel: tabbladen met keuzes en een live voorbeeld (intro én kledingkamer)
+let lpTab = 'face', lookHop = false;   // lookHop: het voorbeeld maakt een sprongetje na een keuze
 function lookPanel(L, onChange, withName = true) {
-  const sw = (arr, key, cls = '') => `<div class="swatches ${cls}">${arr.map((c, i) => `<button class="sw ${L[key] === i ? 'on' : ''}" data-k="${key}" data-v="${i}" style="--c:${c}" aria-label="${key} ${i + 1}"></button>`).join('')}</div>`;
+  const sw = (arr, key, order) => `<div class="swatches">${(order || arr.map((_, i) => i)).map(i => `<button class="sw ${L[key] === i ? 'on' : ''}" data-k="${key}" data-v="${i}" style="--c:${arr[i]}" aria-label="${key} ${i + 1}"></button>`).join('')}</div>`;
+  // keuze met een klein gezichtje als voorbeeld
+  const pick = (key, vals, label = v => '') => `<div class="hairstyles">${vals.map(v => `<button class="hs ${L[key] === v ? 'on' : ''}" data-k="${key}" data-s="${v}">${avatarSVG(Object.assign({}, L, { [key]: v, hat: 'geen', pet: 'geen' }), 'blij', 'mini')}<span>${label(v)}</span></button>`).join('')}</div>`;
+  const tog = (key, on, off) => `<div class="chips"><button class="chip ${!L[key] ? 'on' : ''}" data-k="${key}" data-b="0">${off}</button><button class="chip ${L[key] ? 'on' : ''}" data-k="${key}" data-b="1">${on}</button></div>`;
+  const tabs = [['face', '🙂 ' + t('lpFace')], ['hair', '💇 ' + t('hair')], ['eyes', '👀 ' + t('eyes')], ['extra', '✨ ' + t('lpExtra')], ['robe', '🧥 ' + t('lpRobe')]];
+  let body = '';
+  if (lpTab === 'face') body = `<label class="lbl">${t('skin')}</label>${sw(SKINS, 'skin', SKIN_ORDER)}
+    <label class="lbl">${t('lpFreckles')}</label>${tog('sproet', '✅', '—')}
+    <label class="lbl">${t('lpBlush')}</label><div class="chips">${[0, 1, 2].map(i => `<button class="chip ${L.blush === i ? 'on' : ''}" data-k="blush" data-v="${i}">${['—', '🌸', '🌸🌸'][i]}</button>`).join('')}</div>
+    <label class="lbl">${t('lpBrows')}</label>${pick('brows', BROWS)}`;
+  if (lpTab === 'hair') body = `<div class="hairstyles">${HAIRSTYLES.map(h => `<button class="hs ${L.hair === h.id ? 'on' : ''}" data-k="hair" data-s="${h.id}">${avatarSVG(Object.assign({}, L, { hair: h.id, hat: 'geen', pet: 'geen' }), 'blij', 'mini')}<span>${h.name}</span></button>`).join('')}</div>
+    <label class="lbl">${t('hairColor')}</label>${sw(HAIRCOLORS, 'hairColor')}
+    <label class="lbl">${t('lpTips')}</label><div class="swatches"><button class="sw none ${L.tips < 0 ? 'on' : ''}" data-k="tips" data-v="-1" aria-label="geen">—</button>${HAIRCOLORS.map((c, i) => `<button class="sw ${L.tips === i ? 'on' : ''}" data-k="tips" data-v="${i}" style="--c:${c}"></button>`).join('')}</div>`;
+  if (lpTab === 'eyes') body = `<label class="lbl">${t('lpEyeColor')}</label>${sw(EYECOLORS, 'eyes')}<label class="lbl">${t('lpEyeShape')}</label>${pick('eyeShape', EYESHAPES)}<label class="lbl">${t('lpLashes')}</label>${tog('lashes', '✅', '—')}`;
+  if (lpTab === 'extra') body = `<label class="lbl">${t('lpGlasses')}</label>${pick('bril', GLASSES)}<label class="lbl">${t('lpEarrings')}</label>${pick('oorbel', EARRINGS)}<label class="lbl">${t('lpClips')}</label>${pick('clip', CLIPS)}`;
+  if (lpTab === 'robe') body = `<label class="lbl">${t('lpRobeColor')}</label>${sw(ROBECOLS, 'robeColor')}<p class="muted">${t('lpRobeNote')}</p>
+    <label class="lbl">${t('lpSign')}</label><div class="chips big">${TEKENS.map(([id, e]) => `<button class="chip ${L.teken === id ? 'on' : ''}" data-k="teken" data-s="${id}">${e} ${t('sign_' + id)}</button>`).join('')}</div>`;
   return `<div class="lookpanel">
     ${withName ? `<label class="lbl">${t('name')}</label><input id="nameinp" class="nameinp" maxlength="16" value="${esc((D.profile && D.profile.name) || '')}" placeholder="${t('namePh')}" autocomplete="off">` : ''}
-    <label class="lbl">${t('skin')}</label>${sw(SKINS, 'skin')}
-    <label class="lbl">${t('hair')}</label><div class="hairstyles">${HAIRSTYLES.map(h => `<button class="hs ${L.hair === h.id ? 'on' : ''}" data-hair="${h.id}">${avatarSVG(Object.assign({}, L, { hair: h.id, hat: 'geen', pet: 'geen' }), 'blij', 'mini')}<span>${h.name}</span></button>`).join('')}</div>
-    <label class="lbl">${t('hairColor')}</label>${sw(HAIRCOLORS, 'hairColor')}
-    <label class="lbl">${t('eyes')}</label>${sw(EYECOLORS, 'eyes')}</div>`;
+    <div class="tabs small">${tabs.map(([k, n]) => `<button class="tab ${lpTab === k ? 'on' : ''}" data-lp="${k}">${n}</button>`).join('')}</div>${body}
+    <button class="btn ghost wide" id="surprise">🎲 ${t('lpSurprise')}</button></div>`;
 }
 function bindLookPanel(root, L, onChange) {
-  $$('.sw', root).forEach(b => b.onclick = () => { L[b.dataset.k] = +b.dataset.v; SND.click(); onChange(); });
-  $$('.hs', root).forEach(b => b.onclick = () => { L.hair = b.dataset.hair; SND.click(); onChange(); });
+  const done = () => { SND.click(); lookHop = D.settings.anim; onChange(); lookHop = false; };
+  $$('[data-lp]', root).forEach(b => b.onclick = () => { lpTab = b.dataset.lp; SND.click(); onChange(); });
+  $$('[data-k][data-v]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = +b.dataset.v; done(); });
+  $$('[data-k][data-s]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = b.dataset.s; done(); });
+  $$('[data-k][data-b]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = b.dataset.b === '1'; done(); });
+  const sp = $('#surprise', root); if (sp) sp.onclick = () => { Object.assign(L, randomLook(L)); SND.pop(); onChange(); const p = $('.ward-prev', root); sparkleBurst(p, 14); };
   const n = $('#nameinp', root); if (n) n.oninput = () => { D.profile.name = n.value.trim() || D.profile.name; save(); };
 }
 
@@ -37,7 +57,7 @@ function renderWardrobe() {
       <span class="i-price">${on ? '✅ ' + t('wearing') : own ? t('owned') : `⭐ ${it.price}`}</span></button>`;
   }).join('')}</div>`;
   el.innerHTML = backbar(t('pl_kast')) + `<div class="wrap"><div class="ward">
-    <div class="ward-prev card">${avatarSVG(L, 'blij')}${L.pet !== 'geen' ? petSVG(L.pet, 'ward-pet') : ''}<div class="ward-name">${esc(playerName())}</div></div>
+    <div class="ward-prev card">${avatarSVG(L, lookHop ? 'lach' : 'blij', lookHop ? 'hopnow' : '')}${L.pet !== 'geen' ? petSVG(L.pet, 'ward-pet') : ''}<div class="ward-name">${esc(playerName())}</div></div>
     <div class="ward-side"><div class="tabs">${tabs.map(([k, n]) => `<button class="tab ${wardTab === k ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}</div>${body}</div></div></div>`;
   bindCommon(el);
   $$('[data-tab]', el).forEach(b => b.onclick = () => { wardTab = b.dataset.tab; SND.click(); renderWardrobe(); });
@@ -224,7 +244,7 @@ function openParty() {
   const d = new Date();
   el.innerHTML = backbar(t('pl_feest')) + `<div class="wrap narrow"><div class="party card"><div class="dance">${avatarSVG(look(), 'lach', 'dancer')}${pets.map((p, i) => petSVG(p, 'dancer d' + (i % 3))).join('')}${pipSVG('lach', 'dancer')}</div>
     <h2>${t('partyTitle')}</h2>
-    <div class="diploma"><div class="dp-t">🎓 ${t('certificate')}</div><div class="dp-n">${esc(playerName())}</div><div class="dp-s">⭐ ${D.starsTotal} · ✅ ${D.counters.correct} · 🏅 ${Object.keys(D.badges).length}</div><div class="dp-d">${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()} · Toverschool Sterrenlicht</div></div></div></div>`;
+    <div class="diploma"><div class="dp-t">🎓 ${t('certificate')} ${(TEKENS.find(x => x[0] === look().teken) || TEKENS[0])[1]}</div><div class="dp-n">${esc(playerName())}</div><div class="dp-s">⭐ ${D.starsTotal} · ✅ ${D.counters.correct} · 🏅 ${Object.keys(D.badges).length}</div><div class="dp-d">${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()} · Toverschool Sterrenlicht</div></div></div></div>`;
   bindCommon(el); show('party'); SND.fanfare(); confetti(200);
 }
 
@@ -243,16 +263,121 @@ function openSettings() {
     <div class="setrow col"><span>${t('language')}</span><div class="langs">${LANGS.map(([c, f, n]) => `<button class="chip ${lang() === c ? 'on' : ''}" data-lang="${c}">${f} ${n}</button>`).join('')}</div></div>
     ${tg('sound', '🔊 ' + t('sound'))}${tg('anim', '✨ ' + t('anim'))}${tg('big', '🔠 ' + t('bigText'))}${tg('jokes', '😂 ' + t('pipJokes'))}
     <button class="btn ghost wide" id="editme">${t('editMe')}</button>
-    <details class="parents"><summary>${t('forParents')}</summary><p>${t('parentInfo')}</p><p class="muted">${t('contentNote')}</p><button class="btn ghost wide danger" id="reset">${t('reset')}</button></details>`,
+    <button class="btn ghost wide" id="toparents">👪 ${t('forParents')}</button>`,
     [{ label: t('close'), cls: 'primary' }]);
+  $('#toparents').onclick = () => { closeModal(); parentGate(openParents); };
   $$('[data-set]').forEach(b => b.onclick = () => { const k = b.dataset.set; D.settings[k] = !D.settings[k]; save(); applySettings(); b.classList.toggle('on'); b.textContent = D.settings[k] ? t('on') : t('off'); });
   $$('[data-lang]').forEach(b => b.onclick = () => { D.settings.lang = b.dataset.lang; save(); applySettings(); closeModal(); refreshCurrent(); openSettings(); });
   $('#editme').onclick = () => { closeModal(); wardTab = 'look'; openWardrobe(); };
-  $('#reset').onclick = () => modal(`<div class="m-ico">${pipSVG('oeps')}</div><h2>${t('resetQ')}</h2><p>${t('resetSub')}</p>`,
+}
+
+/* =====================================================================
+   OUDERHOEK (achter een oudercheck)
+   ===================================================================== */
+function parentGate(then) {
+  const a = rnd(13, 29), b = rnd(6, 9);
+  modal(`<h2>👪 ${t('forParents')}</h2><p>${t('gateHold')}</p><button class="btn primary wide holdbtn" id="hold"><i></i><span>${t('gateHoldBtn')}</span></button>
+    <div id="gateq" class="hidden"><p>${t('gateQ')} <b>${a} × ${b}</b></p><input id="gatein" class="nameinp" inputmode="numeric" autocomplete="off"></div>`,
+    [{ label: t('cancel'), cls: 'ghost' }]);
+  const h = $('#hold'); let tm = null;
+  const start = e => { e.preventDefault(); h.classList.add('holding'); $('span', h).textContent = t('gateKeep'); tm =setTimeout(() => { h.classList.add('hidden'); $('#gateq').classList.remove('hidden'); $('#gatein').focus(); }, 3000); };
+  const stop = () => { h.classList.remove('holding'); $('span', h).textContent = t('gateHoldBtn'); clearTimeout(tm); };
+  h.addEventListener('pointerdown', start); ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => h.addEventListener(ev, stop));
+  $('#gatein').oninput = e => { if (+e.target.value === a * b) { closeModal(); then(); } };
+}
+let parTab = 'week';
+function openParents() { renderParents(); show('parents'); }
+function renderParents() {
+  const el = $('#parents');
+  const tabs = [['week', '📊 ' + t('parWeek')], ['voice', '🎙️ ' + t('parVoice')], ['set', '⚙️ ' + t('parSettings')]];
+  let body = '';
+  if (parTab === 'week') {
+    const days = Array.from({ length: 7 }, (_, i) => addDays(i - 6)), logs = days.map(d => D.daylog[d] || { sec: 0, q: 0, ok: 0 });
+    const tot = logs.reduce((s, l) => ({ sec: s.sec + l.sec, q: s.q + l.q, ok: s.ok + l.ok }), { sec: 0, q: 0, ok: 0 });
+    const dn = ['zo', 'ma', 'di', 'wo', 'do', 'vr', 'za'];
+    const all = SUBJECTS.flatMap(s => s.topics);
+    const good = all.filter(tp => topicStatus(tp.key) === 'super'), weak = all.filter(tp => topicStatus(tp.key) === 'oefenen');
+    body = `<div class="res-grid"><div><b>${logs.filter(l => l.q).length}</b><span>${t('parDays')}</span></div><div><b>${Math.round(tot.sec / 60)}</b><span>${t('parMin')}</span></div><div><b>${tot.q}</b><span>${t('parQ')}</span></div><div><b>${tot.q ? Math.round(tot.ok / tot.q * 100) : 0}%</b><span>${t('parOk')}</span></div></div>
+      <div class="card pad">${barChart(days.map(d => dn[new Date(d + 'T12:00').getDay()]), logs.map(l => l.q), { step: Math.max(5, Math.ceil(Math.max(...logs.map(l => l.q), 1) / 25) * 5) })}</div>
+      <h3>💪 ${t('parStrong')}</h3><p>${good.map(tp => `<span class="spill super">${tp.ico} ${tTopic(tp)}</span>`).join(' ') || `<span class="muted">${t('parNone')}</span>`}</p>
+      <h3>🌱 ${t('parWeak')}</h3><p>${weak.map(tp => `<span class="spill oefenen">${tp.ico} ${tTopic(tp)}</span>`).join(' ') || `<span class="muted">${t('parNone')}</span>`}</p>
+      <h3>🔁 ${t('parReview')}</h3><p>${t('parReviewN', { n: Object.keys(D.review).length, d: srDue().length })} · 🧪 ${streakTxt(potionStreakNow())}</p>
+      ${(D.recentWrong || []).length ? `<h3>❌ ${t('parMistakes')}</h3><div class="card pad"><table class="dtable">${D.recentWrong.map(w => `<tr><td>${esc(w.q)}</td><td><b>${esc(w.a)}</b></td></tr>`).join('')}</table></div>` : ''}`;
+  }
+  if (parTab === 'voice') {
+    body = voiceCanRecord() ? `<p>${t('voiceInfo')}</p>
+      <label class="lbl">${t('voiceWho')}</label><div class="chips">${['Mama', 'Papa', 'Wela', 'Welo', 'Tanta'].map(w => `<button class="chip ${D.settings.voiceWho === w ? 'on' : ''}" data-who="${w}">${w}</button>`).join('')}</div>
+      ${Object.keys(PAP).map(c => `<details class="card pad vcat"><summary><b>${PAPCAT[c]}</b> <span class="muted">${PAP[c].filter(x => VOICE_KEYS.has(x[0])).length} / ${PAP[c].length}</span></summary>
+        ${PAP[c].map(([p, n, e]) => `<div class="vrow"><span class="vw">${e} <b class="pap">${p}</b> <small>${n}</small> <small class="${PAP_VERIFIED.has(p) ? 'vok' : 'vcheck'}">${PAP_VERIFIED.has(p) ? '✓ ' + t('papOk') : '? ' + t('papCheck')}</small></span>
+          <span class="vbtns">${VOICE_KEYS.has(p) ? `<button class="btn small ghost" data-play="${esc(p)}">▶</button>` : ''}<button class="btn small" data-rec="${esc(p)}">⏺</button>${VOICE_KEYS.has(p) ? `<button class="btn small ghost" data-del="${esc(p)}">🗑</button>` : ''}</span></div>`).join('')}</details>`).join('')}`
+      : `<p>${t('voiceNo')}</p>`;
+  }
+  if (parTab === 'voice') body += `<details class="card pad vcat"><summary><b>${t('parGram')}</b> <small class="vcheck">? ${t('papCheck')}</small></summary>
+    ${[...PTIME.map(([w, n]) => `${papZin('mi', 'kome', w)} = ${n}`), 'Mi no ta kome = ik eet niet', 'kachó → kachónan', ...GZIN.map(([p, n]) => `${p} = ${n}`)]
+      .map(x => `<div class="vrow"><span class="vw pap">${esc(x)}</span></div>`).join('')}</details>`;
+  if (parTab === 'set') {
+    body = `<label class="lbl">${t('parGrade')}</label><div class="chips">${[3, 4, 5, 6, 7, 8].map(g => `<button class="chip ${D.grade === g ? 'on' : ''}" data-grade="${g}">${g}</button>`).join('')}</div><p class="muted">${t('parGradeInfo')}</p>
+      <label class="lbl">${t('parGoal')}</label><div class="chips">${[5, 10, 15, 20].map(g => `<button class="chip ${D.settings.dailyGoal === g ? 'on' : ''}" data-goal="${g}">${g}</button>`).join('')}</div>
+      <label class="lbl">${t('parBackup')}</label><p class="muted">${t('parBackupInfo')}</p>
+      <div class="btnrow"><button class="btn" id="bkdown">⬇️ ${t('parSave')}</button><label class="btn ghost">⬆️ ${t('parLoad')}<input type="file" id="bkup" accept=".json,application/json" hidden></label></div>
+      <p>${t('parentInfo')}</p><p class="muted">${t('contentNote')}</p>
+      <button class="btn ghost wide danger" id="reset">${t('reset')}</button>`;
+  }
+  el.innerHTML = backbar('👪 ' + t('forParents')) + `<div class="wrap narrow"><div class="tabs">${tabs.map(([k, n]) => `<button class="tab ${parTab === k ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}</div>${body}</div>`;
+  bindCommon(el);
+  $$('[data-tab]', el).forEach(b => b.onclick = () => { parTab = b.dataset.tab; renderParents(); });
+  $$('[data-grade]', el).forEach(b => b.onclick = () => { D.grade = +b.dataset.grade; save(); renderParents(); });
+  $$('[data-goal]', el).forEach(b => b.onclick = () => { D.settings.dailyGoal = +b.dataset.goal; save(); renderParents(); });
+  $$('[data-who]', el).forEach(b => b.onclick = () => { D.settings.voiceWho = b.dataset.who; save(); renderParents(); });
+  $$('[data-play]', el).forEach(b => b.onclick = () => voicePlay(b.dataset.play));
+  $$('[data-del]', el).forEach(b => b.onclick = () => voiceDel(b.dataset.del).then(keepOpen(renderParents)));
+  $$('[data-rec]', el).forEach(b => b.onclick = () => recordWord(b));
+  if ($('#bkdown')) $('#bkdown').onclick = backupDownload;
+  if ($('#bkup')) $('#bkup').onchange = e => backupRestore(e.target.files[0]);
+  if ($('#reset')) $('#reset').onclick = () => modal(`<div class="m-ico">${pipSVG('oeps')}</div><h2>${t('resetQ')}</h2><p>${t('resetSub')}</p>`,
     [{ label: t('cancel'), cls: 'primary' }, { label: t('resetYes'), cls: 'ghost danger', fn: () => { const l = D.settings.lang; D = defaults(); D.settings.lang = l; save(); applySettings(); openIntro(); } }]);
 }
+// na opnieuw tekenen dezelfde categorie open laten
+const keepOpen = fn => () => { const open = $$('#parents details[open] summary b').map(b => b.textContent); fn(); $$('#parents details').forEach(d => { if (open.includes($('summary b', d).textContent)) d.open = true; }); };
+function recordWord(btn) {
+  const k = btn.dataset.rec;
+  if (btn.classList.contains('recording')) { voiceStop(); return; }
+  if (recordWord.busy) return;   // al bezig met een andere opname
+  recordWord.busy = true;
+  voiceStart().then(r => {
+    btn.classList.add('recording'); btn.textContent = '⏹';
+    r.done.then(blob => { if (blob && blob.size) return voicePut(k, { blob, who: D.settings.voiceWho || '', t: Date.now() }).then(() => { toast(t('voiceSaved')); voicePlay(k); }); })
+      .finally(() => { recordWord.busy = false; keepOpen(renderParents)(); });
+  }).catch(() => { recordWord.busy = false; toast(t('voiceDenied'), 4000); });
+}
+function backupDownload() {
+  voiceExport().then(voice => {
+    const blob = new Blob([JSON.stringify({ app: 'toverschool', v: 1, data: D, voice })], { type: 'application/json' });
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+    a.download = `toverschool-${(playerName() || 'backup').replace(/[^\w-]/g, '')}-${today()}.json`;
+    document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000);
+    toast(t('parSaved'));
+  });
+}
+function backupRestore(file) {
+  if (!file) return;
+  if (file.size > 30e6) return toast(t('parLoadBad'), 4000);
+  file.text().then(txt => {
+    const j = JSON.parse(txt);
+    if (!j || j.app !== 'toverschool' || !j.data || typeof j.data !== 'object') throw new Error('bad');
+    const clean = cleanSave(j.data);   // eerst controleren, dan pas opslaan
+    modal(`<h2>${t('parLoadQ')}</h2><p>${t('parLoadSub', { n: esc((clean.profile && clean.profile.name) || '?') })}</p>`,
+      [{ label: t('cancel'), cls: 'ghost' }, { label: t('parLoad'), cls: 'primary', fn: () => {
+        try {
+          const prev = localStorage.getItem(KEY); if (prev) localStorage.setItem(KEY + '-prev', prev);   // vorige stand bewaren
+          D = clean; save(); applySettings();
+        } catch (e) { return toast(t('parLoadBad'), 4000); }
+        voiceImport(j.voice).catch(() => { }).then(() => { toast(t('parLoaded')); openMap(); });
+      } }]);
+  }).catch(() => toast(t('parLoadBad'), 4000));
+}
 function refreshCurrent() {
-  const r = { map: openMap, class: () => openClass(L.subject), wardrobe: openWardrobe, pets: openPets, games: openGames, progress: openProgress, jokes: openJokes, garden: openGarden, party: openParty, setup: renderSetup, lesson: renderLesson }[current];
+  const r = { map: openMap, class: () => openClass(L.subject), wardrobe: openWardrobe, pets: openPets, games: openGames, progress: openProgress, jokes: openJokes, garden: openGarden, party: openParty, setup: renderSetup, lesson: renderLesson, parents: renderParents }[current];
   if (r) r();
 }
 
@@ -271,7 +396,7 @@ function renderIntro() {
   if (introStep === 0) body = `<div class="intro-pip">${pipSVG('lach')}</div><div class="bubble big">${t('introHi')}</div>
     <h3>${t('introLang')}</h3><div class="langs big">${LANGS.map(([c, f, n]) => `<button class="chip ${lang() === c ? 'on' : ''}" data-lang="${c}">${f} ${n}</button>`).join('')}</div>`;
   if (introStep === 1) body = `<div class="intro-pip">${pipSVG('blij')}</div><div class="bubble big">${t('introName')}</div><input id="introname" class="nameinp big" maxlength="16" placeholder="${t('namePh')}" value="${esc(D.profile.name || '')}" autocomplete="off">`;
-  if (introStep === 2) body = `<h2>${t('introLook')}</h2><div class="ward"><div class="ward-prev card">${avatarSVG(introLook, 'blij')}</div><div class="ward-side">${lookPanel(introLook, null, false)}</div></div>`;
+  if (introStep === 2) body = `<h2>🪞 ${t('introLook')}</h2><div class="ward"><div class="ward-prev card mirror">${avatarSVG(introLook, lookHop ? 'lach' : 'blij', lookHop ? 'hopnow' : '')}</div><div class="ward-side">${lookPanel(introLook, null, false)}</div></div>`;
   if (introStep === 3) { body = `<div class="intro-done">${avatarSVG(introLook, 'lach')}${pipSVG('lach')}</div><div class="bubble big">${t('introDone', { n: esc(D.profile.name) })}</div>`; btn = t('letsGo'); }
   el.innerHTML = `<div class="wrap narrow intro"><div class="intro-title">✨ ${t('appName')} ✨</div>${body}<button class="btn primary huge" id="introgo">${btn}</button></div>`;
   $$('[data-lang]', el).forEach(b => b.onclick = () => { D.settings.lang = b.dataset.lang; save(); applySettings(); SND.click(); renderIntro(); });

@@ -8,20 +8,22 @@
    1. TAFELS
    ===================================================================== */
 function jumps(a, b) { return Array.from({ length: b }, (_, i) => (i + 1) * a).join(', '); }
-function genTafels(diff) {
+// item = 'bxa' (bijv. '7x8'): die som komt terug in de herhaling
+function genTafels(diff, item) {
   const tables = diff === 'easy' ? [1, 2, 3, 4, 5, 10] : diff === 'medium' ? [2, 3, 4, 5, 6, 7, 8, 9, 10] : [3, 4, 6, 7, 8, 9];
-  const a = kies(tables);
-  const b = diff === 'hard' ? rnd(2, 10) : rnd(1, 10);
+  let a = kies(tables);
+  let b = diff === 'hard' ? rnd(2, 10) : rnd(1, 10);
+  if (item) [b, a] = String(item).split('x').map(Number);
   const r = Math.random();
-  const variant = diff === 'easy' ? 'plain' : diff === 'medium' ? (r < .25 ? 'missing' : 'plain') : (r < .3 ? 'missing' : r < .5 ? 'tens' : 'plain');
-  const p = a * b;
+  const variant = item || diff === 'easy' ? 'plain' : diff === 'medium' ? (r < .25 ? 'missing' : 'plain') : (r < .3 ? 'missing' : r < .5 ? 'tens' : 'plain');
+  const p = a * b, it = `${b}x${a}`;
   if (variant === 'missing') return {
-    text: `${BOX} × ${a} = ${p}`, kind: 'num', answer: b,
+    text: `${BOX} × ${a} = ${p}`, kind: 'num', answer: b, item: it,
     hint: `Zeg de tafel van ${a} op: ${a}, ${2 * a}, ${3 * a}, … Bij de hoeveelste kom je op ${p}?`,
     explain: `${b} × ${a} = ${p}. Dus op de plaats van het vraagteken hoort <b>${b}</b>.`
   };
   if (variant === 'tens') return {
-    text: `${a} × ${b * 10} =`, kind: 'num', answer: p * 10,
+    text: `${a} × ${b * 10} =`, kind: 'num', answer: p * 10, item: it,
     hint: `Reken eerst ${a} × ${b}. Zet er daarna een 0 achter.`,
     explain: `${a} × ${b} = ${p}. ${b * 10} is tien keer zo veel als ${b}, dus het antwoord is ook tien keer zo veel: <b>${p * 10}</b>.`
   };
@@ -31,7 +33,7 @@ function genTafels(diff) {
   else if (b === 5) { hint = `5 × ${a} is de helft van 10 × ${a} = ${10 * a}.`; explain = `5 × ${a} = <b>${p}</b>. Dat is de helft van 10 × ${a} = ${10 * a}.`; }
   else if (b > 5) { hint = `Weet je 5 × ${a}? Dat is ${5 * a}. Tel er dan nog ${b - 5} × ${a} bij.`; explain = `${b} × ${a} = <b>${p}</b>. Handig: 5 × ${a} = ${5 * a} en ${b - 5} × ${a} = ${(b - 5) * a}. Samen ${p}.`; }
   else { hint = `Tel in sprongen van ${a}: ${a}, ${2 * a}, …`; explain = `${b} × ${a} = <b>${p}</b>. In sprongen van ${a}: ${jumps(a, b)}.`; }
-  return { text: `${b} × ${a} =`, kind: 'num', answer: p, hint, explain };
+  return { text: `${b} × ${a} =`, kind: 'num', answer: p, item: it, hint, explain };
 }
 
 /* =====================================================================

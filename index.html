@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#6A4BC4">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; media-src 'self' blob:; connect-src 'self'; worker-src 'self'; manifest-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'">
 <meta name="description" content="Toverschool Sterrenlicht: oefen rekenen, taal en Papiamentu voor groep 6.">
 <title>Toverschool Sterrenlicht</title>
 <link rel="manifest" href="manifest.webmanifest">
@@ -29,6 +30,7 @@
   <section class="screen" id="jokes"></section>
   <section class="screen" id="garden"></section>
   <section class="screen" id="party"></section>
+  <section class="screen" id="parents"></section>
 </main>
 <div class="toast" id="toast" role="status"></div>
 <div class="modal" id="modal"><div class="modal-card" id="modal-card" role="dialog" aria-modal="true"></div></div>
@@ -36,6 +38,7 @@
 <noscript><p style="padding:20px">Deze app heeft JavaScript nodig.</p></noscript>
 
 <script src="js/util.js"></script>
+<script src="js/voice.js"></script>
 <script src="js/i18n.js"></script>
 <script src="js/visuals.js"></script>
 <script src="js/art.js"></script>
@@ -44,11 +47,8 @@
 <script src="js/taal.js"></script>
 <script src="js/papiamentu.js"></script>
 <script src="js/app.js"></script>
+<script src="js/review.js"></script>
 <script src="js/extra.js"></script>
-<script>
-if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
-}
-</script>
+<script src="js/sw-register.js"></script>
 </body>
 </html>

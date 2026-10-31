@@ -11,23 +11,60 @@ function defaults() {
     v: 1, profile: null, stars: 0, starsTotal: 0,
     owned: { outfit: ['paars'], hat: ['geen', 'puntmuts'], wand: ['ster'], pet: ['geen'] },
     topics: {}, highs: {}, badges: {}, days: [], lessons: {}, jokes: [], games: {}, unlocked: [], gifts: {},
-    settings: { sound: true, anim: true, big: false, jokes: true, lang: 'nl' },
+    grade: 6, daylog: {}, review: {}, potion: { streak: 0, last: '', best: 0, total: 0, got: {}, freezeWeek: '' },
+    settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10 },
     counters: { correct: 0, answered: 0, quizzes: 0, perfect: 0, bestStreak: 0, timed: 0, pap: 0, hard3: 0, purchases: 0, pets: 0 },
     lastSetup: { mode: 'practice', diff: 'easy', count: 10, duration: 60 }, subjectsTried: {}, created: Date.now()
   };
 }
 function load() {
-  try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const d = JSON.parse(raw), def = defaults();
-      return Object.assign(def, d, {
-        settings: Object.assign(def.settings, d.settings || {}), counters: Object.assign(def.counters, d.counters || {}),
-        owned: Object.assign(def.owned, d.owned || {}), lastSetup: Object.assign(def.lastSetup, d.lastSetup || {})
-      });
-    }
-  } catch (e) { }
+  try { const raw = localStorage.getItem(KEY); if (raw) return cleanSave(JSON.parse(raw)); } catch (e) { }
   return defaults();
+}
+/* Een opgeslagen stand (of een teruggezette reservekopie) controleren:
+   alleen bekende velden, getallen worden echte getallen, tekst wordt ingekort.
+   Zo kan een kapot of vreemd bestand de app niet laten vastlopen of code toevoegen. */
+function cleanSave(d) {
+  const def = defaults(), num = (v, lo = 0, hi = 1e9) => { v = +v; return isFinite(v) ? Math.min(hi, Math.max(lo, Math.round(v))) : lo; };
+  const obj = v => v && typeof v === 'object' && !Array.isArray(v) ? v : {};
+  const str = (v, n = 40) => typeof v === 'string' ? v.slice(0, n) : '';
+  const isDay = s => typeof s === 'string' && /^\d{4}-\d\d-\d\d$/.test(s);
+  const pick = (v, list, dflt) => list.includes(v) ? v : dflt;
+  const map = (o, fn) => { const r = {}; for (const k of Object.keys(obj(o))) if (k !== '__proto__' && k.length < 80) { const v = fn(o[k], k); if (v !== undefined) r[k] = v; } return r; };
+  if (!d || typeof d !== 'object') return def;
+  const out = def;
+  out.stars = num(d.stars); out.starsTotal = num(d.starsTotal); out.grade = num(d.grade || 6, 3, 8); out.created = num(d.created, 0, 1e13) || Date.now();
+  if (d.profile && typeof d.profile === 'object') {
+    const l = obj(d.profile.look), L = Object.assign({}, DEFAULT_LOOK);
+    for (const k of ['skin', 'hairColor', 'eyes', 'robeColor', 'blush']) if (l[k] != null) L[k] = num(l[k], 0, 20);
+    if (l.tips != null) L.tips = num(l.tips, -1, 20);
+    L.hair = pick(l.hair, HAIRSTYLES.map(h => h.id), L.hair); L.eyeShape = pick(l.eyeShape, EYESHAPES, L.eyeShape); L.brows = pick(l.brows, BROWS, L.brows);
+    L.bril = pick(l.bril, GLASSES, L.bril); L.oorbel = pick(l.oorbel, EARRINGS, L.oorbel); L.clip = pick(l.clip, CLIPS, L.clip); L.teken = pick(l.teken, TEKENS.map(x => x[0]), L.teken);
+    for (const k of ['outfit', 'hat', 'wand', 'pet']) L[k] = pick(l[k], ITEMS[k].map(i => i.id), L[k]);
+    L.sproet = !!l.sproet; L.lashes = !!l.lashes;
+    out.profile = { name: str(d.profile.name, 16), look: L };
+  }
+  for (const k of Object.keys(def.owned)) { const ids = ITEMS[k].map(i => i.id); out.owned[k] = [...new Set([...def.owned[k], ...(Array.isArray(obj(d.owned)[k]) ? d.owned[k] : []).filter(x => ids.includes(x))])]; }
+  out.topics = map(d.topics, t => { t = obj(t); return { answered: num(t.answered), correct: num(t.correct), quizzes: num(t.quizzes), best: num(t.best, 0, 3), recent: (Array.isArray(t.recent) ? t.recent : []).slice(-20).map(x => x ? 1 : 0) }; });
+  out.highs = map(d.highs, v => num(v));
+  for (const k of ['badges', 'lessons', 'gifts', 'subjectsTried']) out[k] = map(d[k], v => num(v, 0, 1e13) || 1);
+  out.games = map(d.games, g => map(g, v => num(v)));
+  out.days = (Array.isArray(d.days) ? d.days : []).filter(isDay).slice(-400);
+  out.jokes = (Array.isArray(d.jokes) ? d.jokes : []).map(x => num(x, -1)).filter(x => x >= 0 && x < JOKES.length);
+  out.unlocked = (Array.isArray(d.unlocked) ? d.unlocked : []).filter(x => typeof x === 'string').map(x => x.slice(0, 20));
+  out.daylog = map(d.daylog, (v, k) => isDay(k) ? { sec: num(obj(v).sec), q: num(obj(v).q), ok: num(obj(v).ok) } : undefined);
+  out.review = map(d.review, r => { r = obj(r); return TOPIC[r.topic] && isDay(r.due) ? { topic: r.topic, item: typeof r.item === 'number' ? r.item : str(r.item, 200), box: num(r.box, 1, 5), due: r.due } : undefined; });
+  out.recentWrong = (Array.isArray(d.recentWrong) ? d.recentWrong : []).slice(0, 12).map(w => ({ k: str(obj(w).k, 60), q: str(obj(w).q, 90), a: str(obj(w).a, 40), d: str(obj(w).d, 10) }));
+  const s = obj(d.settings);
+  for (const k of ['sound', 'anim', 'big', 'jokes']) if (s[k] != null) out.settings[k] = !!s[k];
+  out.settings.lang = pick(s.lang, LANGS.map(l => l[0]), 'nl'); out.settings.dailyGoal = pick(+s.dailyGoal, [5, 10, 15, 20], 10);
+  out.settings.voiceWho = pick(s.voiceWho, ['Mama', 'Papa', 'Wela', 'Welo', 'Tanta'], '');
+  for (const k of Object.keys(def.counters)) out.counters[k] = num(obj(d.counters)[k]);
+  const ls = obj(d.lastSetup);
+  out.lastSetup = { mode: pick(ls.mode, ['practice', 'timed'], 'practice'), diff: pick(ls.diff, ['easy', 'medium', 'hard'], 'easy'), count: pick(+ls.count, [5, 10, 15, 20], 10), duration: pick(+ls.duration, [60, 120, 300], 60) };
+  const p = obj(d.potion);
+  out.potion = { streak: num(p.streak), best: num(p.best), total: num(p.total), last: isDay(p.last) ? p.last : '', freezeWeek: str(p.freezeWeek, 12), got: map(p.got, v => num(v)) };
+  return out;
 }
 let D = load();
 function save() { try { localStorage.setItem(KEY, JSON.stringify(D)); } catch (e) { } }
@@ -41,7 +78,16 @@ function topicStatus(key) {
   const a = topicAcc(key); return a >= .85 ? 'super' : a >= .65 ? 'goed' : 'oefenen';
 }
 const statusName = st => t('st_' + st);
-const today = () => { const d = new Date(); return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
+const dayStr = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
+const today = () => dayStr(new Date());
+const addDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return dayStr(d); };
+// past dit onderwerp bij de groep van het kind? (voor later: meer leeftijden)
+const topicFits = tp => !tp.grades || (D.grade >= tp.grades[0] && D.grade <= tp.grades[1]);
+function logDay(sec, ok) {
+  const d = D.daylog[today()] || (D.daylog[today()] = { sec: 0, q: 0, ok: 0 });
+  d.sec += sec; d.q++; if (ok) d.ok++;
+  const keys = Object.keys(D.daylog); if (keys.length > 120) delete D.daylog[keys.sort()[0]];
+}
 function dayStreak() {
   const set = new Set(D.days); let n = 0; const d = new Date();
   if (!set.has(today())) d.setDate(d.getDate() - 1);
@@ -99,15 +145,36 @@ function confetti(amount = 140) {
     if (++f < 150) requestAnimationFrame(step); else { ctx.clearRect(0, 0, W, H); c.classList.remove('on'); }
   })();
 }
-function sparkleBurst(el, n = 12) {
+// spreuk-vonken passen bij je toverstaf
+const WAND_SPARKS = { ster: ['✨', '⭐', '💫', '🌟'], hart: ['💖', '💗', '✨', '💕'], maan: ['🌙', '✨', '⭐', '💫'], schelp: ['🐚', '💧', '✨', '🫧'], kristal: ['💎', '✨', '💠', '❄️'], regenboog: ['🌈', '✨', '💖', '⭐'] };
+function sparkleBurst(el, n = 12, syms) {
   if (!D.settings.anim || !el) return;
+  syms = syms || ['✨', '⭐', '💫', '🌟'];
   const r = el.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
   for (let i = 0; i < n; i++) {
-    const s = document.createElement('span'); s.className = 'spark'; s.textContent = kies(['✨', '⭐', '💫', '🌟']);
+    const s = document.createElement('span'); s.className = 'spark'; s.textContent = kies(syms);
     const a = Math.random() * Math.PI * 2, d = 60 + Math.random() * 90;
     s.style.left = cx + 'px'; s.style.top = cy + 'px'; s.style.setProperty('--dx', Math.cos(a) * d + 'px'); s.style.setProperty('--dy', Math.sin(a) * d + 'px');
     document.body.appendChild(s); setTimeout(() => s.remove(), 900);
   }
+}
+// een sterretje vliegt van het ene element naar het andere
+function flyTo(from, to, sym = '⭐') {
+  if (!D.settings.anim || !from || !to) return;
+  const a = from.getBoundingClientRect(), b = to.getBoundingClientRect(), s = document.createElement('span');
+  s.className = 'flystar'; s.textContent = sym;
+  s.style.left = a.left + a.width / 2 + 'px'; s.style.top = a.top + a.height / 3 + 'px';
+  s.style.setProperty('--dx', (b.left + b.width / 2) - (a.left + a.width / 2) + 'px');
+  s.style.setProperty('--dy', (b.top + b.height / 2) - (a.top + a.height / 3) + 'px');
+  document.body.appendChild(s); setTimeout(() => s.remove(), 800);
+  setTimeout(() => { to.classList.remove('bump'); void to.offsetWidth; to.classList.add('bump'); }, 700);
+}
+// getallen tellen op (uitslag)
+function countUp(el, to, ms = 700) {
+  if (!el) return;
+  const t0 = performance.now(), pre = el.dataset.pre || '';
+  if (!D.settings.anim || to <= 0) { el.textContent = pre + to; return; }
+  (function f(now) { const p = Math.min(1, (now - t0) / ms); el.textContent = pre + Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(f); })(t0);
 }
 function toast(html, ms = 2600) {
   const t = $('#toast'); t.innerHTML = html; t.classList.add('show');
@@ -124,10 +191,15 @@ function shake(el) { if (!el) return; el.classList.remove('shake'); void el.offs
 
 /* ---------- navigatie (ook de terugknop van Android) ---------- */
 let current = 'map';
-const PARENT = { class: 'map', setup: 'class', results: 'class', wardrobe: 'map', pets: 'map', games: 'map', game: 'games', progress: 'map', jokes: 'map', garden: 'map', party: 'map' };
+const PARENT = { class: 'map', setup: 'class', results: 'class', wardrobe: 'map', pets: 'map', games: 'map', game: 'games', progress: 'map', jokes: 'map', garden: 'map', party: 'map', parents: 'map' };
+let navBack = false;   // terug-knop: scherm schuift van links in plaats van rechts
 function show(id) {
-  $$('.screen').forEach(s => s.classList.toggle('active', s.id === id));
-  current = id; window.scrollTo(0, 0);
+  const prev = current;
+  $$('.screen').forEach(s => {
+    const on = s.id === id; s.classList.toggle('active', on);
+    if (on && prev !== id && D.settings.anim) { s.classList.remove('in-fwd', 'in-back'); void s.offsetWidth; s.classList.add(navBack ? 'in-back' : 'in-fwd'); }
+  });
+  navBack = false; current = id; window.scrollTo(0, 0);
 }
 history.replaceState({ app: 1 }, ''); history.pushState({ app: 2 }, '');
 window.addEventListener('popstate', () => {
@@ -140,6 +212,8 @@ function goBack() {
   if (current === 'lesson') return lessonBack();
   if (current === 'game') return stopGame();
   if (current === 'intro' || current === 'map') return;
+  navBack = true;
+  if (current === 'results' && S.potion) return openMap();
   const p = PARENT[current] || 'map';
   if (p === 'class' && L.subject) return openClass(L.subject);
   if (p === 'games') return openGames();
@@ -187,6 +261,7 @@ function openMap() {
     <div class="hero"><div class="hero-me">${avatarSVG(look())}${look().pet !== 'geen' ? petSVG(look().pet, 'hero-pet') : ''}</div>
       <div class="hero-txt"><div class="hello">${t('hi')} <b>${esc(playerName())}</b>!</div><div class="sub">${t('student')}</div>
       <button class="pipbox" id="pipjoke" aria-label="Pip">${pipSVG('blij')}<span class="bubble" id="pipsay">${pipLine}</span></button></div></div>
+    ${potionCard()}
     <h2 class="sect">${t('chooseWhere')}</h2>
     <div class="map">${PLACES.map(p => {
       const s = p.subject ? SUBJECT[p.subject] : null, open = placeOpen(p);
@@ -200,11 +275,13 @@ function openMap() {
     if (!placeOpen(p)) { shake(b); toast(t('lockedToast', { n: p.need })); return; }
     SND.click(); p.subject ? openClass(p.subject) : p.open();
   });
+  $('#potgo').onclick = () => { SND.click(); startPotion(); };
   let jk = -1;
   $('#pipjoke').onclick = () => {
     SND.pop(); const pool = JOKES; jk = (jk + 1 + rnd(0, pool.length - 2)) % pool.length; const j = pool[jk];
     $('#pipsay').innerHTML = `<b>${j[0]}</b><br><span class="punch">${j[1]}</span>`;
     const svg = $('#pipjoke .pip'); svg.outerHTML = pipSVG('lach');
+    sparkleBurst($('#pipjoke .pip'), 8);   // Pip niest glitter
   };
   show('map');
 }
@@ -278,7 +355,7 @@ const isMix = k => /\/mix$/.test(k);
 const topicName = k => isMix(k) ? t('mix') : tTopic(TOPIC[k]);
 function highKey() { return `${S.topicKey}|${S.mode}|${S.diff}|${S.mode === 'timed' ? S.duration : S.count}`; }
 function openSetup(key) {
-  S.topicKey = key; S.subject = key.split('/')[0]; L.subject = S.subject;
+  S.topicKey = key; S.subject = key.split('/')[0]; L.subject = S.subject; S.potion = false; S.queue = null;
   Object.assign(S, { mode: D.lastSetup.mode, diff: D.lastSetup.diff, count: D.lastSetup.count, duration: D.lastSetup.duration });
   renderSetup(); show('setup');
 }
@@ -312,12 +389,14 @@ function renderSetup() {
    QUIZ
    ===================================================================== */
 let timerId = null;
+const subjOf = () => S.potion ? POTION_SUBJ : SUBJECT[S.subject];
 function startQuiz() {
-  D.lastSetup = { mode: S.mode, diff: S.diff, count: S.count, duration: S.duration }; save();
+  if (!S.potion) D.lastSetup = { mode: S.mode, diff: S.diff, count: S.count, duration: S.duration };
+  save();
   Object.assign(S, { i: 0, score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, wrong: [], recentKeys: [], wrongByTopic: {}, suggested: {}, locked: false, pausedAt: 0 });
   if (!D.days.includes(today())) { D.days.push(today()); if (D.days.length > 400) D.days = D.days.slice(-400); save(); }
-  D.subjectsTried[S.subject] = 1;
-  const s = SUBJECT[S.subject], el = $('#quiz');
+  if (!S.potion) D.subjectsTried[S.subject] = 1;
+  const s = subjOf(), el = $('#quiz');
   el.style.setProperty('--sc', s.color); el.style.setProperty('--sl', s.light); el.style.setProperty('--sd', s.dark);
   el.innerHTML = `<div class="qtop"><button class="iconbtn" id="qstop" aria-label="Stoppen">✕</button>
       <div class="qprog"><div class="qbar"><i id="qbarfill"></i></div><div class="qinfo" id="qinfo"></div></div>
@@ -326,7 +405,7 @@ function startQuiz() {
       <div class="qcard card" id="qcard"><div class="qtopic" id="qtopic"></div><div class="qtext" id="qtext"></div><div class="qvis" id="qvis"></div>
         <div class="qhelp"><button class="btn small ghost" id="qhint">${t('how')}</button><button class="btn small ghost" id="qskip">${t('dunno')}</button></div>
         <div class="hintbox" id="hintbox"></div></div>
-      <div class="qside"><div class="qme" id="qme">${avatarSVG(look(), 'blij', 'small')}</div>${look().pet !== 'geen' ? petSVG(look().pet, 'qpet') : ''}</div>
+      <div class="qside"><div class="qme" id="qme">${avatarSVG(look(), 'blij', 'small')}</div>${look().pet !== 'geen' ? petSVG(look().pet, 'qpet') : ''}${S.potion ? `<div class="potbottle" id="potb">${potionSVG(0, nextPotion()[1])}</div>` : ''}</div>
     </div>
     <div class="qinput" id="qinput"></div>
     <div class="fb" id="fb"></div>
@@ -341,6 +420,10 @@ function pickTopic() {
   return kies(SUBJECT[S.subject].topics);
 }
 function makeQuestion() {
+  if (S.queue) {   // Toverdrank: vaste lijst van onderwerpen (en woordjes om te herhalen)
+    const e = S.queue[S.i] || S.queue[S.queue.length - 1], tp = TOPIC[e.topic];
+    S.diff = e.diff; const q = tp.gen(e.diff, e.item); q.topic = tp; return q;
+  }
   let q, t, k, tries = 0;
   do { t = pickTopic(); q = t.gen(S.diff); k = q.key || strip(q.text) + strip(q.visual || '').slice(0, 60); tries++; }
   while (S.recentKeys.includes(k) && tries < 12);
@@ -364,6 +447,7 @@ function renderQuestion() {
   $('#hintbox').classList.remove('show'); $('#hintbox').innerHTML = '';
   $('#qhint').classList.toggle('hidden', S.mode === 'timed' || !q.hint);
   $('#qme').innerHTML = avatarSVG(look(), 'blij', 'small');
+  S.qStart = Date.now();
   renderInput(); updateBar();
   $('#qcard').classList.remove('pop'); void $('#qcard').offsetWidth; $('#qcard').classList.add('pop');
 }
@@ -532,7 +616,11 @@ function record(q, ok, g) {
   } else {
     S.streak = 0; S.wrong.push({ q, g });
     S.wrongByTopic[q.topic.key] = (S.wrongByTopic[q.topic.key] || 0) + 1;
+    D.recentWrong = [{ k: q.topic.key, q: strip(q.text).slice(0, 90), a: strip(answerText(q)).slice(0, 40), d: today() }, ...(D.recentWrong || [])].slice(0, 12);
   }
+  logDay(Math.min(90, Math.round((Date.now() - (S.qStart || Date.now())) / 1000)), ok);
+  srRecord(q, ok);
+  if (S.potion && $('#potb')) $('#potb').innerHTML = potionSVG(S.correct / S.count, nextPotion()[1]);
   save();
 }
 function feedback(ok, g, choiceIdx) {
@@ -546,7 +634,8 @@ function feedback(ok, g, choiceIdx) {
     const sb = $('#spellbanner');
     const sm = STREAK_MSG[S.streak];
     sb.innerHTML = `<div class="spellname">✨ ${kies(SPELLS)}</div><div class="praise">${kies(tList(PRAISE, PRAISE_I18N))}${S.hintUsed ? ` <small>${t('withHelp')}</small>` : ''}</div>${sm ? `<div class="streakmsg">${sm}</div>` : ''}`;
-    sb.classList.add('show'); sparkleBurst($('#qme'), sm ? 20 : 12);
+    sb.classList.add('show'); sparkleBurst($('#qme'), sm ? 20 : 12, WAND_SPARKS[look().wand]);
+    flyTo($('#qme'), $('#qpts').parentNode, '✨');
     const pet = $('.qpet'); if (pet) { pet.classList.remove('hop'); void pet.offsetWidth; pet.classList.add('hop'); }
     const go = () => { sb.classList.remove('show'); sb.onclick = null; clearTimeout(S.autoT); next(); };
     sb.onclick = go;
@@ -583,7 +672,7 @@ function returnToQuiz() { show('quiz'); resume(); }
 function askStop() {
   pause();
   modal(`<div class="m-ico">${pipSVG('oeps')}</div><h2>${t('stopQ')}</h2><p>${t('stopSub')}</p>`,
-    [{ label: t('goOn'), cls: 'primary', fn: resume }, { label: t('stop'), cls: 'ghost', fn: () => { stopTimer(); clearTimeout(S.autoT); S.answered ? finish(true) : openClass(S.subject); } }]);
+    [{ label: t('goOn'), cls: 'primary', fn: resume }, { label: t('stop'), cls: 'ghost', fn: () => { stopTimer(); clearTimeout(S.autoT); S.answered ? finish(true) : S.potion ? openMap() : openClass(S.subject); } }]);
 }
 
 /* ---------- uitslag ---------- */
@@ -603,17 +692,19 @@ function finish(stopped = false) {
   D.counters.quizzes++;
   if (S.mode === 'timed') D.counters.timed++;
   if (S.mode === 'practice' && S.count >= 10 && S.correct === S.count) D.counters.perfect++;
-  if (S.diff === 'hard' && stars === 3) D.counters.hard3++;
-  if (!isMix(S.topicKey)) { const ts = topicStats(S.topicKey); ts.quizzes++; ts.best = Math.max(ts.best || 0, stars); }
+  if (S.diff === 'hard' && stars === 3 && !S.potion) D.counters.hard3++;
+  if (!isMix(S.topicKey) && !S.potion) { const ts = topicStats(S.topicKey); ts.quizzes++; ts.best = Math.max(ts.best || 0, stars); }
+  let potion = null;
+  if (S.potion && !stopped) { potion = potionComplete(); if (potion.bonus) earned += potion.bonus; }
   let newJoke = null;
   if (stars >= 2 && D.jokes.length < JOKES.length) { const free = JOKES.map((_, i) => i).filter(i => !D.jokes.includes(i)); const j = kies(free); D.jokes.push(j); newJoke = JOKES[j]; }
   save(); addStars(earned);
   const newBadges = checkBadges(true);
-  renderResults({ stars, earned, isRecord, prev, newJoke, newBadges, stopped });
+  renderResults({ stars, earned, isRecord, prev, newJoke, newBadges, stopped, potion });
   setTimeout(() => checkUnlocks(), 900);
 }
 function renderResults(r) {
-  const s = SUBJECT[S.subject], el = $('#results'), acc = S.answered ? Math.round(S.correct / S.answered * 100) : 0;
+  const s = subjOf(), el = $('#results'), acc = S.answered ? Math.round(S.correct / S.answered * 100) : 0, P = r.potion;
   const title = t('r' + r.stars);
   const pipsay = t(r.stars === 3 ? 'pip3' : r.stars >= 1 ? 'pip1' : 'pip0');
   const weakTopic = Object.entries(S.wrongByTopic).sort((a, b) => b[1] - a[1])[0];
@@ -623,8 +714,10 @@ function renderResults(r) {
       <div class="res-art">${avatarSVG(look(), r.stars >= 2 ? 'lach' : 'blij')}${look().pet !== 'geen' ? petSVG(look().pet, 'res-pet') : ''}</div>
       <h2>${title}</h2>
       <div class="bigstars">${[1, 2, 3].map(i => `<span class="${i <= r.stars ? 'on' : ''}" style="--d:${i * 220}ms">${STARICO(i <= r.stars)}</span>`).join('')}</div>
-      <div class="res-grid"><div><b>${S.correct}</b><span>${t('ofRight', { n: S.answered })}</span></div><div><b>${S.score}</b><span>${t('points')}</span></div><div><b>${S.bestStreak}</b><span>${t('bestStreak')}</span></div><div class="gold"><b>+${r.earned}</b><span>${t('magicStars')}</span></div></div>
-      ${r.isRecord ? `<div class="banner">${t('newRecord')} ${r.prev ? `(${t('was')} ${r.prev})` : ''}</div>` : ''}
+      <div class="res-grid"><div><b data-n="${S.correct}">${S.correct}</b><span>${t('ofRight', { n: S.answered })}</span></div><div><b data-n="${S.score}">${S.score}</b><span>${t('points')}</span></div><div><b data-n="${S.bestStreak}">${S.bestStreak}</b><span>${t('bestStreak')}</span></div><div class="gold"><b data-n="${r.earned}" data-pre="+">+${r.earned}</b><span>${t('magicStars')}</span></div></div>
+      ${P && !P.again ? `<div class="potdone">${potionSVG(1, POTIONS[P.potion][1], 'big')}<div><b>${t('potReady', { p: potionName(P.potion) })}</b><br>🔥 ${streakTxt(P.streak)}${P.warm ? `<br><small>${t('potWarm')}</small>` : ''}</div></div>` : ''}
+      ${P && P.again ? `<div class="potdone"><div>${t('potExtra')}</div></div>` : ''}
+      ${r.isRecord && !S.potion ? `<div class="banner">${t('newRecord')} ${r.prev ? `(${t('was')} ${r.prev})` : ''}</div>` : ''}
       <div class="pipline">${pipSVG(r.stars >= 2 ? 'lach' : 'blij', 'tiny')}<span>${pipsay}</span></div>
       ${r.newJoke ? `<div class="newjoke"><b>${t('newJoke')}</b><br>${r.newJoke[0]}<br><i>${r.newJoke[1]}</i></div>` : ''}
       ${r.newBadges.length ? `<div class="newbadges">${r.newBadges.map(b => `<div class="badge on"><span>${b[1]}</span><b>${b[2]}</b><small>${b[3]}</small></div>`).join('')}</div>` : ''}
@@ -632,12 +725,13 @@ function renderResults(r) {
     </div>
     ${S.wrong.length ? `<h3 class="sect">${t('trickyOnes')}</h3><div class="review">${S.wrong.map(({ q, g }) => `<details class="rv card"><summary><span class="rv-q">${q.topic.ico} ${q.text}</span><span class="rv-a">${g.skip ? '' : `<span class="rv-you">✗ ${t('youSaid')}: ${givenText(q, g)}</span>`}<span class="rv-ok">✓ ${t('goodAns')}: ${answerText(q)}</span></span></summary>
       ${q.visual && !q.long ? `<div class="rv-vis">${q.visual}</div>` : ''}<div class="rv-exp">${q.explain || ''}</div></details>`).join('')}</div>` : (S.answered ? `<div class="allgood card">${t('allRight')}</div>` : '')}
-    <div class="res-btns"><button class="btn primary" id="again">${t('again')}</button><button class="btn ghost" id="toclass">${t('place_' + S.subject)}</button><button class="btn ghost" data-act="map">${t('schoolMap')}</button></div></div>`;
+    <div class="res-btns">${S.potion ? `<button class="btn primary" data-act="map">${t('schoolMap')}</button>` : `<button class="btn primary" id="again">${t('again')}</button><button class="btn ghost" id="toclass">${t('place_' + S.subject)}</button><button class="btn ghost" data-act="map">${t('schoolMap')}</button>`}</div></div>`;
   bindCommon(el);
-  $('#again').onclick = () => openSetup(S.topicKey);
-  $('#toclass').onclick = () => openClass(S.subject);
+  if ($('#again')) $('#again').onclick = () => openSetup(S.topicKey);
+  if ($('#toclass')) $('#toclass').onclick = () => openClass(S.subject);
   if ($('#reslesson')) $('#reslesson').onclick = () => openLesson(weakTopic[0], 0, 'class');
   show('results');
+  $$('.res-grid b[data-n]', el).forEach((b, i) => setTimeout(() => countUp(b, +b.dataset.n), 150 + i * 120));
   if (r.stars >= 2) { setTimeout(() => { confetti(r.stars === 3 ? 180 : 90); SND.fanfare(); }, 300); }
 }
 
@@ -686,6 +780,6 @@ function checkUnlocks(silent) {
   if (silent) return;
   const p = fresh[fresh.length - 1], g = GIFTS[p.id];
   SND.fanfare(); confetti(120);
-  modal(`<div class="m-art">${placeArt(p.id)}</div><h2>${t('newPlace')}</h2><p>${t('placeOpenNow', { p: p.name })} ${p.sub}.${g ? `<br>${t('giftReady', { g: g[2] })}` : ''}</p>`,
+  modal(`<div class="m-art unlock">${placeArt(p.id)}</div><h2>${t('newPlace')}</h2><p>${t('placeOpenNow', { p: p.name })} ${p.sub}.${g ? `<br>${t('giftReady', { g: g[2] })}` : ''}</p>`,
     [{ label: t('goLook'), cls: 'primary', fn: () => p.open() }, { label: t('later'), cls: 'ghost' }]);
 }

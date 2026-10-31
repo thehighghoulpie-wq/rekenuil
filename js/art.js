@@ -11,14 +11,24 @@ function shade(hex, amt) {
 }
 
 /* ---------- keuzes voor het personage ---------- */
-const SKINS = ['#FFE3CF', '#F6CDA8', '#E2A97E', '#C68A5E', '#9C6644', '#74462C', '#5A3420'];
+const SKINS = ['#FFE3CF', '#F6CDA8', '#E2A97E', '#C68A5E', '#9C6644', '#74462C', '#5A3420', '#FFF0E6', '#D9A877', '#3F2417'];
+const SKIN_ORDER = [7, 0, 1, 2, 8, 3, 4, 5, 6, 9];   // van licht naar donker (nieuwe kleuren staan achteraan in SKINS)
 const HAIRCOLORS = ['#2B1D1A', '#5A3825', '#9A5B2E', '#E8B455', '#E9604F', '#F48FC0', '#7E8CF4', '#58C9B9', '#B18CF0', '#F2F2F7'];
 const EYECOLORS = ['#5B3A29', '#2F6FD6', '#2E9E6A', '#8B5CF6', '#E0567A', '#D4952B'];
 const HAIRSTYLES = [
   { id: 'staarten', name: 'Twee staarten' }, { id: 'lang', name: 'Lang' }, { id: 'puffs', name: 'Puffs' },
   { id: 'vlechten', name: 'Vlechten' }, { id: 'knot', name: 'Knotje' }, { id: 'krullen', name: 'Krullen' },
-  { id: 'kort', name: 'Bobje' }, { id: 'stekel', name: 'Kort & stoer' }
+  { id: 'kort', name: 'Bobje' }, { id: 'stekel', name: 'Kort & stoer' },
+  { id: 'afro', name: 'Afro' }, { id: 'afropuf', name: 'Hoge puf' }, { id: 'cornrows', name: 'Cornrows' }, { id: 'boxbraids', name: 'Box braids' },
+  { id: 'locs', name: 'Locs' }, { id: 'zijstaart', name: 'Zijstaart' }, { id: 'spacebuns', name: 'Space buns' }, { id: 'pixie', name: 'Pixie' }
 ];
+const EYESHAPES = ['rond', 'sprank', 'slaperig', 'kat'];
+const BROWS = ['zacht', 'recht', 'boog', 'dik'];
+const GLASSES = ['geen', 'rond', 'ster', 'hart'];
+const EARRINGS = ['geen', 'knopje', 'ring', 'ster'];
+const CLIPS = ['geen', 'strikjes', 'sterren', 'bloem', 'haarband', 'hoofddoek'];
+const ROBECOLS = ['#8B6CF0', '#4D6BDB', '#14A3C7', '#4FC8A4', '#FFB547', '#E85D5D', '#FF8FB8', '#2A2366'];
+const TEKENS = [['ster', '⭐'], ['maan', '🌙'], ['zee', '🌊'], ['zon', '☀️']];
 
 /* ---------- winkel: kleding, hoeden, toverstokken, huisdieren ---------- */
 const ITEMS = {
@@ -55,7 +65,7 @@ const ITEMS = {
     { id: 'geen', name: 'Nog geen huisdier', price: 0 },
     { id: 'kat', name: 'Sterrenkat Miepie', price: 40 },
     { id: 'flamingo', name: 'Flamingo Flip', price: 50 },
-    { id: 'leguaan', name: 'Leguaan Lolo', price: 50 },
+    { id: 'leguaan', name: 'Leguaan Luna', price: 50 },
     { id: 'uil', name: 'Uiltje Hoepla', price: 60 },
     { id: 'wolk', name: 'Wolkje Pluis', price: 70 },
     { id: 'schildpad', name: 'Schildpad Turbo', price: 80 },
@@ -65,19 +75,32 @@ const ITEMS = {
 };
 const ITEM = {}; for (const k in ITEMS) for (const it of ITEMS[k]) ITEM[k + ':' + it.id] = it;
 
-const DEFAULT_LOOK = { skin: 3, hair: 'staarten', hairColor: 0, eyes: 0, outfit: 'paars', hat: 'puntmuts', wand: 'ster', pet: 'geen' };
+const DEFAULT_LOOK = { skin: 3, hair: 'staarten', hairColor: 0, eyes: 0, outfit: 'paars', hat: 'puntmuts', wand: 'ster', pet: 'geen',
+  tips: -1, eyeShape: 'rond', lashes: false, brows: 'zacht', sproet: false, blush: 1, bril: 'geen', oorbel: 'geen', clip: 'geen', robeColor: 0, teken: 'ster' };
+// "Verras me!": een willekeurig maar mooi personage
+function randomLook(L) {
+  return Object.assign({}, L, { skin: rnd(0, SKINS.length - 1), hair: kies(HAIRSTYLES).id, hairColor: rnd(0, HAIRCOLORS.length - 1), eyes: rnd(0, EYECOLORS.length - 1),
+    tips: Math.random() < .25 ? rnd(0, HAIRCOLORS.length - 1) : -1, eyeShape: kies(EYESHAPES), lashes: Math.random() < .5, brows: kies(BROWS), sproet: Math.random() < .3,
+    blush: rnd(0, 2), bril: Math.random() < .25 ? kies(GLASSES.slice(1)) : 'geen', oorbel: kies(EARRINGS), clip: Math.random() < .5 ? kies(CLIPS.slice(1)) : 'geen',
+    robeColor: rnd(0, ROBECOLS.length - 1), teken: kies(TEKENS)[0] });
+}
 
 /* ---------- ogen en gezichtjes (gedeeld) ---------- */
-function animeEye(x, y, col, s = 1, mood = 'blij') {
+function animeEye(x, y, col, s = 1, mood = 'blij', o = {}) {
   if (mood === 'lach') return `<path d="M${x - 10 * s} ${y + 2 * s} Q${x} ${y - 10 * s} ${x + 10 * s} ${y + 2 * s}" stroke="#2B2140" stroke-width="${3.6 * s}" fill="none" stroke-linecap="round"/>`;
   if (mood === 'oeps') return `<path d="M${x - 8 * s} ${y - 7 * s} L${x + 6 * s} ${y} L${x - 8 * s} ${y + 7 * s}" stroke="#2B2140" stroke-width="${3.4 * s}" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="${x > 100 ? `rotate(180 ${x} ${y})` : ''}"/>`;
-  const big = mood === 'wow' ? 1.12 : 1;
-  return `<g><ellipse cx="${x}" cy="${y}" rx="${11 * s * big}" ry="${14 * s * big}" fill="#fff"/>
-    <ellipse cx="${x}" cy="${y + 1 * s}" rx="${9 * s * big}" ry="${12.5 * s * big}" fill="${col}"/>
-    <ellipse cx="${x}" cy="${y + 4 * s}" rx="${6 * s}" ry="${7 * s}" fill="${shade(col, -.45)}"/>
-    <ellipse cx="${x}" cy="${y + 8 * s}" rx="${6 * s}" ry="${3 * s}" fill="${shade(col, .35)}" opacity=".7"/>
-    <circle cx="${x + 3.5 * s}" cy="${y - 5 * s}" r="${3.8 * s}" fill="#fff"/><circle cx="${x - 3.5 * s}" cy="${y + 5 * s}" r="${1.8 * s}" fill="#fff"/>
-    <path d="M${x - 12 * s} ${y - 8 * s} Q${x} ${y - 20 * s} ${x + 12 * s} ${y - 8 * s}" stroke="#2B2140" stroke-width="${3.4 * s}" fill="none" stroke-linecap="round"/></g>`;
+  const big = mood === 'wow' ? 1.12 : 1, sh = o.shape || 'rond', k = sh === 'slaperig' ? .78 : 1, side = x > 100 ? 1 : -1;
+  const lid = sh === 'slaperig' ? `<path d="M${x - 12 * s} ${y - 5 * s} Q${x} ${y - 12 * s} ${x + 12 * s} ${y - 5 * s}" stroke="#2B2140" stroke-width="${4 * s}" fill="none" stroke-linecap="round"/>`
+    : `<path d="M${x - 12 * s} ${y - 8 * s} Q${x} ${y - 20 * s} ${x + 12 * s} ${y - 8 * s}" stroke="#2B2140" stroke-width="${3.4 * s}" fill="none" stroke-linecap="round"/>`;
+  const flick = sh === 'kat' ? `<path d="M${x + side * 10 * s} ${y - 10 * s} L${x + side * 17 * s} ${y - 15 * s}" stroke="#2B2140" stroke-width="${3 * s}" stroke-linecap="round"/>` : '';
+  const lash = o.lashes ? `<path d="M${x + side * 9 * s} ${y - 13 * s} l${side * 5 * s} ${-5 * s} M${x + side * 4 * s} ${y - 16 * s} l${side * 3 * s} ${-6 * s}" stroke="#2B2140" stroke-width="${2.2 * s}" stroke-linecap="round"/>` : '';
+  const extra = sh === 'sprank' ? `<path d="M${x - 4 * s} ${y + 1 * s} l${1.2 * s} ${2.8 * s} l${2.8 * s} ${1.2 * s} l${-2.8 * s} ${1.2 * s} l${-1.2 * s} ${2.8 * s} l${-1.2 * s} ${-2.8 * s} l${-2.8 * s} ${-1.2 * s} l${2.8 * s} ${-1.2 * s}Z" fill="#fff"/>` : '';
+  return `<g><ellipse cx="${x}" cy="${y}" rx="${11 * s * big}" ry="${14 * s * big * k}" fill="#fff"/>
+    <ellipse cx="${x}" cy="${y + 1 * s}" rx="${9 * s * big}" ry="${12.5 * s * big * k}" fill="${col}"/>
+    <ellipse cx="${x}" cy="${y + 4 * s}" rx="${6 * s}" ry="${7 * s * k}" fill="${shade(col, -.45)}"/>
+    <ellipse cx="${x}" cy="${y + 8 * s * k}" rx="${6 * s}" ry="${3 * s}" fill="${shade(col, .35)}" opacity=".7"/>
+    <circle cx="${x + 3.5 * s}" cy="${y - 5 * s * k}" r="${3.8 * s}" fill="#fff"/><circle cx="${x - 3.5 * s}" cy="${y + 5 * s * k}" r="${1.8 * s}" fill="#fff"/>${extra}
+    ${lid}${flick}${lash}</g>`;
 }
 function mouth(x, y, mood, s = 1) {
   if (mood === 'wow') return `<ellipse cx="${x}" cy="${y + 2 * s}" rx="${5 * s}" ry="${6 * s}" fill="#7A2E3A"/>`;
@@ -85,14 +108,15 @@ function mouth(x, y, mood, s = 1) {
   if (mood === 'lach') return `<path d="M${x - 9 * s} ${y} Q${x} ${y + 13 * s} ${x + 9 * s} ${y} Z" fill="#7A2E3A"/><path d="M${x - 5 * s} ${y + 6 * s} Q${x} ${y + 10 * s} ${x + 5 * s} ${y + 6 * s}" fill="#FF8FA3"/>`;
   return `<path d="M${x - 7 * s} ${y} Q${x} ${y + 8 * s} ${x + 7 * s} ${y}" stroke="#7A2E3A" stroke-width="${2.8 * s}" fill="none" stroke-linecap="round"/>`;
 }
-const blush = (x1, x2, y, s = 1) => `<ellipse cx="${x1}" cy="${y}" rx="${9 * s}" ry="${5 * s}" fill="#FF7FA8" opacity=".38"/><ellipse cx="${x2}" cy="${y}" rx="${9 * s}" ry="${5 * s}" fill="#FF7FA8" opacity=".38"/>`;
+const blush = (x1, x2, y, s = 1, op = .38) => op ? `<ellipse cx="${x1}" cy="${y}" rx="${9 * s}" ry="${5 * s}" fill="#FF7FA8" opacity="${op}"/><ellipse cx="${x2}" cy="${y}" rx="${9 * s}" ry="${5 * s}" fill="#FF7FA8" opacity="${op}"/>` : '';
 const sparkle = (x, y, r, col = '#FFE27A') => `<path d="M${x} ${y - r} Q${x + r * .18} ${y - r * .18} ${x + r} ${y} Q${x + r * .18} ${y + r * .18} ${x} ${y + r} Q${x - r * .18} ${y + r * .18} ${x - r} ${y} Q${x - r * .18} ${y - r * .18} ${x} ${y - r}Z" fill="${col}"/>`;
 const starPath = (cx, cy, R, r = R * .45) => { let d = ''; for (let i = 0; i < 10; i++) { const a = -Math.PI / 2 + i * Math.PI / 5, q = i % 2 ? r : R; d += (i ? 'L' : 'M') + (cx + q * Math.cos(a)).toFixed(1) + ' ' + (cy + q * Math.sin(a)).toFixed(1); } return d + 'Z'; };
 const heartPath = (x, y, s) => `M${x} ${y + 4 * s} C${x - 9 * s} ${y - 3 * s} ${x - 5 * s} ${y - 10 * s} ${x} ${y - 5 * s} C${x + 5 * s} ${y - 10 * s} ${x + 9 * s} ${y - 3 * s} ${x} ${y + 4 * s}Z`;
 
 /* ---------- haar ---------- */
+const hairTone = (H, a) => H.startsWith('url') ? H : shade(H, a);   // haarkleur mag ook een verloop zijn (gekleurde puntjes)
 function hairBack(style, H) {
-  const Hd = shade(H, -.18);
+  const Hd = hairTone(H, -.18);
   const shortBack = `<path d="M32 92 C30 40 66 20 100 20 C134 20 170 40 168 92 C170 122 166 142 156 152 L44 152 C34 142 30 122 32 92Z" fill="${Hd}"/>`;
   switch (style) {
     case 'lang': return `<path d="M32 90 C28 38 66 18 100 18 C134 18 172 38 168 90 C174 140 176 196 162 222 C140 232 60 232 38 222 C24 196 26 140 32 90Z" fill="${Hd}"/>`;
@@ -104,12 +128,24 @@ function hairBack(style, H) {
     case 'vlechten': return shortBack;
     case 'krullen': return [[40, 70, 30], [30, 112, 28], [40, 152, 26], [160, 70, 30], [170, 112, 28], [160, 152, 26], [64, 34, 30], [100, 24, 32], [136, 34, 30], [56, 176, 22], [144, 176, 22]].map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="${Hd}"/>`).join('');
     case 'kort': return shortBack;
-    case 'stekel': return `<path d="M36 92 C34 46 66 26 100 26 C134 26 166 46 164 92 C164 108 160 116 154 122 L46 122 C40 116 36 108 36 92Z" fill="${Hd}"/>`;
+    case 'stekel': case 'pixie': return `<path d="M36 92 C34 46 66 26 100 26 C134 26 166 46 164 92 C164 108 160 116 154 122 L46 122 C40 116 36 108 36 92Z" fill="${Hd}"/>`;
+    case 'afro': return `<circle cx="100" cy="84" r="84" fill="${Hd}"/>` + [[40, 50], [70, 22], [130, 22], [160, 50], [24, 100], [176, 100], [36, 146], [164, 146]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="14" fill="${H}" opacity=".35"/>`).join('');
+    case 'afropuf': return `<circle cx="100" cy="4" r="40" fill="${H}"/>` + [[78, -10], [100, -24], [122, -10], [86, 16], [114, 16]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="${Hd}" opacity=".35"/>`).join('') +
+      `<path d="M36 94 C34 50 64 30 100 30 C136 30 166 50 164 94 C164 112 160 124 154 130 L46 130 C40 124 36 112 36 94Z" fill="${Hd}"/>`;
+    case 'cornrows': return `<path d="M36 94 C34 50 64 30 100 30 C136 30 166 50 164 94 C164 112 160 124 154 130 L46 130 C40 124 36 112 36 94Z" fill="${Hd}"/>`;
+    case 'boxbraids': case 'locs': {
+      const w = style === 'locs' ? 11 : 7, end = style === 'locs' ? 206 : 226;
+      let b = `<path d="M34 92 C30 44 66 22 100 22 C134 22 170 44 166 92 L166 130 L34 130Z" fill="${Hd}"/>`;
+      for (let x = 30, i = 0; x <= 170; x += style === 'locs' ? 14 : 10, i++) if (x < 62 || x > 138) b += `<rect x="${x - w / 2}" y="80" width="${w}" height="${end - 80 - Math.abs(x - 100) * .2}" rx="${w / 2}" fill="${i % 2 ? H : Hd}"/>`;
+      return b;
+    }
+    case 'zijstaart': return shortBack + `<path d="M150 70 C196 84 198 160 176 214 C170 180 164 150 152 130Z" fill="${H}"/>`;
+    case 'spacebuns': return shortBack + `<circle cx="52" cy="30" r="25" fill="${H}"/><circle cx="148" cy="30" r="25" fill="${H}"/><path d="M38 24 Q52 12 66 24 M134 24 Q148 12 162 24" stroke="${Hd}" stroke-width="3" fill="none"/>`;
   }
   return shortBack;
 }
 function hairFront(style, H) {
-  const Hl = shade(H, .22);
+  const Hl = hairTone(H, .22);
   const bangs = `<path d="M36 98 C32 50 62 26 100 26 C138 26 168 50 164 98 C158 86 152 78 146 72 C142 84 134 88 128 90 C126 78 120 70 114 66 C108 80 98 86 86 88 C90 78 90 72 88 66 C80 76 70 82 58 84 C60 78 60 74 60 72 C50 80 42 88 36 98Z" fill="${H}"/>` +
     `<path d="M70 40 Q90 32 108 36" stroke="${Hl}" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>`;
   const locks = `<path d="M36 96 C34 124 38 146 46 160 C50 138 50 120 50 102Z" fill="${H}"/><path d="M164 96 C166 124 162 146 154 160 C150 138 150 120 150 102Z" fill="${H}"/>`;
@@ -120,7 +156,7 @@ function hairFront(style, H) {
       let s = bangs;
       for (const side of [-1, 1]) {
         const bx = 100 + side * 58;
-        for (let i = 0; i < 6; i++) s += `<ellipse cx="${bx - side * i * .8}" cy="${136 + i * 16}" rx="10" ry="11" fill="${i % 2 ? shade(H, -.08) : H}"/>`;
+        for (let i = 0; i < 6; i++) s += `<ellipse cx="${bx - side * i * .8}" cy="${136 + i * 16}" rx="10" ry="11" fill="${i % 2 ? hairTone(H, -.08) : H}"/>`;
         s += `<circle cx="${bx - side * 5}" cy="${232}" r="5" fill="#FFB547"/><path d="M${bx - side * 5} 236 l-6 10 M${bx - side * 5} 236 l6 10" stroke="${H}" stroke-width="5" stroke-linecap="round"/>`;
       }
       return s;
@@ -129,6 +165,21 @@ function hairFront(style, H) {
     case 'krullen': return bangs + [[44, 84], [58, 70], [142, 70], [156, 84]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="10" fill="${H}"/>`).join('');
     case 'lang': return bangs + locks;
     case 'stekel': return `<path d="M36 96 C30 52 60 24 100 24 C140 24 170 52 164 96 L156 80 L150 92 L142 70 L132 86 L122 64 L110 82 L100 60 L90 82 L78 64 L68 86 L58 70 L50 92 L44 80Z" fill="${H}"/>`;
+    case 'afro': return `<path d="M34 96 C28 44 62 22 100 22 C138 22 172 44 166 96 C160 84 156 80 150 78 C146 70 136 66 128 70 C120 62 110 62 100 66 C90 62 80 62 72 70 C64 66 54 70 50 78 C44 80 40 84 34 96Z" fill="${H}"/>`;
+    case 'afropuf': case 'cornrows': {
+      let f = `<path d="M36 94 C34 50 64 30 100 30 C136 30 166 50 164 94 C152 72 130 62 100 62 C70 62 48 72 36 94Z" fill="${H}"/>`;
+      if (style === 'cornrows') for (const x of [60, 80, 100, 120, 140]) f += `<path d="M${x} 66 Q${100 + (x - 100) * .55} 44 ${100 + (x - 100) * .35} 28" stroke="${hairTone(H, -.25)}" stroke-width="3" fill="none" stroke-dasharray="5 3"/>`;
+      return f + `<path d="M70 44 Q90 38 108 41" stroke="${Hl}" stroke-width="5" fill="none" stroke-linecap="round" opacity=".6"/>`;
+    }
+    case 'boxbraids': case 'locs': {
+      const w = style === 'locs' ? 11 : 7;
+      let f = `<path d="M36 96 C32 50 62 26 100 26 C138 26 168 50 164 96 C156 76 136 62 104 60 L100 40 L96 60 C64 62 44 76 36 96Z" fill="${H}"/>`;
+      [42, 52, 148, 158].forEach((x, i) => { f += `<rect x="${x - w / 2}" y="84" width="${w}" height="${style === 'locs' ? 96 : 110}" rx="${w / 2}" fill="${i % 2 ? hairTone(H, -.1) : H}"/>`; });
+      return f;
+    }
+    case 'zijstaart': return bangs + `<circle cx="156" cy="74" r="8" fill="#FF6FA8"/>`;
+    case 'spacebuns': return bangs + locks;
+    case 'pixie': return `<path d="M36 100 C30 52 62 24 102 24 C140 24 170 50 164 98 C160 84 152 74 140 68 C120 76 90 80 54 74 C46 80 40 90 36 100Z" fill="${H}"/><path d="M76 40 Q100 30 124 38" stroke="${Hl}" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>`;
   }
   return bangs + locks;
 }
@@ -164,11 +215,15 @@ function wandTip(id, x, y) {
 }
 
 /* ---------- mantel ---------- */
-function robeSVG(o) {
-  const it = ITEM['outfit:' + o] || ITEMS.outfit[0];
-  const c = it.c, t = it.t;
+// de leerlingenmantel krijgt de kleur en het teken dat je zelf kiest
+const robeCol = L => L.outfit === 'paars' ? ROBECOLS[L.robeColor || 0] : (ITEM['outfit:' + L.outfit] || ITEMS.outfit[0]).c;
+function robeSVG(L) {
+  const it = ITEM['outfit:' + L.outfit] || ITEMS.outfit[0];
+  const c = robeCol(L), t = it.t;
   let emb = '';
-  switch (it.e) {
+  const e = L.outfit === 'paars' ? ({ ster: 'ster', maan: 'maan', zon: 'zon', zee: 'golf' })[L.teken] || 'ster' : it.e;
+  switch (e) {
+    case 'golf': emb = `<path d="M86 194 q4 -6 8 0 t8 0 t8 0 M86 201 q4 -6 8 0 t8 0 t8 0" stroke="${t}" stroke-width="3" fill="none" stroke-linecap="round"/>`; break;
     case 'ster': emb = `<path d="${starPath(100, 192, 9)}" fill="${t}"/>`; break;
     case 'hart': emb = `<path d="${heartPath(100, 192, 1.4)}" fill="${t}"/>`; break;
     case 'maan': emb = `<path d="M104 182 A10 10 0 1 0 104 202 A7.5 7.5 0 1 1 104 182Z" fill="${t}"/>`; break;
@@ -183,37 +238,75 @@ function robeSVG(o) {
     <path d="M86 152 L100 170 L114 152Z" fill="${t}"/>${emb}`;
 }
 
+/* ---------- wenkbrauwen, bril, oorbellen, haarspeldjes ---------- */
+function browSVG(id, c) {
+  const one = x => {
+    if (id === 'recht') return `<path d="M${x - 10} 84 L${x + 10} 83" stroke="${c}" stroke-width="3.4" stroke-linecap="round"/>`;
+    if (id === 'boog') return `<path d="M${x - 11} 86 Q${x} 74 ${x + 11} 84" stroke="${c}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+    return `<path d="M${x - 10} 86 Q${x} 79 ${x + 10} 85" stroke="${c}" stroke-width="${id === 'dik' ? 5.5 : 3}" fill="none" stroke-linecap="round"/>`;
+  };
+  return `<g opacity=".92">${one(76)}${one(124)}</g>`;
+}
+function glassesSVG(id) {
+  if (!id || id === 'geen') return '';
+  const fr = '#3A2E5C', bridge = `<path d="M92 104 Q100 98 108 104" stroke="${fr}" stroke-width="3" fill="none"/>`;
+  if (id === 'ster') return `<g fill="#fff" fill-opacity=".25" stroke="#F2B53A" stroke-width="3.5"><path d="${starPath(76, 106, 20, 11)}"/><path d="${starPath(124, 106, 20, 11)}"/></g>${bridge}`;
+  if (id === 'hart') return `<g fill="#FF8FB8" fill-opacity=".25" stroke="#E85D9E" stroke-width="3.5"><path d="${heartPath(76, 108, 2.6)}"/><path d="${heartPath(124, 108, 2.6)}"/></g>${bridge}`;
+  return `<g fill="#fff" fill-opacity=".2" stroke="${fr}" stroke-width="3.5"><circle cx="76" cy="106" r="17"/><circle cx="124" cy="106" r="17"/></g>${bridge}`;
+}
+function earSVG(id) {
+  if (!id || id === 'geen') return '';
+  const one = x => id === 'ring' ? `<circle cx="${x}" cy="118" r="5" fill="none" stroke="#F2B53A" stroke-width="2.4"/>`
+    : id === 'ster' ? `<path d="${starPath(x, 118, 5.5)}" fill="#FFD36E"/>` : `<circle cx="${x}" cy="115" r="3.2" fill="#7FE3F0"/>`;
+  return one(34) + one(166);
+}
+function clipSVG(id) {
+  switch (id) {
+    case 'strikjes': return [54, 146].map(x => `<g transform="translate(${x} 62)"><path d="M0 0 L-11 -7 Q-13 0 -11 7Z M0 0 L11 -7 Q13 0 11 7Z" fill="#FF6FA8"/><circle r="3.5" fill="#FF8FB8"/></g>`).join('');
+    case 'sterren': return `<path d="${starPath(58, 64, 8)}" fill="#FFD36E"/><path d="${starPath(70, 52, 5)}" fill="#FFD36E"/>`;
+    case 'bloem': return `<g transform="translate(150 66)">${[0, 72, 144, 216, 288].map(a => `<ellipse rx="7" ry="11" cy="-8" fill="#FF4F6E" transform="rotate(${a})"/>`).join('')}<circle r="4" fill="#FFD36E"/></g>`;
+    case 'haarband': return `<path d="M38 74 Q100 22 162 74" stroke="#58C9B9" stroke-width="9" fill="none" stroke-linecap="round"/><circle cx="148" cy="58" r="6" fill="#FFD36E"/>`;
+    case 'hoofddoek': return `<path d="M34 86 C30 34 66 14 100 14 C134 14 170 34 166 86 C150 66 128 56 100 56 C72 56 50 66 34 86Z" fill="#E85D5D"/>
+      <path d="M50 64 Q100 30 150 64" stroke="#FFD36E" stroke-width="4" fill="none" stroke-dasharray="2 7" stroke-linecap="round"/>
+      <path d="M88 14 C76 -10 100 -14 100 6 C100 -14 124 -10 112 14Z" fill="#C94848"/>`;
+  }
+  return '';
+}
+
 /* ---------- het hele personage ---------- */
 // look: zie DEFAULT_LOOK; mood: blij | lach | wow | oeps
 let avatarN = 0;
 function avatarSVG(look = DEFAULT_LOOK, mood = 'blij', cls = '') {
   const gid = 'rb' + (++avatarN);
-  return avatarSVG0(look, mood, cls).replace('id="rb"', `id="${gid}"`).replace(/url\(#rb\)/g, `url(#${gid})`);
+  return avatarSVG0(look, mood, cls).replace(/id="(rb|tp)"/g, `id="$1${gid}"`).replace(/url\(#(rb|tp)\)/g, `url(#$1${gid})`);
 }
 function avatarSVG0(look, mood, cls) {
   const L = Object.assign({}, DEFAULT_LOOK, look);
   const skin = SKINS[L.skin] || SKINS[3], skinD = shade(skin, -.12);
-  const H = HAIRCOLORS[L.hairColor] || HAIRCOLORS[0], eye = EYECOLORS[L.eyes] || EYECOLORS[0];
+  const H = HAIRCOLORS[L.hairColor] || HAIRCOLORS[0], eye = EYECOLORS[L.eyes] || EYECOLORS[0], tip = L.tips >= 0 ? HAIRCOLORS[L.tips] : '';
   const wandHand = mood === 'oeps' ? '' : `<g class="wand"><line x1="146" y1="196" x2="172" y2="150" stroke="#7A4E2D" stroke-width="5" stroke-linecap="round"/>${wandTip(L.wand, 174, 146)}</g>`;
   return `<svg class="avatar ${cls}" viewBox="0 -34 200 284" role="img" aria-label="Jouw tovenaarsleerling">
-    <defs><linearGradient id="rb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7A9C"/><stop offset=".33" stop-color="#FFC75A"/><stop offset=".66" stop-color="#6FD3B0"/><stop offset="1" stop-color="#7E8CF4"/></linearGradient></defs>
+    <defs><linearGradient id="rb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7A9C"/><stop offset=".33" stop-color="#FFC75A"/><stop offset=".66" stop-color="#6FD3B0"/><stop offset="1" stop-color="#7E8CF4"/></linearGradient>
+      ${tip ? `<linearGradient id="tp" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="230"><stop offset="0" stop-color="${tip}" stop-opacity="0"/><stop offset="1" stop-color="${tip}"/></linearGradient>` : ''}</defs>
     <ellipse cx="100" cy="242" rx="56" ry="7" fill="#000" opacity=".1"/>
-    ${hairBack(L.hair, H)}
+    ${hairBack(L.hair, H)}${tip ? hairBack(L.hair, 'url(#tp)') : ''}
     <rect x="86" y="214" width="11" height="22" rx="5" fill="${skinD}"/><rect x="103" y="214" width="11" height="22" rx="5" fill="${skinD}"/>
     <ellipse cx="90" cy="238" rx="10" ry="6" fill="#5B47C9"/><ellipse cx="110" cy="238" rx="10" ry="6" fill="#5B47C9"/>
-    ${robeSVG(L.outfit)}
-    <ellipse cx="62" cy="186" rx="9" ry="20" fill="${(ITEM['outfit:' + L.outfit] || ITEMS.outfit[0]).c}" transform="rotate(18 62 186)"/>
+    ${robeSVG(L)}
+    <ellipse cx="62" cy="186" rx="9" ry="20" fill="${robeCol(L)}" transform="rotate(18 62 186)"/>
     <circle cx="56" cy="204" r="8" fill="${skin}"/>
-    <ellipse cx="140" cy="180" rx="9" ry="19" fill="${(ITEM['outfit:' + L.outfit] || ITEMS.outfit[0]).c}" transform="rotate(-30 140 180)"/>
+    <ellipse cx="140" cy="180" rx="9" ry="19" fill="${robeCol(L)}" transform="rotate(-30 140 180)"/>
     ${wandHand}<circle cx="146" cy="196" r="8" fill="${skin}"/>
     <rect x="92" y="140" width="16" height="16" rx="6" fill="${skinD}"/>
-    <circle cx="36" cy="104" r="10" fill="${skin}"/><circle cx="164" cy="104" r="10" fill="${skin}"/>
+    <circle cx="36" cy="104" r="10" fill="${skin}"/><circle cx="164" cy="104" r="10" fill="${skin}"/>${earSVG(L.oorbel)}
     <ellipse cx="100" cy="94" rx="64" ry="60" fill="${skin}"/>
-    ${blush(64, 136, 122)}
-    ${animeEye(76, 106, eye, 1, mood)}${animeEye(124, 106, eye, 1, mood)}
+    ${blush(64, 136, 122, 1, [0, .38, .62][L.blush == null ? 1 : L.blush])}
+    ${L.sproet ? [[58, 116], [66, 120], [62, 124], [134, 116], [142, 120], [138, 124]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="${shade(skin, -.35)}"/>`).join('') : ''}
+    <g class="eyes">${animeEye(76, 106, eye, 1, mood, { shape: L.eyeShape, lashes: L.lashes })}${animeEye(124, 106, eye, 1, mood, { shape: L.eyeShape, lashes: L.lashes })}</g>
     ${mouth(100, 126, mood)}
     ${mood === 'oeps' ? `<path d="M156 66 q6 10 0 14 q-6 -4 0 -14Z" fill="#7FD3F7"/>` : ''}
     ${hairFront(L.hair, H)}
+    ${browSVG(L.brows, shade(H, -.2))}${glassesSVG(L.bril)}${clipSVG(L.clip)}
     ${hatSVG(L.hat)}
   </svg>`;
 }
