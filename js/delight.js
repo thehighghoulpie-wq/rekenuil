@@ -55,6 +55,7 @@ function delightWrong() { buzz([8, 40, 8]); barMilestone(); }
 const COACH_LINES = [['Jij kan dit!', 'Bo por!', 'You can do this!'], ['Rustig lezen, dan pas rekenen.', 'Lesa trankil, despues kalkulá.', 'Read calmly, then work it out.'],
   ['Moeilijk is goed: zo groeit je brein.', 'Difísil ta bon: asina bo sesu ta krese.', 'Hard is good: that is how your brain grows.'], ['Een fout mag. Proberen is toveren!', 'Un eror por. Purba ta hasi magia!', 'Mistakes are fine. Trying is magic!']];
 function quizLabel(q) {
+  stopSpeech();
   if (S.i === 1) S.lastQ4 = 0;
   if (window.scrollY > 0) window.scrollTo(0, 0);   // na de uitleg van een fout weer bovenaan beginnen
   const txt = strip(q.text).slice(0, 90), qe = S.queue && S.queue[S.i - 1];
@@ -67,7 +68,7 @@ function quizLabel(q) {
   const top = $('#qtopic');
   if (lab) top.insertAdjacentHTML('beforeend', ` <span class="qlabel ql-${lab}">${names[lab]}</span>`);
   if (S.challenge) top.insertAdjacentHTML('beforeend', `<div class="coach">${teacherSVG('uil', 'tiny')}<span>${tri(kies(COACH_LINES))}</span></div>`);
-  if (q.long && window.speechSynthesis && !$('#qread')) {
+  if (q.long && canRead() && !$('#qread')) {
     $('.qhelp').insertAdjacentHTML('afterbegin', `<button class="btn small ghost" id="qread">🔊 ${t('readAloud')}</button>`);
     $('#qread').onclick = () => speakNL(strip(q.text));
   } else if (!q.long && $('#qread')) $('#qread').remove();
@@ -118,20 +119,33 @@ updateStarCount = function () {
 };
 
 /* ---------- voorlezen (spraak van de tablet zelf) ---------- */
+/* Voorlezen gebruikt alleen stemmen die op het apparaat zelf draaien (localService).
+   Online stemmen (zoals "Google Nederlands" in Chrome op de pc) sturen de tekst naar Google of Microsoft:
+   dat mag niet (regel: data blijft op het apparaat). Is er geen lokale Nederlandse stem, dan zwijgt de app en legt het uit. */
+function pickNlVoice() {
+  const ss = window.speechSynthesis; if (!ss) return null;
+  const score = v => (/natural|neural|enhanced|premium|hq|wavenet/i.test(v.name) ? 4 : 0) + (/^nl[-_]NL$/i.test(v.lang) ? 2 : 0) + (v.default ? 1 : 0);
+  return ss.getVoices().filter(v => /^nl([-_]|$)/i.test(v.lang) && v.localService === true).sort((a, b) => score(b) - score(a))[0] || null;
+}
+// is voorlezen mogelijk? (de lijst met stemmen laadt soms pas later: dan laten we de knop staan)
+function canRead() { const ss = window.speechSynthesis; return !!ss && (ss.getVoices().length === 0 || !!pickNlVoice()); }
+function stopSpeech() { try { if (window.speechSynthesis) window.speechSynthesis.cancel(); } catch (e) { } $$('.talking').forEach(x => x.classList.remove('talking')); }
 function speakNL(txt, el) {
   try {
     const ss = window.speechSynthesis; if (!ss || !txt) return;
+    const v = pickNlVoice();
+    if (!v) { toast(t('noLocalVoice'), 4500); return; }
     ss.cancel();
-    const u = new SpeechSynthesisUtterance(txt); u.lang = 'nl-NL'; u.rate = .92;
-    const v = ss.getVoices().find(x => /^nl/i.test(x.lang)); if (v) u.voice = v;
+    const u = new SpeechSynthesisUtterance(txt); u.voice = v; u.lang = v.lang; u.rate = .9;
     if (el) { el.classList.add('talking'); u.onend = u.onerror = () => el.classList.remove('talking'); }
     ss.speak(u);
   } catch (e) { }
 }
 function lessonShown(el, st) {
+  stopSpeech();
   const tch = $('.l-head .teacher', el);
   if (tch) { tch.classList.add('talking'); setTimeout(() => tch.classList.remove('talking'), 1300); }
-  if (!window.speechSynthesis) return;
+  if (!canRead()) return;
   $('.l-head', el).insertAdjacentHTML('beforeend', `<button class="iconbtn readbtn" id="lread" aria-label="${t('readAloud')}">🔊</button>`);
   $('#lread').onclick = () => speakNL(`${st.t || ''}. ${strip(st.h || '')}`, tch);
 }
@@ -296,3 +310,6 @@ function savePortrait() {
   img.onerror = () => { URL.revokeObjectURL(url); toast(t('portraitFail')); };
   img.src = url;
 }
+
+// de lijst met stemmen laadt asynchroon: daarna opnieuw bepalen of de voorleesknop moet blijven
+if (window.speechSynthesis) window.speechSynthesis.addEventListener('voiceschanged', () => { if (!canRead()) $$('#lread, #qread').forEach(b => b.remove()); });
