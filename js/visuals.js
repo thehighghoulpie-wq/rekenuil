@@ -156,7 +156,8 @@ function gridShape(w, h, opts = {}) {
 /* ---------- grafieken & tabellen ---------- */
 const BARCOL = ['#8B6CF0', '#FF8FB8', '#4FC8BA', '#FFB547', '#6DB8F7', '#7ED37E'];
 function barChart(labels, values, opts = {}) {
-  const max = opts.max || Math.ceil(Math.max(...values) / (opts.step || 5)) * (opts.step || 5);
+  // nooit 0 als hoogste waarde (een lege week gaf anders kapotte staven)
+  const max = opts.max || Math.max(opts.step || 5, Math.ceil(Math.max(0, ...values) / (opts.step || 5)) * (opts.step || 5));
   const step = opts.step || 5, W = 480, H = 260, L = 46, B = 40, T = 16, bw = (W - L - 16) / labels.length;
   const Y = v => H - B - v / max * (H - B - T);
   let s = `<svg class="chart" viewBox="0 0 ${W} ${H}" role="img" aria-label="Staafgrafiek">`;

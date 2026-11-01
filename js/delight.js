@@ -56,6 +56,7 @@ const COACH_LINES = [['Jij kan dit!', 'Bo por!', 'You can do this!'], ['Rustig l
   ['Moeilijk is goed: zo groeit je brein.', 'Difísil ta bon: asina bo sesu ta krese.', 'Hard is good: that is how your brain grows.'], ['Een fout mag. Proberen is toveren!', 'Un eror por. Purba ta hasi magia!', 'Mistakes are fine. Trying is magic!']];
 function quizLabel(q) {
   if (S.i === 1) S.lastQ4 = 0;
+  if (window.scrollY > 0) window.scrollTo(0, 0);   // na de uitleg van een fout weer bovenaan beginnen
   const txt = strip(q.text).slice(0, 90), qe = S.queue && S.queue[S.i - 1];
   let lab = '';
   if ((qe && qe.item != null) || (D.recentWrong || []).some(w => w.q === txt)) lab = 'again';
