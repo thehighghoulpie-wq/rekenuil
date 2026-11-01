@@ -897,6 +897,7 @@ registerTopic('rekenen', { id: 'breuken', name: 'Breuken & kommagetallen', sub: 
   { t: 'Probeer zelf', h: 'Dezelfde twee stappen.', w: 'probeer', o: { q: 'Wat is 2/3 van <b>12</b>?', opts: ['8', '6', '4'], ok: 0, uitleg: '12 : 3 = 4 en 2 × 4 = <b>8</b>.', hint: 'Eerst 12 : 3. Dan keer 2.' } },
   { t: 'Even groot, andere naam', h: `${frac(1, 2)} = ${frac(2, 4)} = ${frac(4, 8)}<br>Doe je teller én noemer keer hetzelfde getal? Dan blijft de breuk even groot.`, v: fracBar(1, 2) + fracBar(2, 4) + fracBar(4, 8) },
   { t: 'Kommagetallen', h: `Na de komma komen de <b>tienden</b> en de <b>honderdsten</b>.<br>0,5 = ${frac(5, 10)} = ${frac(1, 2)}<br>0,25 = ${frac(25, 100)} = ${frac(1, 4)}<br>Bij geld ken je dit al: € 2,50 is twee en een halve euro!` },
+  { t: 'Het honderdveld', h: 'Honderd hokjes zijn samen <b>1 hele</b>. Tik op de hokjes. Eén hokje is <b>0,01</b>, een hele rij is <b>0,1</b>.', w: 'honderdveld' },
   { t: 'Keer 10 en gedeeld door 10', h: 'Bij <b>× 10</b> schuift de komma 1 plaats naar <b>rechts</b>: 3,5 × 10 = 35.<br>Bij <b>: 10</b> schuift de komma 1 plaats naar <b>links</b>: 42 : 10 = 4,2.' }
 ] });
 
@@ -914,6 +915,8 @@ registerTopic('rekenen', { id: 'meten', name: 'Meten', sub: 'lengte, gewicht, in
   { t: 'Lengte', h: '1 km = 1000 m<br>1 m = 100 cm<br>1 cm = 10 mm<br>Een grote stap is ongeveer 1 meter. Je pink is ongeveer 1 cm breed.' },
   { t: 'Gewicht', h: '1 kg = 1000 gram<br>1 ton = 1000 kg<br>Een pak suiker weegt 1 kg. Een appel ongeveer 150 gram.', v: ladderHTML('gewicht', 'kg', 'g') },
   { t: 'Inhoud', h: '1 liter = 10 dl = 100 cl = 1000 ml<br>1 dm³ = 1 liter en 1 cm³ = 1 ml<br>Een pak melk is 1 liter. Een glas is ongeveer 2 dl.', v: ladderHTML('inhoud', 'l', 'ml') },
+  { t: 'Meten met de liniaal', h: 'Leg het begin precies bij de <b>0</b>. Lees af waar het eind komt. Tussen twee cijfers zitten 10 millimeters.', w: 'liniaal' },
+  { t: 'Hoeken meten (voor groep 7)', h: 'Een hoek meet je in <b>graden</b> met een gradenboog. Een rechte hoek is <b>90°</b>, zoals de hoek van een boek.', w: 'gradenboog' },
   { t: 'Twee eenheden tegelijk', h: '2 m en 35 cm = ? cm<br>2 m = 200 cm. 200 + 35 = <b>235 cm</b>.' }
 ] });
 

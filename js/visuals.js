@@ -328,6 +328,75 @@ registerWidget('kaarten', (el, o = {}) => {
   el.innerHTML = `<div class="w-cards">${cards.map(([f, b, e]) => `<button class="fcard"><span class="fc-in"><span class="fc-f">${e ? `<span class="fc-e">${e}</span>` : ''}${f}</span><span class="fc-b">${b}</span></span></button>`).join('')}</div>
     <div class="w-small">Tik op een kaart om hem om te draaien.</div>`;
   $$('.fcard', el).forEach(c => c.onclick = () => c.classList.toggle('flip'));
+  // oefenstapel: één kaart tegelijk; "nog een keer" gaat achteraan de stapel
+  if (cards.length < 3) return;
+  el.insertAdjacentHTML('beforeend', `<div class="wrow">${btn('🃏 Oefen met de stapel', 'data-stack class="wbtn primary"')}</div>`);
+  $('[data-stack]', el).onclick = () => {
+    let pile = shuffle(cards.slice()), done = 0;
+    const draw = () => {
+      if (!pile.length) { el.innerHTML = `<div class="w-big">🎉 Alle ${cards.length} kaarten gekend!</div><div class="wrow">${btn('↺ Nog een keer', 'data-again class="wbtn"')}</div>`; if (typeof SND !== 'undefined') SND.fanfare(); $('[data-again]', el).onclick = () => WIDGETS.kaarten(el, o); return; }
+      const [f, b, e] = pile[0];
+      el.innerHTML = `<div class="w-stack"><div class="w-small">Nog ${pile.length} · gekend ${done}</div><button class="fcard big"><span class="fc-in"><span class="fc-f">${e ? `<span class="fc-e">${e}</span>` : ''}${f}</span><span class="fc-b">${b}</span></span></button>
+        <div class="wrow">${btn('↺ Nog een keer', 'data-no class="wbtn"')}${btn('✓ Ik wist het', 'data-yes class="wbtn primary"')}</div><div class="w-small">Tik op de kaart om hem om te draaien.</div></div>`;
+      $('.fcard', el).onclick = e2 => e2.currentTarget.classList.toggle('flip');
+      $('[data-yes]', el).onclick = () => { pile.shift(); done++; if (typeof okTone === 'function') okTone(Math.min(done, 8)); draw(); };
+      $('[data-no]', el).onclick = () => { pile.push(pile.shift()); draw(); };
+      if (typeof move === 'function') move($('.fcard', el), 'inUp');
+    };
+    draw();
+  };
+});
+
+// honderdveld: 100 hokjes = 1 hele. Tik op hokjes of op een hele rij.
+registerWidget('honderdveld', (el, o = {}) => {
+  let on = new Set();
+  const draw = () => {
+    const n = on.size;
+    let cells = ''; for (let i = 0; i < 100; i++) cells += `<span class="hv ${on.has(i) ? 'on' : ''}" data-i="${i}"></span>`;
+    el.innerHTML = `<div class="w-hv"><div class="hv-grid">${cells}</div>
+      <div class="w-big">${n} van de 100 = <b>${fmt(n / 100)}</b> = ${frac(n, 100)} = <b>${n}%</b></div>
+      <div class="wrow">${btn('+ 1 rij (0,1)', 'data-row')}${btn('↩︎ Leeg', 'data-clear')}</div>
+      <div class="w-small">1 hokje = 0,01 (een honderdste). Een hele rij = 0,1 (een tiende). Procent betekent: van de honderd.</div></div>`;
+    $$('.hv', el).forEach(c => c.onclick = () => { const i = +c.dataset.i; on.has(i) ? on.delete(i) : on.add(i); draw(); });
+    $('[data-row]', el).onclick = () => { for (let i = 0; i < 100 && on.size < 100; i++) if (!on.has(i)) { const r = Math.floor(i / 10) * 10; for (let k = r; k < r + 10; k++) on.add(k); break; } draw(); };
+    $('[data-clear]', el).onclick = () => { on = new Set(); draw(); };
+  };
+  draw();
+});
+
+// liniaal: hoe lang is het potlood? (in cm en mm)
+registerWidget('liniaal', (el, o = {}) => {
+  let mm = o.mm || 73;
+  const draw = () => {
+    const W = 300, px = W / 120;   // 12 cm liniaal
+    let ticks = ''; for (let i = 0; i <= 120; i++) { const h = i % 10 === 0 ? 16 : i % 5 === 0 ? 11 : 7; ticks += `<line x1="${10 + i * px}" y1="62" x2="${10 + i * px}" y2="${62 - h}" stroke="#2B2140" stroke-width="${i % 10 ? .6 : 1.2}"/>`; if (i % 10 === 0) ticks += `<text x="${10 + i * px}" y="78" font-size="9" text-anchor="middle" fill="#2B2140">${i / 10}</text>`; }
+    const len = mm * px;
+    el.innerHTML = `<div class="w-lin"><svg viewBox="0 0 320 84" class="lin-svg"><rect x="10" y="18" width="${len - 10}" height="12" rx="3" fill="#FFD36E"/><path d="M${10 + len - 10} 18 L${10 + len} 24 L${10 + len - 10} 30Z" fill="#E9BF5C"/><rect x="10" y="18" width="10" height="12" fill="#FF8FB8"/>
+      <rect x="4" y="36" width="312" height="44" rx="5" fill="#FFF8E1" stroke="#E0C97A"/>${ticks}</svg>
+      <div class="w-big">${Math.floor(mm / 10)} cm en ${mm % 10} mm = <b>${mm} mm</b> = <b>${fmt(mm / 10)} cm</b></div>
+      <input type="range" min="15" max="118" value="${mm}" class="w-range" aria-label="Lengte van het potlood">
+      <div class="w-small">Het potlood begint bij de 0. Tussen twee cijfers zitten 10 streepjes: dat zijn millimeters.</div></div>`;
+    $('.w-range', el).oninput = e => { mm = +e.target.value; draw(); };
+  };
+  draw();
+});
+
+// gradenboog: hoe groot is de hoek? (voorbereiding op groep 7)
+registerWidget('gradenboog', (el, o = {}) => {
+  let a = o.a || 50;
+  const draw = () => {
+    const r = 110, cx = 150, cy = 140, rad = a * Math.PI / 180, x = cx + r * Math.cos(rad), y = cy - r * Math.sin(rad);
+    let ticks = ''; for (let d = 0; d <= 180; d += 10) { const q = d * Math.PI / 180, l = d % 30 ? 8 : 14; ticks += `<line x1="${cx + r * Math.cos(q)}" y1="${cy - r * Math.sin(q)}" x2="${cx + (r - l) * Math.cos(q)}" y2="${cy - (r - l) * Math.sin(q)}" stroke="#5B47C9" stroke-width="1.2"/>`; if (d % 30 === 0) ticks += `<text x="${cx + (r - 26) * Math.cos(q)}" y="${cy - (r - 26) * Math.sin(q) + 4}" font-size="10" text-anchor="middle" fill="#5B47C9">${d}</text>`; }
+    const kind = a === 90 ? 'een rechte hoek' : a < 90 ? 'een scherpe hoek' : a === 180 ? 'een gestrekte hoek' : 'een stompe hoek';
+    el.innerHTML = `<div class="w-grd"><svg viewBox="0 0 300 160" class="grd-svg"><path d="M${cx - r} ${cy} A${r} ${r} 0 0 1 ${cx + r} ${cy}Z" fill="#EFE9FF" stroke="#B18CF0"/>${ticks}
+      <path d="M${cx + 30} ${cy} A30 30 0 0 0 ${cx + 30 * Math.cos(rad)} ${cy - 30 * Math.sin(rad)}" fill="none" stroke="#FF8A5C" stroke-width="4"/>
+      <line x1="${cx}" y1="${cy}" x2="${cx + r}" y2="${cy}" stroke="#2B2140" stroke-width="3"/><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#E8402A" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="4" fill="#2B2140"/></svg>
+      <div class="w-big"><b>${a}°</b>: ${kind}</div>
+      <input type="range" min="5" max="180" step="5" value="${a}" class="w-range" aria-label="Grootte van de hoek">
+      <div class="w-small">Recht = precies 90°. Scherp = kleiner dan 90°. Stomp = tussen 90° en 180°.</div></div>`;
+    $('.w-range', el).oninput = e => { a = +e.target.value; draw(); };
+  };
+  draw();
 });
 
 /* ---------- stappen: een uitgewerkt voorbeeld, regel voor regel ----------

@@ -41,7 +41,8 @@ const ITEMS = {
     { id: 'curacao', name: 'Eilandmantel', price: 60, c: '#1E4FB8', t: '#FFD200', e: 'vlag' },
     { id: 'feest', name: 'Feestjurk', price: 75, c: '#E85D9E', t: '#FFE15A', e: 'confetti' },
     { id: 'regenboog', name: 'Regenboogmantel', price: 100, c: 'url(#rb)', t: '#FFFFFF', e: 'ster' },
-    { id: 'nacht', name: 'Sterrennacht', price: 150, c: '#2A2366', t: '#FFD36E', e: 'sterren' }
+    { id: 'nacht', name: 'Sterrennacht', price: 150, c: '#2A2366', t: '#FFD36E', e: 'sterren' },
+    { id: 'karnaval', name: 'Karnavalsjurk', price: null, piece: 2, c: '#E8402A', t: '#FFD21F', e: 'pailletten' }
   ],
   hat: [
     { id: 'geen', name: 'Geen hoed', price: 0 },
@@ -51,7 +52,8 @@ const ITEMS = {
     { id: 'kattenoren', name: 'Kattenoortjes', price: 35 },
     { id: 'zonnehoed', name: 'Strohoed', price: 40 },
     { id: 'heks', name: 'Krulhoed', price: 55 },
-    { id: 'kroon', name: 'Sterrenkroon', price: 90 }
+    { id: 'kroon', name: 'Sterrenkroon', price: 90 },
+    { id: 'karnaval', name: 'Verentooi', price: null, piece: 1 }
   ],
   wand: [
     { id: 'ster', name: 'Sterrenstaf', price: 0 },
@@ -59,7 +61,8 @@ const ITEMS = {
     { id: 'maan', name: 'Maanstaf', price: 30 },
     { id: 'schelp', name: 'Schelpstaf', price: 40 },
     { id: 'kristal', name: 'Kristalstaf', price: 60 },
-    { id: 'regenboog', name: 'Regenboogstaf', price: 90 }
+    { id: 'regenboog', name: 'Regenboogstaf', price: 90 },
+    { id: 'karnaval', name: 'Verenstaf', price: null, piece: 3 }
   ],
   pet: [
     { id: 'geen', name: 'Nog geen huisdier', price: 0 },
@@ -76,7 +79,12 @@ const ITEMS = {
 const ITEM = {}; for (const k in ITEMS) for (const it of ITEMS[k]) ITEM[k + ':' + it.id] = it;
 
 const DEFAULT_LOOK = { skin: 3, hair: 'staarten', hairColor: 0, eyes: 0, outfit: 'paars', hat: 'puntmuts', wand: 'ster', pet: 'geen',
-  tips: -1, eyeShape: 'rond', lashes: false, brows: 'zacht', sproet: false, blush: 1, bril: 'geen', oorbel: 'geen', clip: 'geen', robeColor: 0, teken: 'ster' };
+  tips: -1, eyeShape: 'rond', lashes: false, brows: 'zacht', sproet: false, blush: 1, bril: 'geen', oorbel: 'geen', clip: 'geen', robeColor: 0, teken: 'ster', bg: 'geen', glitter: 'staf' };
+// Toverspiegel 3.0: achtergrond achter de spiegel, kleur van de glitters, poses en gezichtjes om te proberen
+const MIRROR_BGS = [['geen', '🪞'], ['sterren', '✨'], ['strand', '🏖️'], ['haven', '🏘️'], ['regenboog', '🌈'], ['nacht', '🌙']];
+const GLITTERS = [['staf', '🪄'], ['goud', '⭐'], ['roze', '💖'], ['blauw', '💙'], ['regenboog', '🌈']];
+const POSES = [['zwaai', '👋'], ['spring', '🦘'], ['draai', '🌀'], ['pose', '⭐']];
+const FACES = [['blij', '😊'], ['lach', '😄'], ['wow', '🤩'], ['knipoog', '😉']];
 // "Verras me!": een willekeurig maar mooi personage
 function randomLook(L) {
   return Object.assign({}, L, { skin: rnd(0, SKINS.length - 1), hair: kies(HAIRSTYLES).id, hairColor: rnd(0, HAIRCOLORS.length - 1), eyes: rnd(0, EYECOLORS.length - 1),
@@ -196,6 +204,8 @@ function hatSVG(id, robe) {
     case 'strik': return `<g transform="translate(132 34) rotate(18)"><path d="M0 0 L-30 -16 Q-36 0 -30 16Z M0 0 L30 -16 Q36 0 30 16Z" fill="#FF6FA8"/><circle r="8" fill="#FF8FB8"/><path d="M-22 -8 L-26 0 M22 -8 L26 0" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".6"/></g>`;
     case 'bloem': return `<g transform="translate(150 64)">${[0, 72, 144, 216, 288].map(a => `<ellipse rx="10" ry="16" cy="-12" fill="#FF4F6E" transform="rotate(${a})"/>`).join('')}<circle r="6" fill="#FFD36E"/><path d="M0 0 L10 -14" stroke="#FFD36E" stroke-width="2.5"/></g>`;
     case 'kattenoren': return `<g><path d="M42 54 L44 6 L84 34Z" fill="#2B2140"/><path d="M50 44 L52 18 L74 34Z" fill="#FF9EC4"/><path d="M158 54 L156 6 L116 34Z" fill="#2B2140"/><path d="M150 44 L148 18 L126 34Z" fill="#FF9EC4"/></g>`;
+    case 'karnaval': return `<g>${[['#E8402A', -50], ['#FFB547', -30], ['#FFD21F', -10], ['#4FC8A4', 10], ['#4D6BDB', 30], ['#B18CF0', 50]].map(([c, a]) => `<ellipse cx="100" cy="6" rx="9" ry="30" fill="${c}" transform="rotate(${a} 100 46)"/>`).join('')}
+      <path d="M48 50 Q100 30 152 50 L152 58 Q100 40 48 58Z" fill="#FFD21F"/>${[64, 82, 100, 118, 136].map((x, i) => `<circle cx="${x}" cy="${48 - (i === 2 ? 4 : 1)}" r="3.6" fill="${['#E8402A', '#4D6BDB', '#fff', '#4D6BDB', '#E8402A'][i]}"/>`).join('')}</g>`;
     case 'zonnehoed': return `<g><ellipse cx="100" cy="44" rx="84" ry="18" fill="#F1CF7A"/><path d="M58 44 Q60 4 100 2 Q140 4 142 44Z" fill="#E9BF5C"/><path d="M58 38 Q100 28 142 38 L142 44 Q100 34 58 44Z" fill="#FF6FA8"/>
       <path d="M30 44 Q100 58 170 44" stroke="#D9AE4A" stroke-width="2" fill="none"/><g transform="translate(130 32)">${[0, 72, 144, 216, 288].map(a => `<ellipse rx="5" ry="8" cy="-6" fill="#FF4F6E" transform="rotate(${a})"/>`).join('')}<circle r="3" fill="#FFD36E"/></g></g>`;
   }
@@ -209,6 +219,7 @@ function wandTip(id, x, y) {
     case 'maan': return `<path d="M${x + 4} ${y - 12} A12 12 0 1 0 ${x + 4} ${y + 12} A9 9 0 1 1 ${x + 4} ${y - 12}Z" fill="#FFE27A"/>`;
     case 'schelp': return `<path d="M${x} ${y + 8} L${x - 12} ${y - 4} Q${x} ${y - 18} ${x + 12} ${y - 4}Z" fill="#FFB8A8"/><path d="M${x} ${y + 8} L${x - 6} ${y - 10} M${x} ${y + 8} L${x} ${y - 12} M${x} ${y + 8} L${x + 6} ${y - 10}" stroke="#E98A78" stroke-width="1.6"/>`;
     case 'kristal': return `<path d="M${x} ${y - 16} L${x + 9} ${y - 2} L${x} ${y + 10} L${x - 9} ${y - 2}Z" fill="#7FE3F0"/><path d="M${x} ${y - 16} L${x + 3} ${y - 2} L${x} ${y + 10}" fill="#C8F6FF"/>`;
+    case 'karnaval': return `<path d="M${x} ${y + 10} Q${x - 14} ${y - 6} ${x + 2} ${y - 24} Q${x + 12} ${y - 6} ${x} ${y + 10}Z" fill="#E8402A"/><path d="M${x} ${y + 10} Q${x - 6} ${y - 6} ${x + 2} ${y - 20}" stroke="#FFD21F" stroke-width="2" fill="none"/>`;
     case 'regenboog': return `<g>${['#FF5E5E', '#FFB547', '#FFE15A', '#6FD38A', '#6DB8F7', '#B18CF0'].map((c, i) => `<path d="M${x - 16 + i * 2} ${y + 4} A${16 - i * 2} ${16 - i * 2} 0 0 1 ${x + 16 - i * 2} ${y + 4}" stroke="${c}" stroke-width="2.4" fill="none"/>`).join('')}</g>`;
   }
   return `<path d="${starPath(x, y, 13)}" fill="#FFD36E" stroke="#F2B53A" stroke-width="1.5"/>`;
@@ -231,6 +242,7 @@ function robeSVG(L) {
     case 'zon': emb = `<circle cx="100" cy="192" r="7" fill="${t}"/>` + [0, 45, 90, 135, 180, 225, 270, 315].map(a => `<line x1="100" y1="181" x2="100" y2="177" stroke="${t}" stroke-width="2.5" transform="rotate(${a} 100 192)"/>`).join(''); break;
     case 'vlag': emb = `<rect x="60" y="206" width="80" height="7" fill="${t}"/><path d="${starPath(86, 186, 5)}" fill="#fff"/><path d="${starPath(100, 178, 6.5)}" fill="#fff"/>`; break;
     case 'confetti': emb = [[80, 180, '#FFE15A'], [112, 186, '#7FE3F0'], [94, 204, '#FFE15A'], [120, 210, '#fff'], [76, 214, '#7FE3F0']].map(([x, y, cc]) => `<rect x="${x}" y="${y}" width="5" height="5" fill="${cc}" transform="rotate(30 ${x} ${y})"/>`).join(''); break;
+    case 'pailletten': emb = [[78, 178, '#FFD21F'], [96, 184, '#4FC8A4'], [116, 178, '#fff'], [84, 198, '#4D6BDB'], [108, 200, '#FFD21F'], [124, 214, '#4FC8A4'], [72, 212, '#fff'], [98, 216, '#B18CF0']].map(([x, y, cc]) => `<circle cx="${x}" cy="${y}" r="3.2" fill="${cc}"/>`).join(''); break;
     case 'sterren': emb = [[84, 182, 4], [112, 178, 5], [100, 200, 6], [76, 210, 3.5], [124, 206, 4]].map(([x, y, r]) => `<path d="${starPath(x, y, r)}" fill="${t}"/>`).join(''); break;
   }
   return `<path d="M70 158 Q100 146 130 158 L148 228 Q100 240 52 228Z" fill="${c}"/>
@@ -281,7 +293,8 @@ function avatarSVG(look = DEFAULT_LOOK, mood = 'blij', cls = '') {
   return avatarSVG0(look, mood, cls).replace(/id="(rb|tp)"/g, `id="$1${gid}"`).replace(/url\(#(rb|tp)\)/g, `url(#$1${gid})`);
 }
 function avatarSVG0(look, mood, cls) {
-  const L = Object.assign({}, DEFAULT_LOOK, look);
+  const L = Object.assign({}, DEFAULT_LOOK, look), wink = mood === 'knipoog';
+  if (wink) mood = 'blij';
   const skin = SKINS[L.skin] || SKINS[3], skinD = shade(skin, -.12);
   const H = HAIRCOLORS[L.hairColor] || HAIRCOLORS[0], eye = EYECOLORS[L.eyes] || EYECOLORS[0], tip = L.tips >= 0 ? HAIRCOLORS[L.tips] : '';
   const wandHand = mood === 'oeps' ? '' : `<g class="wand"><line x1="146" y1="196" x2="172" y2="150" stroke="#7A4E2D" stroke-width="5" stroke-linecap="round"/>${wandTip(L.wand, 174, 146)}</g>`;
@@ -289,7 +302,7 @@ function avatarSVG0(look, mood, cls) {
     <defs><linearGradient id="rb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7A9C"/><stop offset=".33" stop-color="#FFC75A"/><stop offset=".66" stop-color="#6FD3B0"/><stop offset="1" stop-color="#7E8CF4"/></linearGradient>
       ${tip ? `<linearGradient id="tp" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="230"><stop offset="0" stop-color="${tip}" stop-opacity="0"/><stop offset="1" stop-color="${tip}"/></linearGradient>` : ''}</defs>
     <ellipse cx="100" cy="242" rx="56" ry="7" fill="#000" opacity=".1"/>
-    ${hairBack(L.hair, H)}${tip ? hairBack(L.hair, 'url(#tp)') : ''}
+    <g class="hair hair-b">${hairBack(L.hair, H)}${tip ? hairBack(L.hair, 'url(#tp)') : ''}</g>
     <rect x="86" y="214" width="11" height="22" rx="5" fill="${skinD}"/><rect x="103" y="214" width="11" height="22" rx="5" fill="${skinD}"/>
     <ellipse cx="90" cy="238" rx="10" ry="6" fill="#5B47C9"/><ellipse cx="110" cy="238" rx="10" ry="6" fill="#5B47C9"/>
     ${robeSVG(L)}
@@ -302,10 +315,10 @@ function avatarSVG0(look, mood, cls) {
     <ellipse cx="100" cy="94" rx="64" ry="60" fill="${skin}"/>
     ${blush(64, 136, 122, 1, [0, .38, .62][L.blush == null ? 1 : L.blush])}
     ${L.sproet ? [[58, 116], [66, 120], [62, 124], [134, 116], [142, 120], [138, 124]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="${shade(skin, -.35)}"/>`).join('') : ''}
-    <g class="eyes">${animeEye(76, 106, eye, 1, mood, { shape: L.eyeShape, lashes: L.lashes })}${animeEye(124, 106, eye, 1, mood, { shape: L.eyeShape, lashes: L.lashes })}</g>
+    <g class="eyes">${animeEye(76, 106, eye, 1, mood, { shape: L.eyeShape, lashes: L.lashes })}${animeEye(124, 106, eye, 1, wink ? 'lach' : mood, { shape: L.eyeShape, lashes: L.lashes })}</g>
     ${mouth(100, 126, mood)}
     ${mood === 'oeps' ? `<path d="M156 66 q6 10 0 14 q-6 -4 0 -14Z" fill="#7FD3F7"/>` : ''}
-    ${hairFront(L.hair, H)}
+    <g class="hair hair-f">${hairFront(L.hair, H)}</g>
     ${browSVG(L.brows, shade(H, -.2))}${glassesSVG(L.bril)}${clipSVG(L.clip)}
     ${hatSVG(L.hat)}
   </svg>`;
@@ -354,21 +367,37 @@ function petSVG(id, cls = '') {
    Vleugels, staart en ogen hebben eigen klassen, zodat ze kunnen bewegen. */
 const PIP_STAR = 'M0 -11 L3 -3 L11 0 L3 3 L0 11 L-3 3 L-11 0 L-3 -3Z';
 function pipSVG(mood = 'blij', cls = '') {
-  const lach = mood === 'lach', oeps = mood === 'oeps', slaap = mood === 'slaap';
-  const eyes = lach ? `<path d="M66 112 Q78 94 90 112 M110 112 Q122 94 134 112" fill="none" stroke="#2B2147" stroke-width="5" stroke-linecap="round"/>`
-    : slaap ? `<path d="M66 114 Q78 124 90 114 M110 114 Q122 124 134 114" fill="none" stroke="#2B2147" stroke-width="5" stroke-linecap="round"/>`
+  const M = mood, has = (...a) => a.includes(M);
+  const closed = has('lach', 'trots', 'dans'), look = has('oeps', 'zweet');
+  const eyes = closed ? `<path d="M66 112 Q78 94 90 112 M110 112 Q122 94 134 112" fill="none" stroke="#2B2147" stroke-width="5" stroke-linecap="round"/>`
+    : M === 'slaap' ? `<path d="M66 114 Q78 124 90 114 M110 114 Q122 124 134 114" fill="none" stroke="#2B2147" stroke-width="5" stroke-linecap="round"/>`
+    : M === 'wow' ? `<g fill="#FFD86B" stroke="#2B2147" stroke-width="2">${[78, 122].map(x => `<path transform="translate(${x} 110) scale(1.3)" d="${PIP_STAR}"/>`).join('')}</g>`
+    : M === 'hart' ? `<g fill="#FF5E8E">${[78, 122].map(x => `<path d="${heartPath(x, 104, 1.5)}"/>`).join('')}</g>`
+    : M === 'cool' ? `<g><path d="M60 100 h36 q0 18 -18 18 q-18 0 -18 -18Z M104 100 h36 q0 18 -18 18 q-18 0 -18 -18Z" fill="#2B2147"/><path d="M96 103 h8" stroke="#2B2147" stroke-width="4"/><path d="M66 105 h9 M110 105 h9" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity=".7"/></g>`
     : `<g class="pip-eyes"><ellipse cx="78" cy="110" rx="11" ry="13" fill="#2B2147"/><ellipse cx="122" cy="110" rx="11" ry="13" fill="#2B2147"/>
-       <circle cx="${oeps ? 74 : 82}" cy="${oeps ? 104 : 105}" r="4.6" fill="#fff"/><circle cx="${oeps ? 118 : 126}" cy="${oeps ? 104 : 105}" r="4.6" fill="#fff"/>${oeps ? '' : '<circle cx="75" cy="115" r="2" fill="#fff"/><circle cx="119" cy="115" r="2" fill="#fff"/>'}</g>`;
-  const mouthP = lach ? `<path d="M82 126 Q100 156 118 126Z" fill="#5B1F3A"/><path d="M90 143 Q100 135 110 143 Q100 152 90 143Z" fill="#FF6F91"/>`
-    : oeps ? `<path d="M92 132 Q100 128 110 134" fill="none" stroke="#2B2147" stroke-width="4" stroke-linecap="round"/>`
-    : slaap ? `<ellipse cx="100" cy="132" rx="6" ry="5" fill="#5B3FC0"/>`
+       <circle cx="${look ? 74 : 82}" cy="${look ? 104 : 105}" r="4.6" fill="#fff"/><circle cx="${look ? 118 : 126}" cy="${look ? 104 : 105}" r="4.6" fill="#fff"/>${look ? '' : '<circle cx="75" cy="115" r="2" fill="#fff"/><circle cx="119" cy="115" r="2" fill="#fff"/>'}</g>`;
+  const smile = `<path d="M82 126 Q100 156 118 126Z" fill="#5B1F3A"/><path d="M90 143 Q100 135 110 143 Q100 152 90 143Z" fill="#FF6F91"/>`;
+  const mouthP = has('lach', 'trots', 'dans', 'hart', 'zwaai') ? smile
+    : M === 'wow' ? `<ellipse cx="100" cy="136" rx="9" ry="11" fill="#5B1F3A"/><ellipse cx="100" cy="141" rx="5" ry="4" fill="#FF6F91"/>`
+    : M === 'cool' ? `<path d="M88 132 Q102 142 114 128" fill="none" stroke="#2B2147" stroke-width="4" stroke-linecap="round"/>`
+    : M === 'oeps' ? `<path d="M92 132 Q100 128 110 134" fill="none" stroke="#2B2147" stroke-width="4" stroke-linecap="round"/>`
+    : M === 'zweet' ? `<path d="M86 134 q4 -5 8 0 t8 0 t8 0" fill="none" stroke="#2B2147" stroke-width="4" stroke-linecap="round"/>`
+    : M === 'slaap' ? `<ellipse cx="100" cy="132" rx="6" ry="5" fill="#5B3FC0"/>`
     : `<path d="M90 130 Q100 140 110 130" fill="none" stroke="#2B2147" stroke-width="4" stroke-linecap="round"/>`;
-  const arms = lach ? `<ellipse cx="28" cy="82" rx="10" ry="15" fill="#7A55EE" transform="rotate(-28 28 82)"/><ellipse cx="172" cy="82" rx="10" ry="15" fill="#7A55EE" transform="rotate(28 172 82)"/>`
-    : oeps ? `<ellipse cx="42" cy="140" rx="9" ry="13" fill="#7A55EE" transform="rotate(22 42 140)"/><ellipse cx="146" cy="128" rx="9" ry="13" fill="#7A55EE" transform="rotate(-60 146 128)"/>`
-    : `<ellipse cx="42" cy="140" rx="9" ry="13" fill="#7A55EE" transform="rotate(22 42 140)"/><ellipse cx="158" cy="140" rx="9" ry="13" fill="#7A55EE" transform="rotate(-22 158 140)"/>`;
-  const extra = lach ? `<g fill="#FFD86B">${[[22, 30, 1], [180, 34, 1], [100, 12, .7], [8, 110, .6], [192, 112, .6]].map(([x, y, s]) => `<path transform="translate(${x} ${y}) scale(${s})" d="${PIP_STAR}"/>`).join('')}</g>`
-    : oeps ? `<path d="M66 92 Q78 84 90 92 M110 88 Q122 78 134 90" fill="none" stroke="#5B3FC0" stroke-width="4" stroke-linecap="round"/><g fill="#fff" stroke="#CDBBFF" stroke-width="2"><circle cx="150" cy="58" r="5"/><circle cx="163" cy="42" r="7"/><circle cx="180" cy="22" r="10"/></g>`
-    : slaap ? `<g fill="none" stroke="#FFD86B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M142 46 h20 l-20 22 h20"/><path d="M170 18 h13 l-13 15 h13"/></g>` : '';
+  const armL = `<ellipse cx="42" cy="140" rx="9" ry="13" fill="#7A55EE" transform="rotate(22 42 140)"/>`;
+  const arms = has('lach', 'wow', 'dans') ? `<ellipse cx="28" cy="82" rx="10" ry="15" fill="#7A55EE" transform="rotate(-28 28 82)"/><ellipse cx="172" cy="82" rx="10" ry="15" fill="#7A55EE" transform="rotate(28 172 82)"/>`
+    : M === 'zwaai' ? `${armL}<g class="pip-wave"><ellipse cx="170" cy="80" rx="10" ry="15" fill="#7A55EE" transform="rotate(32 170 80)"/></g>`
+    : look ? `${armL}<ellipse cx="146" cy="128" rx="9" ry="13" fill="#7A55EE" transform="rotate(-60 146 128)"/>`
+    : `${armL}<ellipse cx="158" cy="140" rx="9" ry="13" fill="#7A55EE" transform="rotate(-22 158 140)"/>`;
+  const stars = `<g fill="#FFD86B">${[[22, 30, 1], [180, 34, 1], [100, 12, .7], [8, 110, .6], [192, 112, .6]].map(([x, y, s]) => `<path transform="translate(${x} ${y}) scale(${s})" d="${PIP_STAR}"/>`).join('')}</g>`;
+  const extra = has('lach', 'trots') ? stars
+    : M === 'dans' ? `<g fill="#FFD86B"><circle cx="24" cy="56" r="6"/><rect x="28" y="28" width="3.4" height="28"/><circle cx="174" cy="44" r="6"/><rect x="178" y="16" width="3.4" height="28"/></g>`
+    : M === 'hart' ? `<g fill="#FF8FB8">${[[26, 50, 1], [176, 40, 1.2], [160, 14, .8]].map(([x, y, s]) => `<path d="${heartPath(x, y, s)}"/>`).join('')}</g>`
+    : M === 'wow' ? `<g fill="#FFD86B">${[[26, 40, .7], [176, 36, .8]].map(([x, y, s]) => `<path transform="translate(${x} ${y}) scale(${s})" d="${PIP_STAR}"/>`).join('')}</g>`
+    : M === 'cool' ? `<path transform="translate(140 94) scale(.6)" d="${PIP_STAR}" fill="#fff"/>`
+    : M === 'zweet' ? `<path d="M152 64 q7 11 0 16 q-7 -5 0 -16Z" fill="#7FD3F7"/>`
+    : M === 'oeps' ? `<path d="M66 92 Q78 84 90 92 M110 88 Q122 78 134 90" fill="none" stroke="#5B3FC0" stroke-width="4" stroke-linecap="round"/><g fill="#fff" stroke="#CDBBFF" stroke-width="2"><circle cx="150" cy="58" r="5"/><circle cx="163" cy="42" r="7"/><circle cx="180" cy="22" r="10"/></g>`
+    : M === 'slaap' ? `<g fill="none" stroke="#FFD86B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M142 46 h20 l-20 22 h20"/><path d="M170 18 h13 l-13 15 h13"/></g>` : '';
   return `<svg class="pip mood-${mood} ${cls}" viewBox="0 0 200 200" role="img" aria-label="Pip het draakje">
     <ellipse cx="100" cy="188" rx="54" ry="8" fill="#000" opacity=".12"/>
     <path class="pip-wl" d="M46 98 Q8 70 16 36 Q46 50 64 84Z" fill="#B79CFF"/><path class="pip-wr" d="M154 98 Q192 70 184 36 Q154 50 136 84Z" fill="#B79CFF"/>
@@ -379,9 +408,11 @@ function pipSVG(mood = 'blij', cls = '') {
     <path d="M62 72 L56 32 L84 58Z M138 72 L144 32 L116 58Z" fill="#FFD86B"/><path d="M90 58 L100 40 L110 58Z" fill="#FFB800"/>
     <ellipse cx="72" cy="88" rx="14" ry="8" fill="#fff" opacity=".28" transform="rotate(-30 72 88)"/>
     ${eyes}<ellipse cx="58" cy="128" rx="9" ry="6" fill="#FF9EC0" opacity=".8"/><ellipse cx="142" cy="128" rx="9" ry="6" fill="#FF9EC0" opacity=".8"/>
-    ${slaap || lach ? '' : '<circle cx="95" cy="123" r="1.6" fill="#5B3FC0"/><circle cx="105" cy="123" r="1.6" fill="#5B3FC0"/>'}${mouthP}${arms}${extra}
+    ${closed || M === 'slaap' ? '' : '<circle cx="95" cy="123" r="1.6" fill="#5B3FC0"/><circle cx="105" cy="123" r="1.6" fill="#5B3FC0"/>'}<g class="pip-mouth">${mouthP}</g>${arms}${extra}
   </svg>`;
 }
+// alle stemmingen van Pip (afwisseling bij goede antwoorden)
+const PIP_MOODS = ['blij', 'lach', 'oeps', 'slaap', 'wow', 'hart', 'cool', 'zwaai', 'trots', 'dans', 'zweet'];
 
 /* ---------- de leraren ---------- */
 function teacherSVG(id, cls = '') {

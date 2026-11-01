@@ -124,6 +124,7 @@ function plantFor(subjIndex, topicIndex) { return CUR_PLANTS[(topicIndex + subjI
 
 function openGarden() {
   const el = $('#garden');
+  if (current !== 'garden') { D.counters.garden++; save(); }
   el.innerHTML = backbar(t('pl_tuin')) + `<div class="wrap"><div class="card center garden-intro">${pipSVG('lach')}<p>${t('gardenTitle')}</p>
       <div class="gstages">${[0, 1, 2, 3].map(s => `<span>${curPlantSVG('flamboyan', s, 'mini')}<small>${t('gStage' + s)}</small></span>`).join('')}</div></div>
     ${SUBJECTS.map((s, si) => `<div class="bed" style="--sc:${s.color};--sl:${s.light}"><h3>${s.ico} ${t('subj_' + s.id)}</h3><div class="plots">${s.topics.map((tp, ti) => {

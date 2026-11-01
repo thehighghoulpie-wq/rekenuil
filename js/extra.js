@@ -12,7 +12,7 @@ function lookPanel(L, onChange, withName = true) {
   // keuze met een klein gezichtje als voorbeeld
   const pick = (key, vals, label = v => '') => `<div class="hairstyles">${vals.map(v => `<button class="hs ${L[key] === v ? 'on' : ''}" data-k="${key}" data-s="${v}">${avatarSVG(Object.assign({}, L, { [key]: v, hat: 'geen', pet: 'geen' }), 'blij', 'mini')}<span>${label(v)}</span></button>`).join('')}</div>`;
   const tog = (key, on, off) => `<div class="chips"><button class="chip ${!L[key] ? 'on' : ''}" data-k="${key}" data-b="0">${off}</button><button class="chip ${L[key] ? 'on' : ''}" data-k="${key}" data-b="1">${on}</button></div>`;
-  const tabs = [['face', '🙂 ' + t('lpFace')], ['hair', '💇 ' + t('hair')], ['eyes', '👀 ' + t('eyes')], ['extra', '✨ ' + t('lpExtra')], ['robe', '🧥 ' + t('lpRobe')]];
+  const tabs = [['face', '🙂 ' + t('lpFace')], ['hair', '💇 ' + t('hair')], ['eyes', '👀 ' + t('eyes')], ['extra', '✨ ' + t('lpExtra')], ['robe', '🧥 ' + t('lpRobe')], ['magic', '🪄 ' + t('lpMagic')]];
   let body = '';
   if (lpTab === 'face') body = `<label class="lbl">${t('skin')}</label>${sw(SKINS, 'skin', SKIN_ORDER)}
     <label class="lbl">${t('lpFreckles')}</label>${tog('sproet', '✅', '—')}
@@ -25,18 +25,24 @@ function lookPanel(L, onChange, withName = true) {
   if (lpTab === 'extra') body = `<label class="lbl">${t('lpGlasses')}</label>${pick('bril', GLASSES)}<label class="lbl">${t('lpEarrings')}</label>${pick('oorbel', EARRINGS)}<label class="lbl">${t('lpClips')}</label>${pick('clip', CLIPS)}`;
   if (lpTab === 'robe') body = `<label class="lbl">${t('lpRobeColor')}</label>${sw(ROBECOLS, 'robeColor')}<p class="muted">${t('lpRobeNote')}</p>
     <label class="lbl">${t('lpSign')}</label><div class="chips big">${TEKENS.map(([id, e]) => `<button class="chip ${L.teken === id ? 'on' : ''}" data-k="teken" data-s="${id}">${e} ${t('sign_' + id)}</button>`).join('')}</div>`;
+  if (lpTab === 'magic') body = `<label class="lbl">${t('lpBg')}</label><div class="chips">${MIRROR_BGS.map(([id, e]) => `<button class="chip ${L.bg === id ? 'on' : ''}" data-k="bg" data-s="${id}">${e} ${t('bg_' + id)}</button>`).join('')}</div>
+    <label class="lbl">${t('lpGlitter')}</label><div class="chips">${GLITTERS.map(([id, e]) => `<button class="chip ${L.glitter === id ? 'on' : ''}" data-k="glitter" data-s="${id}">${e} ${t('gl_' + id)}</button>`).join('')}</div>
+    <label class="lbl">${t('lpPose')}</label><div class="chips">${POSES.map(([id, e]) => `<button class="chip" data-pose="${id}">${e} ${t('pose_' + id)}</button>`).join('')}</div>
+    <label class="lbl">${t('lpFaceNow')}</label><div class="chips big">${FACES.map(([id, e]) => `<button class="chip ${spiegelMood === id ? 'on' : ''}" data-face="${id}" aria-label="${id}">${e}</button>`).join('')}</div>`;
   return `<div class="lookpanel">
     ${withName ? `<label class="lbl">${t('name')}</label><input id="nameinp" class="nameinp" maxlength="16" value="${esc((D.profile && D.profile.name) || '')}" placeholder="${t('namePh')}" autocomplete="off">` : ''}
     <div class="tabs small">${tabs.map(([k, n]) => `<button class="tab ${lpTab === k ? 'on' : ''}" data-lp="${k}">${n}</button>`).join('')}</div>${body}
     <button class="btn ghost wide" id="surprise">🎲 ${t('lpSurprise')}</button></div>`;
 }
 function bindLookPanel(root, L, onChange) {
-  const done = () => { SND.click(); lookHop = D.settings.anim; onChange(); lookHop = false; };
+  const done = () => { SND.click(); lookHop = D.settings.anim; onChange(); lookHop = false; spiegelPoof(root); };
   $$('[data-lp]', root).forEach(b => b.onclick = () => { lpTab = b.dataset.lp; SND.click(); onChange(); });
   $$('[data-k][data-v]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = +b.dataset.v; done(); });
   $$('[data-k][data-s]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = b.dataset.s; done(); });
   $$('[data-k][data-b]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = b.dataset.b === '1'; done(); });
-  const sp = $('#surprise', root); if (sp) sp.onclick = () => { Object.assign(L, randomLook(L)); SND.pop(); onChange(); const p = $('.ward-prev', root); sparkleBurst(p, 14); };
+  const sp = $('#surprise', root); if (sp) sp.onclick = () => { sp.classList.remove('diceshake'); void sp.offsetWidth; sp.classList.add('diceshake'); tone([300, 360, 420], .05, 'square', .03); setTimeout(() => { Object.assign(L, randomLook(L)); SND.pop(); onChange(); const p = $('.ward-prev', root); sparkleBurst(p, 14, glitterSyms()); spiegelPoof(root); }, motionOK() ? 380 : 0); };
+  $$('[data-pose]', root).forEach(b => b.onclick = () => spiegelPose(root, b.dataset.pose));
+  $$('[data-face]', root).forEach(b => b.onclick = () => { spiegelMood = b.dataset.face; SND.click(); onChange(); });
   const n = $('#nameinp', root); if (n) n.oninput = () => { D.profile.name = n.value.trim() || D.profile.name; save(); };
 }
 
@@ -54,19 +60,21 @@ function renderWardrobe() {
     const own = D.owned[wardTab].includes(it.id), on = L[wardTab] === it.id;
     const prev = avatarSVG(Object.assign({}, L, { [wardTab]: it.id, pet: 'geen' }), 'blij', 'mini');
     return `<button class="item ${own ? 'own' : ''} ${on ? 'on' : ''}" data-id="${it.id}">${prev}<span class="i-name">${it.name}</span>
-      <span class="i-price">${on ? '✅ ' + t('wearing') : own ? t('owned') : `⭐ ${it.price}`}</span></button>`;
+      <span class="i-price">${on ? '✅ ' + t('wearing') : own ? t('owned') : it.price == null ? '🎭 ' + t('costumePiece') : `⭐ ${it.price}`}</span></button>`;
   }).join('')}</div>`;
   el.innerHTML = backbar(t('pl_kast')) + `<div class="wrap"><div class="ward">
-    <div class="ward-prev card">${avatarSVG(L, lookHop ? 'lach' : 'blij', lookHop ? 'hopnow' : '')}${L.pet !== 'geen' ? petSVG(L.pet, 'ward-pet') : ''}<div class="ward-name">${esc(playerName())}</div></div>
+    <div class="ward-prev card bg-${L.bg || 'geen'}">${avatarSVG(L, lookHop ? 'lach' : spiegelMood, lookHop ? 'hopnow' : '')}${L.pet !== 'geen' ? petSVG(L.pet, 'ward-pet') : ''}<div class="ward-name">${esc(playerName())}</div></div>
     <div class="ward-side"><div class="tabs">${tabs.map(([k, n]) => `<button class="tab ${wardTab === k ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}</div>${body}</div></div></div>`;
   bindCommon(el);
   $$('[data-tab]', el).forEach(b => b.onclick = () => { wardTab = b.dataset.tab; SND.click(); renderWardrobe(); });
   if (wardTab === 'look') bindLookPanel(el, L, () => { D.profile.look = L; save(); renderWardrobe(); });
+  spiegelBind(el);
   $$('.item', el).forEach(b => b.onclick = () => buyOrWear(wardTab, b.dataset.id, renderWardrobe));
 }
 function buyOrWear(kind, id, rerender) {
   const it = ITEM[kind + ':' + id], L = Object.assign({}, look());
   if (D.owned[kind].includes(id)) { L[kind] = id; D.profile.look = L; save(); SND.click(); rerender(); return; }
+  if (it.price == null) { SND.boing(); toast(costumeHint(kind, id) || t('costumePiece'), 3200); return; }
   if (D.stars < it.price) { SND.boing(); modal(`<div class="m-ico">${pipSVG('oeps')}</div><p>${t('needMore', { n: it.price - D.stars })}</p>`); return; }
   modal(`<div class="m-ico">${kind === 'pet' ? petSVG(id) : avatarSVG(Object.assign({}, L, { [kind]: id }), 'wow', 'mini')}</div><p>${t('buyQ', { i: it.name, p: it.price })}</p>`,
     [{ label: `${t('buy')} ⭐ ${it.price}`, cls: 'primary', fn: () => {
@@ -107,9 +115,12 @@ function openGames() {
   const el = $('#games'), gm = D.games;
   const card = (id, ico, best) => `<button class="gamecard card" data-g="${id}"><span class="g-ico">${ico}</span><b>${t('g_' + id)}</b><small>${t('gs_' + id)}</small>${best ? `<span class="pill">🏆 ${t('best')}: ${best}</span>` : ''}</button>`;
   el.innerHTML = backbar(t('pl_speel')) + `<div class="wrap"><h2 class="sect">${t('games')}</h2><div class="gamegrid">
-    ${card('match', '🧩', gm.match && gm.match.best ? fmtSec(gm.match.best * 1000) : '')}${card('memory', '🃏', gm.memory && gm.memory.best ? gm.memory.best + ' ' + t('moves') : '')}${card('bellen', '🫧', gm.bellen && gm.bellen.best)}</div></div>`;
+    ${card('match', '🧩', gm.match && gm.match.best ? fmtSec(gm.match.best * 1000) : '')}${card('memory', '🃏', gm.memory && gm.memory.best ? gm.memory.best + ' ' + t('moves') : '')}${card('bellen', '🫧', gm.bellen && gm.bellen.best)}
+    ${card('koppel', '⚡', gm.koppel && gm.koppel.best)}${card('piano', '🎹', gm.piano && gm.piano.best ? gm.piano.best + ' 🎵' : '')}${card('walk', '🚶', '')}${card('wela', '📞', '')}</div></div>`;
   bindCommon(el);
-  $$('[data-g]', el).forEach(b => b.onclick = () => { SND.click(); b.dataset.g === 'bellen' ? startBellen() : pickCategory(b.dataset.g); });
+  const go = { bellen: startBellen, koppel: () => startKoppel(), piano: startPiano, walk: startWalk, wela: startWela };
+  $$('[data-g]', el).forEach(b => b.onclick = () => { SND.click(); go[b.dataset.g] ? go[b.dataset.g]() : pickCategory(b.dataset.g); });
+  stagger($$('.gamecard', el), 'inUp', 50, 80);
   show('games');
 }
 function pickCategory(game) {
@@ -122,6 +133,7 @@ function gameShell(title, inner) {
   const el = $('#game');
   el.innerHTML = `<div class="topbar"><button class="iconbtn" id="gback" aria-label="${t('back')}">←</button><div class="tb-title">${title}</div><div class="tb-stats"><span class="pill" id="gstat"></span></div></div><div class="wrap">${inner}</div>`;
   $('#gback').onclick = stopGame; show('game');
+  D.counters.games++; save();
 }
 function stopGame() { clearInterval(G.timer); cancelAnimationFrame(G.raf); G.over = true; openGames(); }
 function gameWin(game, scoreLine, better) {
@@ -216,6 +228,7 @@ function openProgress() {
     }).join('')}</div>`).join('')}
     <h2 class="sect">${t('badges')}</h2><div class="badges">${BADGES.map(b => `<div class="badge ${D.badges[b[0]] ? 'on' : ''}"><span>${b[1]}</span><b>${b[2]}</b><small>${b[3]}</small></div>`).join('')}</div></div>`;
   bindCommon(el);
+  progressExtras(el);
   $$('[data-learn]', el).forEach(b => b.onclick = () => openLesson(b.dataset.learn, 0, 'class'));
   $$('[data-play]', el).forEach(b => b.onclick = () => openSetup(b.dataset.play));
   show('progress');
@@ -235,7 +248,7 @@ function openJokes() {
 function openParty() {
   const el = $('#party'), pets = D.owned.pet.filter(p => p !== 'geen');
   const d = new Date();
-  el.innerHTML = backbar(t('pl_feest')) + `<div class="wrap narrow"><div class="party card"><div class="dance">${avatarSVG(look(), 'lach', 'dancer')}${pets.map((p, i) => petSVG(p, 'dancer d' + (i % 3))).join('')}${pipSVG('lach', 'dancer')}</div>
+  el.innerHTML = backbar(t('pl_feest')) + `<div class="wrap narrow"><div class="party card"><div class="dance">${avatarSVG(look(), 'lach', 'dancer')}${pets.map((p, i) => petSVG(p, 'dancer d' + (i % 3))).join('')}${pipSVG('dans', 'dancer')}</div>
     <h2>${t('partyTitle')}</h2>
     <div class="diploma"><div class="dp-t">🎓 ${t('certificate')} ${(TEKENS.find(x => x[0] === look().teken) || TEKENS[0])[1]}</div><div class="dp-n">${esc(playerName())}</div><div class="dp-s">⭐ ${D.starsTotal} · ✅ ${D.counters.correct} · 🏅 ${Object.keys(D.badges).length}</div><div class="dp-d">${d.getDate()}-${d.getMonth() + 1}-${d.getFullYear()} · Toverschool Sterrenlicht</div></div></div></div>`;
   bindCommon(el); show('party'); SND.fanfare(); confetti(200);
@@ -344,6 +357,8 @@ function renderParents() {
       <label class="lbl">${t('parBackup')}</label><p class="muted">${t('parBackupInfo')}</p>
       <div class="btnrow"><button class="btn" id="bkdown">⬇️ ${t('parSave')}</button><label class="btn ghost">⬆️ ${t('parLoad')}<input type="file" id="bkup" accept=".json,application/json" hidden></label></div>
       <p>${t('parentInfo')}</p><p class="muted">${t('contentNote')}</p>
+      <label class="lbl">📳 ${t('vibLbl')}</label><div class="chips"><button class="chip ${!D.settings.vibrate ? 'on' : ''}" data-vib="0">${t('off')}</button><button class="chip ${D.settings.vibrate ? 'on' : ''}" data-vib="1">${t('on')}</button></div><p class="muted">${t('vibInfo')}</p>
+      <label class="lbl">📸 ${t('portraitLbl')}</label><button class="btn ghost wide" id="portrait">${t('portraitBtn')}</button>
       <label class="lbl">🛠️ ${t('makerLbl')}</label><p class="muted">${t('makerInfo')}</p><button class="btn ghost wide" id="maker">${t('makerBtn')}</button>
       <button class="btn ghost wide danger" id="reset">${t('reset')}</button>`;
   }
@@ -359,6 +374,8 @@ function renderParents() {
   $$('[data-rec]', el).forEach(b => b.onclick = () => recordWord(b));
   if ($('#bkdown')) $('#bkdown').onclick = backupDownload;
   if ($('#bkup')) $('#bkup').onchange = e => backupRestore(e.target.files[0]);
+  $$('[data-vib]', el).forEach(b => b.onclick = () => { D.settings.vibrate = b.dataset.vib === '1'; save(); buzz(20); renderParents(); });
+  if ($('#portrait')) $('#portrait').onclick = savePortrait;
   if ($('#maker')) $('#maker').onclick = () => modal(`<div class="m-ico">🛠️</div><h2>${t('makerQ')}</h2><p>${t('makerSub')}</p>`,
     [{ label: t('cancel'), cls: 'primary' }, { label: t('makerYes'), cls: 'ghost', fn: () => { makerUnlockAll(); toast(t('makerDone')); renderParents(); } }]);
   if ($('#reset')) $('#reset').onclick = () => modal(`<div class="m-ico">${pipSVG('oeps')}</div><h2>${t('resetQ')}</h2><p>${t('resetSub')}</p>`,
@@ -413,7 +430,7 @@ function backupRestore(file) {
   }).catch(() => toast(t('parLoadBad'), 4000));
 }
 function refreshCurrent() {
-  const r = { map: openMap, class: () => openClass(L.subject), wardrobe: openWardrobe, pets: openPets, games: openGames, progress: openProgress, jokes: openJokes, garden: openGarden, party: openParty, setup: renderSetup, lesson: renderLesson, parents: renderParents }[current];
+  const r = { map: openMap, class: () => openClass(L.subject), wardrobe: openWardrobe, pets: openPets, games: openGames, progress: openProgress, jokes: openJokes, garden: openGarden, party: openParty, setup: renderSetup, lesson: renderLesson, parents: renderParents, album: openAlbum, book: openBook }[current];
   if (r) r();
 }
 
@@ -429,14 +446,14 @@ function openIntro() {
 function renderIntro() {
   const el = $('#intro');
   let body = '', btn = t('continue');
-  if (introStep === 0) body = `<div class="intro-pip">${pipSVG('lach')}</div><div class="bubble big">${t('introHi')}</div>
+  if (introStep === 0) body = `<div class="intro-pip">${pipSVG('zwaai')}</div><div class="bubble big">${t('introHi')}</div>
     <h3>${t('introLang')}</h3><div class="langs big">${LANGS.map(([c, f, n]) => `<button class="chip ${lang() === c ? 'on' : ''}" data-lang="${c}">${f} ${n}</button>`).join('')}</div>`;
   if (introStep === 1) body = `<div class="intro-pip">${pipSVG('blij')}</div><div class="bubble big">${t('introName')}</div><input id="introname" class="nameinp big" maxlength="16" placeholder="${t('namePh')}" value="${esc(D.profile.name || '')}" autocomplete="off">`;
-  if (introStep === 2) body = `<h2>🪞 ${t('introLook')}</h2><div class="ward"><div class="ward-prev card mirror">${avatarSVG(introLook, lookHop ? 'lach' : 'blij', lookHop ? 'hopnow' : '')}</div><div class="ward-side">${lookPanel(introLook, null, false)}</div></div>`;
+  if (introStep === 2) body = `<h2>🪞 ${t('introLook')}</h2><div class="ward"><div class="ward-prev card mirror bg-${introLook.bg || 'geen'}">${avatarSVG(introLook, lookHop ? 'lach' : spiegelMood, lookHop ? 'hopnow' : '')}</div><div class="ward-side">${lookPanel(introLook, null, false)}</div></div>`;
   if (introStep === 3) { body = `<div class="intro-done">${avatarSVG(introLook, 'lach')}${pipSVG('lach')}</div><div class="bubble big">${t('introDone', { n: esc(D.profile.name) })}</div>`; btn = t('letsGo'); }
   el.innerHTML = `<div class="wrap narrow intro"><div class="intro-title">✨ ${t('appName')} ✨</div>${body}<button class="btn primary huge" id="introgo">${btn}</button></div>`;
   $$('[data-lang]', el).forEach(b => b.onclick = () => { D.settings.lang = b.dataset.lang; save(); applySettings(); SND.click(); renderIntro(); });
-  if (introStep === 2) bindLookPanel(el, introLook, renderIntro);
+  if (introStep === 2) { bindLookPanel(el, introLook, renderIntro); spiegelBind(el); }
   $('#introgo').onclick = () => {
     if (introStep === 1) { const n = $('#introname').value.trim(); if (!n) { shake($('#introname')); return; } D.profile.name = n; }
     if (introStep === 3) {

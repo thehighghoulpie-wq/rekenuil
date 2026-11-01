@@ -732,3 +732,198 @@ body.dark .chip.on, body.dark .tab.on, body.dark .btn:not(.ghost) { color: #fff;
 .pcard { text-align: center; } .pcard .cplant.big { width: 150px; height: 165px; display: block; margin: 0 auto; }
 .pcard h2 { margin: 4px 0 0; } .pap-name { margin: 2px 0 6px; } .pfact { text-align: left; background: #EFF8E8; border-radius: 14px; padding: 10px 12px; line-height: 1.45; }
 @media (prefers-reduced-motion: reduce) { .cplant .sway { animation: none; } }
+
+/* =====================================================================
+   Update 5: plezier, verzamelen, nieuwe spelletjes, Toverspiegel 3.0
+   ===================================================================== */
+/* Pip praat, zwaait en draait */
+.pip .pip-mouth { transform-box: view-box; transform-origin: 100px 134px; }
+.pip.talk .pip-mouth { animation: pipTalk .2s ease-in-out infinite alternate; }
+@keyframes pipTalk { from { transform: scaleY(1); } to { transform: scaleY(.45); } }
+.pip .pip-wave { transform-box: view-box; transform-origin: 156px 100px; animation: pipWave .9s ease-in-out infinite; }
+@keyframes pipWave { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-24deg); } }
+.pip.superspin { animation: superSpin 1.1s cubic-bezier(.3, 1.4, .5, 1); }
+@keyframes superSpin { 0% { transform: none; } 50% { transform: rotate(360deg) scale(1.25); } 100% { transform: rotate(720deg); } }
+
+/* je eigen tovenaar: draaien, poses, haar dat meezwiept */
+.avatar.twirl { animation: twirl .9s ease; }
+@keyframes twirl { 0% { transform: none; } 50% { transform: scaleX(-1) translateY(-10px); } 100% { transform: none; } }
+.avatar .hair { transform-box: view-box; transform-origin: 100px 60px; }
+.avatar.hopnow .hair-b, .avatar.pose-spring .hair-b { animation: hairSway .7s ease-out; }
+@keyframes hairSway { 0% { transform: none; } 30% { transform: rotate(-4deg) translateY(4px); } 60% { transform: rotate(3deg); } 100% { transform: none; } }
+.avatar.pose-zwaai .wand { transform-box: view-box; transform-origin: 146px 196px; animation: wandWave .5s ease-in-out 3; }
+@keyframes wandWave { 50% { transform: rotate(-28deg); } }
+.avatar.pose-spring { animation: poseJump .8s cubic-bezier(.3, 1.5, .5, 1); }
+@keyframes poseJump { 0% { transform: none; } 25% { transform: scale(1.06, .9); } 55% { transform: translateY(-34px) scale(.96, 1.06); } 100% { transform: none; } }
+.avatar.pose-draai { animation: poseSpin .9s ease; }
+@keyframes poseSpin { 0% { transform: none; } 25% { transform: scaleX(.2); } 50% { transform: scaleX(-1); } 75% { transform: scaleX(-.2); } 100% { transform: none; } }
+.avatar.pose-pose { animation: posePose 1.2s ease; }
+@keyframes posePose { 0%, 100% { transform: none; } 30%, 70% { transform: rotate(-6deg) scale(1.08); } }
+
+/* bliksem bij 5 en 10 op een rij */
+.zap { position: fixed; left: 50%; top: 32%; transform: translate(-50%, -50%); z-index: 60; display: flex; align-items: center; gap: 10px; background: linear-gradient(135deg, #FFE15A, #FFB547); color: #3A2600; padding: 14px 26px; border-radius: 999px; font-size: 1.4rem; box-shadow: 0 10px 30px rgba(255, 181, 71, .55); pointer-events: none; animation: zapIn 1.7s ease forwards; }
+.zap-bolt { font-size: 2rem; animation: zapBolt .25s ease-in-out 4 alternate; }
+@keyframes zapIn { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.4) rotate(-8deg); } 15% { opacity: 1; transform: translate(-50%, -50%) scale(1.12) rotate(2deg); } 25% { transform: translate(-50%, -50%) scale(1); } 80% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -70%) scale(.9); } }
+@keyframes zapBolt { to { transform: scale(1.3) rotate(10deg); } }
+.banner.zapb { background: linear-gradient(135deg, #FFE15A, #FFB547); color: #3A2600; }
+.qbar.shine { animation: barShine .7s ease; }
+@keyframes barShine { 0% { box-shadow: inset 0 0 0 2px var(--line); } 40% { box-shadow: 0 0 0 4px #FFE15A, 0 0 18px #FFD36E; } 100% { box-shadow: inset 0 0 0 2px var(--line); } }
+
+/* labeltjes en coach in de quiz */
+.qlabel { display: inline-block; margin-left: 6px; padding: 2px 10px; border-radius: 999px; font-size: .82rem; font-weight: 800; vertical-align: middle; }
+.ql-again { background: #E3F0FF; color: #1E4FB8; } .ql-new { background: #FFF3C4; color: #7A5B00; } .ql-spicy { background: #FFE1DA; color: #B4311C; }
+.coach { display: flex; align-items: center; gap: 8px; margin-top: 6px; font-weight: 700; font-size: .95rem; color: var(--sd, #5B47C9); }
+.coach .teacher.tiny { width: 40px; }
+.opt.chall { width: 100%; margin-top: 12px; display: flex; flex-direction: column; align-items: center; border: 2px dashed #FF8A5C; }
+.opt.chall.on { background: #FFE9DF; border-style: solid; }
+
+/* uitslag: de cast viert mee */
+.res-art { position: relative; }
+.castbox { position: absolute; right: -6px; bottom: 0; display: flex; flex-direction: column; align-items: center; gap: 4px; width: 104px; }
+.castbox .cast-cheer { width: 74px; height: auto; }
+.bubble.small { font-size: .82rem; padding: 6px 10px; border-radius: 14px; line-height: 1.2; text-align: center; }
+
+/* sterrenteller rolt op */
+.pill.roll { animation: pillRoll .6s cubic-bezier(.3, 1.6, .5, 1); }
+@keyframes pillRoll { 0% { transform: none; } 30% { transform: scale(1.18) rotate(-4deg); } 100% { transform: none; } }
+
+/* voorlezen */
+.l-head { position: relative; }
+.readbtn { margin-left: auto; }
+.teacher.talking { animation: teachTalk .35s ease-in-out infinite alternate; }
+@keyframes teachTalk { to { transform: translateY(-3px) rotate(-2deg); } }
+
+/* figuurtjes langs de haven */
+.mapcast { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
+.mc-actor { position: absolute; width: 7.5%; min-width: 46px; max-width: 86px; background: none; border: 0; padding: 0; pointer-events: auto; cursor: pointer; }
+.mc-actor .pet { width: 100%; height: auto; filter: drop-shadow(0 3px 2px rgba(0, 0, 0, .18)); }
+.mc-emo { position: absolute; top: -10%; right: -14%; font-size: 1.1rem; animation: bob 2.4s ease-in-out infinite; }
+.act-sun .pet, .act-nap .pet { animation: breathe 3.2s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.04, .96); } }
+.act-wade .pet { animation: wade 3s ease-in-out infinite; }
+@keyframes wade { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-3px) rotate(-3deg); } }
+.act-walk { animation: turboWalk 26s linear infinite; }
+.act-walk .pet { animation: waddle .8s ease-in-out infinite; }
+@keyframes turboWalk { 0% { transform: translateX(-60%); } 50% { transform: translateX(160%); } 50.01% { transform: translateX(160%) scaleX(-1); } 100% { transform: translateX(-60%) scaleX(-1); } }
+@keyframes waddle { 50% { transform: rotate(4deg); } }
+.act-read .pet, .act-hoot .pet, .act-stars .pet { animation: bob 3s ease-in-out infinite; }
+.act-float { animation: floatX 18s ease-in-out infinite alternate; }
+@keyframes floatX { from { transform: translateX(-120%); } to { transform: translateX(120%); } }
+
+/* feestdagen en wolkjes */
+.festoon { position: absolute; left: 0; right: 0; top: 2%; text-align: center; font-size: clamp(14px, 2.4vw, 26px); letter-spacing: 6px; white-space: nowrap; overflow: hidden; z-index: 2; pointer-events: none; animation: festoonSway 3s ease-in-out infinite alternate; }
+@keyframes festoonSway { from { transform: translateY(0); } to { transform: translateY(4px); } }
+.holiday { text-align: center; font-size: 1.1rem; margin: 10px 0; background: linear-gradient(135deg, #FFF5C9, #FFE3F1); }
+.poof { position: absolute; transform: translate(-50%, -50%); font-size: 1.6rem; pointer-events: none; z-index: 3; animation: poof .9s ease-out forwards; }
+@keyframes poof { 0% { opacity: 0; transform: translate(-50%, -50%) scale(.3); } 30% { opacity: 1; transform: translate(-50%, -60%) scale(1.2); } 100% { opacity: 0; transform: translate(-50%, -140%) scale(1.5); } }
+
+/* welkom-rondleiding */
+.tourcard { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); width: min(560px, calc(100% - 24px)); z-index: 70; display: flex; gap: 12px; align-items: center; padding: 14px 16px; border: 3px solid #FFD36E; }
+.tourcard p { margin: 0 0 8px; font-weight: 700; }
+.tourspot { position: relative; z-index: 1; animation: tourGlow 1.4s ease-in-out infinite; border-radius: 18px; }
+@keyframes tourGlow { 0%, 100% { box-shadow: 0 0 0 0 rgba(255, 211, 110, .9); } 50% { box-shadow: 0 0 0 10px rgba(255, 211, 110, 0); } }
+
+/* Toverspiegel 3.0 */
+.ward-prev { position: relative; overflow: hidden; }
+.ward-prev.bg-sterren { background: radial-gradient(circle at 20% 20%, #fff 0 2px, transparent 3px), radial-gradient(circle at 80% 30%, #FFE27A 0 2px, transparent 3px), radial-gradient(circle at 60% 80%, #fff 0 1.5px, transparent 2.5px), linear-gradient(160deg, #3C2A9E, #2A2366); }
+.ward-prev.bg-strand { background: linear-gradient(180deg, #8FD3FF 0 55%, #5BC8F0 55% 68%, #FFE2A8 68%); }
+.ward-prev.bg-haven { background: linear-gradient(180deg, #9FD8F5 0 50%, #F4A6C0 50% 58%, #8ED9C2 58% 64%, #F7DF5A 64% 70%, #2E8AD8 70%); }
+.ward-prev.bg-regenboog { background: linear-gradient(160deg, #FFD1DC, #FFE8B0, #D4F5D0, #CFE4FF, #E6D6FF); }
+.ward-prev.bg-nacht { background: radial-gradient(circle at 78% 18%, #FFF3C4 0 14px, transparent 15px), linear-gradient(180deg, #0B1450, #2A2366); }
+.ward-prev.bg-sterren .ward-name, .ward-prev.bg-nacht .ward-name { color: #fff; }
+.poofcloud { position: absolute; left: 50%; top: 45%; font-size: 2.6rem; transform: translate(-50%, -50%); pointer-events: none; animation: poof .7s ease-out forwards; }
+.diceshake { animation: diceShake .38s ease; }
+@keyframes diceShake { 20% { transform: rotate(-12deg); } 40% { transform: rotate(10deg) scale(1.05); } 60% { transform: rotate(-8deg); } 80% { transform: rotate(6deg); } }
+
+/* dagopdrachtjes */
+.questcard { margin: 12px 0; padding: 14px 16px; }
+.qc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 1.05rem; }
+.qrow { display: grid; grid-template-columns: 32px 1fr 80px 46px; gap: 8px; align-items: center; padding: 6px 0; font-weight: 700; }
+.qrow.done .qr-t { text-decoration: line-through; color: var(--muted); }
+.qr-ico { font-size: 1.3rem; text-align: center; }
+.qr-bar { height: 10px; background: #EFEAFB; border-radius: 999px; overflow: hidden; display: block; }
+.qr-bar i { display: block; height: 100%; background: linear-gradient(90deg, #7FD37A, #4FC8A4); border-radius: 999px; }
+.qr-n { font-size: .85rem; color: var(--muted); text-align: right; }
+.qc-note { font-size: .85rem; margin: 6px 0 0; }
+
+/* Eilandalbum en kostuum */
+.stickers { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
+.sticker { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 12px 8px; gap: 4px; opacity: .75; }
+.sticker.on { opacity: 1; background: linear-gradient(160deg, #FFF8DB, #FFE9F3); box-shadow: 0 4px 0 #F2C46B; }
+.st-e { font-size: 2.6rem; line-height: 1.1; }
+.sticker:not(.on) .st-e { filter: grayscale(1); opacity: .5; }
+.sticker small { color: var(--muted); font-weight: 600; font-size: .78rem; }
+.costume { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.cpiece { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; padding: 10px; }
+.cpiece .avatar { width: 90px; height: auto; }
+.cpiece.on { box-shadow: 0 4px 0 #E8402A; }
+.cpiece .qr-bar { width: 80%; }
+
+/* Sterrentoren: kalender en toverboek */
+.pbtns { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+.calendar { padding: 14px; margin-bottom: 14px; }
+.calendar h3 { margin: 0 0 8px; text-transform: capitalize; }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+.cal-h { font-size: .8rem; font-weight: 800; color: var(--muted); }
+.cal-d { padding: 6px 0; border-radius: 10px; font-weight: 700; background: #F7F4FF; }
+.cal-d.stamp { background: #FFF1B8; animation: none; }
+.cal-d.today { outline: 2px solid var(--gold, #FFB547); }
+.book { padding: 16px; margin-bottom: 14px; }
+.book-head { display: flex; align-items: center; gap: 12px; }
+.book-head .avatar { width: 80px; height: auto; }
+.book-head h2 { margin: 0; text-transform: none; }
+.book-line { font-weight: 700; font-size: 1.05rem; }
+body.dark .stat, body.dark .questcard, body.dark .calendar, body.dark .sticker, body.dark .cpiece, body.dark .book, body.dark .holiday, body.dark .tourcard, body.dark .phone, body.dark .walkq, body.dark .walkcard { color: var(--ink); }
+
+/* Koppelkoorts */
+.koppel .mt { min-height: 58px; font-size: 1.15rem; }
+
+/* Toverpiano */
+.pianotop { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; }
+.pianotop .pip { width: 90px; }
+.pianotop .bubble { flex: 1; }
+.piano { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin-bottom: 14px; }
+.pkey { height: 170px; border: 0; border-radius: 0 0 16px 16px; font-weight: 800; font-size: 1rem; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 12px; color: #2B2140; box-shadow: 0 6px 0 rgba(0, 0, 0, .12); transition: transform .08s; }
+.pkey.on { transform: translateY(5px); box-shadow: 0 1px 0 rgba(0, 0, 0, .12); filter: brightness(1.15); }
+.k0 { background: #FF8A8A; } .k1 { background: #FFB36B; } .k2 { background: #FFE26B; } .k3 { background: #9BE38A; } .k4 { background: #6FD3C6; } .k5 { background: #7FB8FF; } .k6 { background: #B79CFF; } .k7 { background: #FF9EC4; }
+
+/* Eilandwandeling */
+.walkq { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; margin-bottom: 10px; font-size: 1.1rem; }
+.walkscene { position: relative; }
+.walkscene .scene { margin: 0; }
+.witem { position: absolute; transform: translate(-50%, -50%); font-size: clamp(26px, 5vw, 44px); background: rgba(255, 255, 255, .85); border: 0; border-radius: 50%; width: 1.6em; height: 1.6em; display: grid; place-items: center; box-shadow: 0 4px 10px rgba(0, 0, 0, .18); z-index: 3; animation: bob 2.6s ease-in-out infinite; }
+.witem:nth-child(2n) { animation-delay: -1.2s; }
+.witem.got { box-shadow: 0 0 0 4px #7FD37A, 0 4px 10px rgba(0, 0, 0, .18); }
+.walkcard { display: flex; align-items: center; gap: 12px; padding: 12px 16px; margin-top: 10px; min-height: 76px; font-size: 1.05rem; }
+.wc-e { font-size: 2.6rem; }
+.pap.big { font-size: 1.5rem; }
+
+/* Bellen met Wela */
+.phone { max-width: 520px; margin: 0 auto; padding: 14px; }
+.ph-top { display: flex; align-items: center; gap: 12px; border-bottom: 2px solid var(--line); padding-bottom: 10px; }
+.ph-top .avatar { width: 70px; height: auto; }
+.wela-av.ringing { animation: ring .5s ease-in-out infinite; }
+@keyframes ring { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-8deg); } 75% { transform: rotate(8deg); } }
+.chat { display: flex; flex-direction: column; gap: 8px; min-height: 180px; max-height: 340px; overflow-y: auto; padding: 12px 2px; }
+.msg { max-width: 78%; padding: 10px 14px; border-radius: 18px; background: #F1ECFF; display: flex; flex-direction: column; gap: 2px; }
+.msg.wela { align-self: flex-start; border-bottom-left-radius: 4px; }
+.msg.me { align-self: flex-end; background: #DFF6E4; border-bottom-right-radius: 4px; }
+.msg b { font-size: 1.15rem; } .msg small { color: var(--muted); font-weight: 600; }
+.replies { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; padding-top: 6px; }
+.btn.reply { font-size: 1.1rem; min-width: 140px; }
+
+/* lesonderdelen: honderdveld, liniaal, gradenboog, oefenstapel */
+.hv-grid { display: grid; grid-template-columns: repeat(10, 1fr); gap: 2px; max-width: 300px; margin: 0 auto 8px; background: #D9CFF5; padding: 2px; border-radius: 8px; }
+.hv { aspect-ratio: 1; background: #fff; border-radius: 2px; cursor: pointer; }
+.hv.on { background: var(--sc, #8B6CF0); }
+.lin-svg, .grd-svg { display: block; width: 100%; max-width: 420px; margin: 0 auto; }
+.w-stack { display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.fcard.big { width: min(320px, 90%); min-height: 150px; font-size: 1.3rem; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pip.talk .pip-mouth, .pip .pip-wave, .mc-emo, .act-sun .pet, .act-nap .pet, .act-wade .pet, .act-walk, .act-walk .pet, .act-read .pet, .act-hoot .pet, .act-stars .pet, .act-float, .festoon, .witem, .wela-av.ringing, .tourspot, .teacher.talking { animation: none !important; }
+}
+@media (max-width: 560px) { .costume { grid-template-columns: 1fr; } .pkey { height: 130px; font-size: .8rem; } .qrow { grid-template-columns: 28px 1fr 56px 40px; } }
+.btn.reply { background: #fff; color: var(--ink); box-shadow: 0 4px 0 #CDBBFF; border: 2px solid #CDBBFF; }
+.btn.reply .pap { color: inherit; }
+.tb-stats .pill:empty { display: none; }

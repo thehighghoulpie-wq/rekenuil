@@ -12,8 +12,9 @@ function defaults() {
     owned: { outfit: ['paars'], hat: ['geen', 'puntmuts'], wand: ['ster'], pet: ['geen'] },
     topics: {}, highs: {}, badges: {}, days: [], lessons: {}, jokes: [], games: {}, unlocked: [], gifts: {},
     grade: 6, daylog: {}, review: {}, potion: { streak: 0, last: '', best: 0, total: 0, got: {}, freezeWeek: '' },
-    settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10, theme: 'auto' },
-    counters: { correct: 0, answered: 0, quizzes: 0, perfect: 0, bestStreak: 0, timed: 0, pap: 0, hard3: 0, purchases: 0, pets: 0 },
+    settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10, theme: 'auto', vibrate: false },
+    counters: { correct: 0, answered: 0, quizzes: 0, perfect: 0, bestStreak: 0, timed: 0, pap: 0, hard3: 0, purchases: 0, pets: 0, lessonRuns: 0, games: 0, garden: 0, walks: 0, calls: 0, challenge: 0, secret: 0, piano: 0, questAll: 0 },
+    stickers: [], toured: 0, quests: { day: '', ids: [], base: {}, done: [], s5: 0, all: 0 },
     lastSetup: { mode: 'practice', diff: 'easy', count: 10, duration: 60 }, subjectsTried: {}, created: Date.now()
   };
 }
@@ -42,6 +43,7 @@ function cleanSave(d) {
     L.bril = pick(l.bril, GLASSES, L.bril); L.oorbel = pick(l.oorbel, EARRINGS, L.oorbel); L.clip = pick(l.clip, CLIPS, L.clip); L.teken = pick(l.teken, TEKENS.map(x => x[0]), L.teken);
     for (const k of ['outfit', 'hat', 'wand', 'pet']) L[k] = pick(l[k], ITEMS[k].map(i => i.id), L[k]);
     L.sproet = !!l.sproet; L.lashes = !!l.lashes;
+    L.bg = pick(l.bg, MIRROR_BGS.map(x => x[0]), L.bg); L.glitter = pick(l.glitter, GLITTERS.map(x => x[0]), L.glitter);
     out.profile = { name: str(d.profile.name, 16), look: L };
   }
   for (const k of Object.keys(def.owned)) { const ids = ITEMS[k].map(i => i.id); out.owned[k] = [...new Set([...def.owned[k], ...(Array.isArray(obj(d.owned)[k]) ? d.owned[k] : []).filter(x => ids.includes(x))])]; }
@@ -56,13 +58,17 @@ function cleanSave(d) {
   out.review = map(d.review, r => { r = obj(r); return TOPIC[r.topic] && isDay(r.due) ? { topic: r.topic, item: typeof r.item === 'number' ? r.item : str(r.item, 200), box: num(r.box, 1, 5), due: r.due } : undefined; });
   out.recentWrong = (Array.isArray(d.recentWrong) ? d.recentWrong : []).slice(0, 12).map(w => ({ k: str(obj(w).k, 60), q: str(obj(w).q, 90), a: str(obj(w).a, 40), d: str(obj(w).d, 10) }));
   const s = obj(d.settings);
-  for (const k of ['sound', 'anim', 'big', 'jokes']) if (s[k] != null) out.settings[k] = !!s[k];
+  for (const k of ['sound', 'anim', 'big', 'jokes', 'vibrate']) if (s[k] != null) out.settings[k] = !!s[k];
   out.settings.lang = pick(s.lang, LANGS.map(l => l[0]), 'nl'); out.settings.dailyGoal = pick(+s.dailyGoal, [5, 10, 15, 20], 10);
   out.settings.theme = pick(s.theme, ['auto', 'day', 'night'], 'auto');
   out.settings.voiceWho = pick(s.voiceWho, ['Mama', 'Papa', 'Wela', 'Welo', 'Tanta'], '');
   for (const k of Object.keys(def.counters)) out.counters[k] = num(obj(d.counters)[k]);
   const ls = obj(d.lastSetup);
   out.lastSetup = { mode: pick(ls.mode, ['practice', 'timed'], 'practice'), diff: pick(ls.diff, ['easy', 'medium', 'hard'], 'easy'), count: pick(+ls.count, [5, 10, 15, 20], 10), duration: pick(+ls.duration, [60, 120, 300], 60) };
+  out.stickers = (Array.isArray(d.stickers) ? d.stickers : []).filter(x => typeof x === 'string').map(x => x.slice(0, 20)).slice(0, 60);
+  out.toured = d.toured ? 1 : 0;
+  const qq = obj(d.quests), strs = (a, n) => (Array.isArray(a) ? a : []).filter(x => typeof x === 'string').slice(0, n).map(x => x.slice(0, 12));
+  out.quests = { day: isDay(qq.day) ? qq.day : '', ids: strs(qq.ids, 5), base: map(qq.base, v => num(v)), done: strs(qq.done, 5), s5: qq.s5 ? 1 : 0, all: qq.all ? 1 : 0 };
   const p = obj(d.potion);
   out.potion = { streak: num(p.streak), best: num(p.best), total: num(p.total), last: isDay(p.last) ? p.last : '', freezeWeek: str(p.freezeWeek, 12), got: map(p.got, v => num(v)) };
   return out;
@@ -218,6 +224,7 @@ function goBack() {
   const p = PARENT[current] || 'map';
   if (p === 'class' && L.subject) return openClass(L.subject);
   if (p === 'games') return openGames();
+  if (p === 'progress') return openProgress();
   openMap();
 }
 
@@ -288,11 +295,12 @@ function openMap() {
     sparkleBurst($('#pipjoke'), 8);   // Pip niest glitter
     move($('#pipsay'), 'pop');
   };
-  $('#meact').onclick = () => { SND.pop(); move($('#meact .avatar'), 'hop'); sparkleBurst($('#meact'), 10, WAND_SPARKS[look().wand]); };
+  $('#meact').onclick = () => { SND.pop(); move($('#meact .avatar'), 'hop'); sparkleBurst($('#meact'), 10, glitterSyms()); };
   show('map');
   move($('.scene', el), 'inUp', { duration: 700 });
   stagger([$('.hero-row', el), $('.potcard', el)].filter(Boolean), 'inUp', 80, 120);
   stagger($$('.place', el), 'inUp', 40, 220);
+  onMapShown(el);
 }
 
 /* =====================================================================
@@ -342,6 +350,7 @@ function renderLesson() {
     <div class="l-nav"><button class="btn ghost" data-l="prev" ${L.step === 0 ? 'disabled' : ''}>${t('prev')}</button>
       ${last ? (L.from === 'quiz' ? `<button class="btn primary" data-l="quiz">${t('backToQuiz')}</button>` : `<button class="btn primary" data-l="play">${t('nowPractise')}</button>`) : `<button class="btn primary" data-l="next">${t('next')}</button>`}</div></div>`;
   if (st.w && WIDGETS[st.w]) WIDGETS[st.w]($('#lwidget'), st.o || {});
+  lessonShown(el, st);
   $('[data-act="lback"]', el).onclick = lessonBack;
   $$('[data-l]', el).forEach(b => b.onclick = () => {
     SND.click();
@@ -349,6 +358,7 @@ function renderLesson() {
     if (a === 'prev') { L.step--; renderLesson(); window.scrollTo(0, 0); }
     if (a === 'next') { L.step++; renderLesson(); window.scrollTo(0, 0); }
     if (a === 'play' || a === 'quiz') {
+      D.counters.lessonRuns++; save();
       if (!D.lessons[L.topic]) { D.lessons[L.topic] = Date.now(); addStars(3); save(); toast(t('lessonDone')); checkBadges(); }
       a === 'play' ? openSetup(L.topic) : returnToQuiz();
     }
@@ -365,7 +375,7 @@ const isMix = k => /\/mix$/.test(k);
 const topicName = k => isMix(k) ? t('mix') : tTopic(TOPIC[k]);
 function highKey() { return `${S.topicKey}|${S.mode}|${S.diff}|${S.mode === 'timed' ? S.duration : S.count}`; }
 function openSetup(key) {
-  S.topicKey = key; S.subject = key.split('/')[0]; L.subject = S.subject; S.potion = false; S.queue = null;
+  S.topicKey = key; S.subject = key.split('/')[0]; L.subject = S.subject; S.potion = false; S.queue = null; S.challenge = false;
   Object.assign(S, { mode: D.lastSetup.mode, diff: D.lastSetup.diff, count: D.lastSetup.count, duration: D.lastSetup.duration });
   renderSetup(); show('setup');
 }
@@ -383,6 +393,7 @@ function renderSetup() {
     ${S.mode === 'practice'
       ? `<h3>${t('howMany')}</h3><div class="chips">${[5, 10, 15, 20].map(n => `<button class="chip ${S.count === n ? 'on' : ''}" data-count="${n}">${n}</button>`).join('')}</div>`
       : `<h3>${t('howLong')}</h3><div class="chips">${[60, 120, 300].map(n => `<button class="chip ${S.duration === n ? 'on' : ''}" data-dur="${n}">${n / 60} ${t('min')}</button>`).join('')}</div>`}
+    ${S.potion ? '' : challengeHTML()}
     <div class="record">${t('yourRecord', { n: rec })}</div>
     <button class="btn primary huge" id="go">${t('begin')}</button>
     ${tp ? `<button class="btn ghost wide" id="tolesson">${t('lessonFirst')}</button>` : ''}</div>`;
@@ -392,6 +403,7 @@ function renderSetup() {
   $$('[data-count]', el).forEach(b => b.onclick = () => { S.count = +b.dataset.count; renderSetup(); });
   $$('[data-dur]', el).forEach(b => b.onclick = () => { S.duration = +b.dataset.dur; renderSetup(); });
   $('#go').onclick = startQuiz;
+  if ($('#chall')) $('#chall').onclick = () => { S.challenge = !S.challenge; SND.click(); renderSetup(); };
   if ($('#tolesson')) $('#tolesson').onclick = () => openLesson(S.topicKey, 0, 'class');
 }
 
@@ -402,6 +414,8 @@ let timerId = null;
 const subjOf = () => S.potion ? POTION_SUBJ : SUBJECT[S.subject];
 function startQuiz() {
   if (!S.potion) D.lastSetup = { mode: S.mode, diff: S.diff, count: S.count, duration: S.duration };
+  if (S.potion) S.challenge = false; else if (S.challenge) S.diff = 'hard';
+  S.challengeWon = false; S.lastQ4 = 0;
   save();
   Object.assign(S, { i: 0, score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, wrong: [], recentKeys: [], wrongByTopic: {}, suggested: {}, locked: false, pausedAt: 0 });
   if (!D.days.includes(today())) { D.days.push(today()); if (D.days.length > 400) D.days = D.days.slice(-400); save(); }
@@ -455,13 +469,14 @@ function renderQuestion() {
   $('#qtext').innerHTML = q.text; $('#qtext').className = 'qtext' + (q.long ? ' long' : '');
   $('#qvis').innerHTML = q.visual || ''; $('#qvis').classList.toggle('empty', !q.visual);
   $('#hintbox').classList.remove('show'); $('#hintbox').innerHTML = '';
-  $('#qhint').classList.toggle('hidden', S.mode === 'timed' || !q.hint);
+  $('#qhint').classList.toggle('hidden', S.mode === 'timed' || !q.hint || !!S.challenge);
   $('#qme').innerHTML = avatarSVG(look(), 'blij', 'small');
   S.qStart = Date.now();
   renderInput(); updateBar();
   if (S.pipMood !== 'blij') { $('#qpip').innerHTML = pipSVG('blij'); S.pipMood = 'blij'; }
   move($('#qcard'), 'inUp', { duration: 480 });
   stagger($$('.choice, .tw, .orderpool .ow', $('#qinput')), 'pop', 35, 120, 10);
+  quizLabel(q);
 }
 function updateBar() {
   const p = S.mode === 'practice' ? (S.i - 1) / S.count : 1 - Math.max(0, S.endAt - Date.now()) / (S.duration * 1000);
@@ -642,15 +657,15 @@ function feedback(ok, g, choiceIdx) {
   updateBar();
   const chosen = choiceIdx != null ? $$('.choice')[choiceIdx] : null;
   if (ok) {
-    SND.ok();
-    S.pipMood = 'lach'; pipReact($('#qpip'), 'lach');
+    S.pipMood = pipJoyMood(); pipReact($('#qpip'), S.pipMood);
     move(chosen || $('#ansrow') || $('.tapzin') || $('.orderbuilt'), 'jelly');
     move($('#qbarfill'), 'jelly', { duration: 420 });
     $('#qme').innerHTML = avatarSVG(look(), 'lach', 'small casting');
     const sb = $('#spellbanner');
     const sm = STREAK_MSG[S.streak];
     sb.innerHTML = `<div class="spellname">✨ ${kies(SPELLS)}</div><div class="praise">${kies(tList(PRAISE, PRAISE_I18N))}${S.hintUsed ? ` <small>${t('withHelp')}</small>` : ''}</div>${sm ? `<div class="streakmsg">${sm}</div>` : ''}`;
-    sb.classList.add('show'); sparkleBurst($('#qme'), sm ? 20 : 12, WAND_SPARKS[look().wand]);
+    sb.classList.add('show'); sparkleBurst($('#qme'), sm ? 20 : 12, glitterSyms());
+    delightCorrect(chosen);
     flyTo($('#qme'), $('#qpts').parentNode, '✨');
     const pet = $('.qpet'); if (pet) { pet.classList.remove('hop'); void pet.offsetWidth; pet.classList.add('hop'); }
     const go = () => { sb.classList.remove('show'); sb.onclick = null; clearTimeout(S.autoT); next(); };
@@ -658,7 +673,7 @@ function feedback(ok, g, choiceIdx) {
     S.autoT = setTimeout(go, timed ? 650 : (sm ? 1600 : 1100));
     return;
   }
-  SND.boing();
+  SND.boing(); delightWrong();
   $('#qme').innerHTML = avatarSVG(look(), 'oeps', 'small');
   S.pipMood = 'oeps'; pipReact($('#qpip'), 'oeps');
   if (chosen) { move(chosen, 'nope'); move($$('.choice')[q.answer], 'jelly', { delay: 260 }); }
@@ -717,6 +732,7 @@ function finish(stopped = false) {
   if (S.potion && !stopped) { potion = potionComplete(); if (potion.bonus) earned += potion.bonus; }
   let newJoke = null;
   if (stars >= 2 && D.jokes.length < JOKES.length) { const free = JOKES.map((_, i) => i).filter(i => !D.jokes.includes(i)); const j = kies(free); D.jokes.push(j); newJoke = JOKES[j]; }
+  earned += challengeBonus();
   save(); addStars(earned);
   const newBadges = checkBadges(true);
   renderResults({ stars, earned, isRecord, prev, newJoke, newBadges, stopped, potion });
@@ -759,6 +775,7 @@ function renderResults(r) {
   if (r.stars >= 2) move($('.pipline .pip', el), 'dance', { delay: 1300 });
   $$('.res-grid b[data-n]', el).forEach((b, i) => setTimeout(() => countUp(b, +b.dataset.n), 150 + i * 120));
   if (r.stars >= 2) { setTimeout(() => { confetti(r.stars === 3 ? 180 : 90); SND.fanfare(); }, 300); }
+  resultsExtras(el, r);
 }
 
 /* ---------- prijzen: badges en nieuwe delen van de school ---------- */
