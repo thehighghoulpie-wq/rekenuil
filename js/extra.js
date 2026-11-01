@@ -344,6 +344,7 @@ function renderParents() {
       <label class="lbl">${t('parBackup')}</label><p class="muted">${t('parBackupInfo')}</p>
       <div class="btnrow"><button class="btn" id="bkdown">⬇️ ${t('parSave')}</button><label class="btn ghost">⬆️ ${t('parLoad')}<input type="file" id="bkup" accept=".json,application/json" hidden></label></div>
       <p>${t('parentInfo')}</p><p class="muted">${t('contentNote')}</p>
+      <label class="lbl">🛠️ ${t('makerLbl')}</label><p class="muted">${t('makerInfo')}</p><button class="btn ghost wide" id="maker">${t('makerBtn')}</button>
       <button class="btn ghost wide danger" id="reset">${t('reset')}</button>`;
   }
   el.innerHTML = backbar('👪 ' + t('forParents')) + `<div class="wrap narrow"><div class="tabs">${tabs.map(([k, n]) => `<button class="tab ${parTab === k ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}</div>${body}</div>`;
@@ -358,8 +359,19 @@ function renderParents() {
   $$('[data-rec]', el).forEach(b => b.onclick = () => recordWord(b));
   if ($('#bkdown')) $('#bkdown').onclick = backupDownload;
   if ($('#bkup')) $('#bkup').onchange = e => backupRestore(e.target.files[0]);
+  if ($('#maker')) $('#maker').onclick = () => modal(`<div class="m-ico">🛠️</div><h2>${t('makerQ')}</h2><p>${t('makerSub')}</p>`,
+    [{ label: t('cancel'), cls: 'primary' }, { label: t('makerYes'), cls: 'ghost', fn: () => { makerUnlockAll(); toast(t('makerDone')); renderParents(); } }]);
   if ($('#reset')) $('#reset').onclick = () => modal(`<div class="m-ico">${pipSVG('oeps')}</div><h2>${t('resetQ')}</h2><p>${t('resetSub')}</p>`,
     [{ label: t('cancel'), cls: 'primary' }, { label: t('resetYes'), cls: 'ghost danger', fn: () => { const l = D.settings.lang; D = defaults(); D.settings.lang = l; save(); applySettings(); openIntro(); } }]);
+}
+/* Maker-modus: alles meteen open, om de app te testen. Alleen via de ouderhoek, met waarschuwing.
+   Terugzetten kan met een eerder gemaakte back-up. */
+function makerUnlockAll() {
+  D.stars = Math.max(D.stars, 5000); D.starsTotal = Math.max(D.starsTotal, 5000);
+  for (const kind of Object.keys(ITEMS)) { D.owned[kind] = D.owned[kind] || []; for (const it of ITEMS[kind]) if (!D.owned[kind].includes(it.id)) D.owned[kind].push(it.id); }
+  for (const p of PLACES) if (p.need > 0 && !D.unlocked.includes(p.id)) D.unlocked.push(p.id);
+  for (const k of Object.keys(TOPIC)) if (!D.lessons[k]) D.lessons[k] = Date.now();
+  save(); updateStarCount(); checkBadges();
 }
 // na opnieuw tekenen dezelfde categorie open laten
 const keepOpen = fn => () => { const open = $$('#parents details[open] summary b').map(b => b.textContent); fn(); $$('#parents details').forEach(d => { if (open.includes($('summary b', d).textContent)) d.open = true; }); };
