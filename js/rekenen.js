@@ -861,19 +861,21 @@ registerTopic('rekenen', { id: 'tafels', name: 'Tafels', sub: '1 t/m 10', ico: '
   { t: 'Omdraaien mag!', h: '3 × 4 is hetzelfde als 4 × 3. Allebei 12!<br>Weet je 7 × 3? Dan weet je ook 3 × 7. Zo hoef je maar de helft te leren. 🎉', v: emojiRows(4, 3, '🌙') },
   { t: 'Toverslimme trucs', h: '<ul class="tips"><li><b>× 1</b>: het getal blijft hetzelfde.</li><li><b>× 2</b>: het dubbele. 2 × 8 = 8 + 8.</li><li><b>× 10</b>: zet een 0 erachter. 10 × 6 = 60.</li><li><b>× 5</b>: de helft van × 10. 5 × 6 = de helft van 60 = 30.</li><li><b>× 4</b>: dubbel en nog eens dubbel.</li><li><b>× 9</b>: × 10 en dan één keer eraf. 9 × 6 = 60 − 6 = 54.</li></ul>' },
   { t: 'Oefen de rijtjes', h: 'Kies een tafel en zeg hem hardop. Hoe vaker je hem zegt, hoe beter je spreuk werkt!', w: 'tafel', o: { n: 7 } },
-  { t: 'Weet je er één niet?', h: 'Reken vanaf een som die je wél weet.<br>6 × 8 weet je niet? 5 × 8 = 40. Nog één 8 erbij: <b>48</b>.' }
+  { t: 'Weet je er één niet?', h: 'Reken vanaf een som die je wél weet.', w: 'stappen', o: { lines: ['Je weet <b>6 × 8</b> niet?', 'Neem een som die je wél weet: <b>5 × 8 = 40</b>.', 'Er moet nog <b>één</b> 8 bij: 40 + 8 = <b>48</b>.'] } },
+  { t: 'Probeer zelf', h: 'Gebruik dezelfde truc.', w: 'probeer', o: { q: 'Wat is <b>6 × 7</b>? Begin met 5 × 7 = 35.', opts: ['42', '36', '49'], ok: 0, uitleg: '5 × 7 = 35 en dan nog één 7 erbij: <b>42</b>.', hint: '35 + 7 = ?' } }
 ] });
 
 registerTopic('rekenen', { id: 'delen', name: 'Delen', sub: 'ook met rest', ico: '➗', gen: genDelen, pace: { easy: 12, medium: 7, hard: 4 }, comma: false, lesson: [
   { t: 'Eerlijk verdelen', h: '<b>12 : 3</b> betekent: verdeel 12 eerlijk over 3.<br>Iedereen krijgt <b>4</b>.', v: emojiRows(3, 4, '🍬') },
   { t: 'Delen is keer, maar andersom', h: 'Weet je dat 4 × 3 = 12?<br>Dan weet je ook: 12 : 3 = 4 en 12 : 4 = 3.<br>Denk bij delen dus aan de tafels!' },
-  { t: 'Delen met rest', h: '<b>14 : 4</b> = ?<br>In de tafel van 4: 3 × 4 = 12. 4 × 4 = 16 is te veel.<br>12 past. Er blijft 14 − 12 = <b>2</b> over.<br>Dus 14 : 4 = <b>3 rest 2</b>.', v: '<div class="emorows"><div>🍪🍪🍪🍪</div><div>🍪🍪🍪🍪</div><div>🍪🍪🍪🍪</div><div class="rest">🍪🍪 ← rest</div></div>' },
-  { t: 'Grote getallen delen', h: 'Splits het getal in handige stukken.<br><b>84 : 4</b><br>80 : 4 = 20<br>4 : 4 = 1<br>Samen: <b>21</b>.' },
+  { t: 'Delen met rest', h: 'Verdeel 14 koekjes over 4 kinderen. Tik op de knop en kijk stap voor stap.', w: 'stappen', o: { lines: ['<b>14 : 4</b> = ?', 'Zoek in de tafel van 4: <b>3 × 4 = 12</b> past ✔️', '<b>4 × 4 = 16</b> is te veel ✖️', 'Er blijft over: 14 − 12 = <b>2</b>', 'Dus 14 : 4 = <b>3 rest 2</b>'] }, v: '<div class="emorows"><div>🍪🍪🍪🍪</div><div>🍪🍪🍪🍪</div><div>🍪🍪🍪🍪</div><div class="rest">🍪🍪 ← rest</div></div>' },
+  { t: 'Grote getallen delen', h: 'Splits het getal in handige stukken. Dan reken je twee makkelijke sommen.', w: 'stappen', o: { lines: ['<b>84 : 4</b>. Splits 84 in <b>80</b> en <b>4</b>.', '80 : 4 = <b>20</b>', '4 : 4 = <b>1</b>', '20 + 1 = <b>21</b>'] } },
+  { t: 'Probeer zelf', h: 'Nu jij.', w: 'probeer', o: { q: 'Wat is <b>48 : 4</b>? Splits in 40 en 8.', opts: ['12', '11', '14'], ok: 0, uitleg: '40 : 4 = 10 en 8 : 4 = 2. Samen: <b>12</b>.', hint: '40 : 4 = 10 en 8 : 4 = 2.' } },
   { t: 'Zo vul je het in', h: 'Bij een som met rest zie je twee vakjes. Typ eerst het antwoord. Tik dan op het vakje <b>rest</b> en typ wat er overblijft. Geen rest? Laat het rest-vakje leeg.' }
 ] });
 
 registerTopic('rekenen', { id: 'plusmin', name: 'Plus en min', sub: 'tot 10.000 & cijferen', ico: '➕', gen: genPlusMinAll, pace: { easy: 8, medium: 5, hard: 3 }, comma: false, lesson: [
-  { t: 'Splitsen', h: 'Grote getallen tel je makkelijk op door ze te splitsen.<br><b>3.450 + 1.230</b><br>3.000 + 1.000 = 4.000<br>400 + 200 = 600<br>50 + 30 = 80<br>Samen: <b>4.680</b>.' },
+  { t: 'Splitsen', h: 'Grote getallen tel je makkelijk op door ze te splitsen in duizendtallen, honderdtallen en tientallen.', w: 'stappen', o: { lines: ['<b>3.450 + 1.230</b>', '3.000 + 1.000 = <b>4.000</b>', '400 + 200 = <b>600</b>', '50 + 30 = <b>80</b>', '4.000 + 600 + 80 = <b>4.680</b>'] } },
   { t: 'Sprongen op de getallenlijn', h: '<b>4.560 − 1.300</b><br>Spring eerst 1.000 terug: 3.560.<br>Dan nog 300 terug: <b>3.260</b>.', v: numberLine(3000, 5000, 100, [{ v: 4560, label: '4.560' }, { v: 3260, label: '3.260', cls: 'ans' }], { labelEvery: 500, arc: [4560, 3260] }) },
   { t: 'Cijferen: onder elkaar', h: 'Bij cijferen zet je de getallen precies onder elkaar: eenheden onder eenheden, tientallen onder tientallen. Begin altijd <b>rechts</b>. Wordt het 10 of meer? Schrijf de eenheid op en <b>onthoud 1</b>.', w: 'cijferen', o: { op: '+' } },
   { t: 'Cijferen met lenen', h: 'Bij min kan het gebeuren dat het bovenste cijfer te klein is. Dan <b>leen</b> je 10 van het cijfer links ernaast.', w: 'cijferen', o: { op: '-' } },
@@ -891,7 +893,8 @@ registerTopic('rekenen', { id: 'groot', name: 'Grote getallen', sub: 'afronden &
 registerTopic('rekenen', { id: 'breuken', name: 'Breuken & kommagetallen', sub: '½, ¼, 0,5 …', ico: '🍕', gen: genBreuken, pace: { easy: 6, medium: 5, hard: 4 }, lesson: [
   { t: 'Wat is een breuk?', h: 'Een breuk is een deel van een geheel. Kies in hoeveel stukken je de strook verdeelt en tik op stukken om ze te kleuren.', w: 'breuk', o: { d: 4 } },
   { t: 'Teller en noemer', h: `In ${frac(3, 4)} is de <b>4</b> de <b>noemer</b>: in hoeveel gelijke stukken het verdeeld is.<br>De <b>3</b> is de <b>teller</b>: hoeveel stukken je hebt.`, v: fracBar(3, 4) },
-  { t: 'Een breuk van een getal', h: `${frac(3, 4)} van 20 = ?<br>1. Deel door de noemer: 20 : 4 = 5.<br>2. Keer de teller: 3 × 5 = <b>15</b>.` },
+  { t: 'Een breuk van een getal', h: `Dit gaat altijd in twee stappen: eerst delen, dan keer.`, w: 'stappen', o: { lines: [`${frac(3, 4)} van 20 = ?`, 'Stap 1: deel door de <b>noemer</b>: 20 : 4 = <b>5</b>', 'Stap 2: keer de <b>teller</b>: 3 × 5 = <b>15</b>'] } },
+  { t: 'Probeer zelf', h: 'Dezelfde twee stappen.', w: 'probeer', o: { q: 'Wat is 2/3 van <b>12</b>?', opts: ['8', '6', '4'], ok: 0, uitleg: '12 : 3 = 4 en 2 × 4 = <b>8</b>.', hint: 'Eerst 12 : 3. Dan keer 2.' } },
   { t: 'Even groot, andere naam', h: `${frac(1, 2)} = ${frac(2, 4)} = ${frac(4, 8)}<br>Doe je teller én noemer keer hetzelfde getal? Dan blijft de breuk even groot.`, v: fracBar(1, 2) + fracBar(2, 4) + fracBar(4, 8) },
   { t: 'Kommagetallen', h: `Na de komma komen de <b>tienden</b> en de <b>honderdsten</b>.<br>0,5 = ${frac(5, 10)} = ${frac(1, 2)}<br>0,25 = ${frac(25, 100)} = ${frac(1, 4)}<br>Bij geld ken je dit al: € 2,50 is twee en een halve euro!` },
   { t: 'Keer 10 en gedeeld door 10', h: 'Bij <b>× 10</b> schuift de komma 1 plaats naar <b>rechts</b>: 3,5 × 10 = 35.<br>Bij <b>: 10</b> schuift de komma 1 plaats naar <b>links</b>: 42 : 10 = 4,2.' }
@@ -901,7 +904,8 @@ registerTopic('rekenen', { id: 'geld', name: 'Geld', sub: 'euro\'s en centen', i
   { t: 'Munten en briefjes', h: 'Dit is ons geld. 100 cent = 1 euro.', v: moneyHTML([5000, 2000, 1000, 500, 200, 100, 50, 20, 10, 5, 2, 1]) },
   { t: 'Geld tellen', h: 'Tel altijd van groot naar klein: eerst de briefjes, dan de euromunten, dan de centen.<br>€10 + €5 + €2 + 50c + 20c = <b>€ 17,70</b>.', v: moneyHTML([1000, 500, 200, 50, 20]) },
   { t: 'Zelf betalen', h: 'Probeer het bedrag precies te betalen met zo weinig mogelijk munten.', w: 'geld' },
-  { t: 'Wisselgeld', h: 'Je koopt iets van € 3,45 en betaalt met € 5. Tel op vanaf de prijs, net als de verkoper:<br>€ 3,45 → € 3,50 (5 cent)<br>€ 3,50 → € 4,00 (50 cent)<br>€ 4,00 → € 5,00 (€ 1)<br>Samen: <b>€ 1,55</b> terug.' },
+  { t: 'Wisselgeld', h: 'Je koopt iets van € 3,45 en betaalt met € 5. Tel op vanaf de prijs, net als de verkoper.', w: 'stappen', o: { lines: ['€ 3,45 → € 3,50 is <b>5 cent</b>', '€ 3,50 → € 4,00 is <b>50 cent</b>', '€ 4,00 → € 5,00 is <b>€ 1</b>', 'Samen: <b>€ 1,55</b> terug'] } },
+  { t: 'Probeer zelf', h: 'Tel op, zoals de verkoper.', w: 'probeer', o: { q: 'Je koopt iets van € 2,35 en betaalt met € 5. Hoeveel krijg je terug?', opts: ['€ 2,65', '€ 3,65', '€ 2,35'], ok: 0, uitleg: '€ 2,35 → € 2,40 (5 cent) → € 3,00 (60 cent) → € 5,00 (€ 2). Samen <b>€ 2,65</b>.', hint: 'Tel op tot € 2,40, dan tot € 3,00, dan tot € 5,00.' } },
   { t: 'Op de tablet', h: 'Bij geld typ je een komma tussen de euro\'s en de centen: <b>1,55</b>. Gebruik de komma-knop op het toetsenbord.' }
 ] });
 
@@ -917,7 +921,8 @@ registerTopic('rekenen', { id: 'opp', name: 'Omtrek & oppervlakte', sub: 'rand e
   { t: 'Omtrek = de rand', h: 'De <b>omtrek</b> is de lengte van de rand eromheen. Stel je voor dat een mier één rondje loopt.<br>5 + 3 + 5 + 3 = <b>16 cm</b>.', v: gridShape(5, 3, { labels: true }) },
   { t: 'Oppervlakte = de hokjes', h: 'De <b>oppervlakte</b> is hoeveel ruimte de figuur inneemt: het aantal hokjes. Bij een rechthoek: <b>lengte × breedte</b>. Probeer het!', w: 'oppervlakte', o: { w: 5, h: 3 } },
   { t: 'Eenheden', h: 'Omtrek meet je in <b>cm</b> of <b>m</b>.<br>Oppervlakte meet je in <b>cm²</b> of <b>m²</b> (vierkante centimeter of meter). Een hokje van 1 cm bij 1 cm is 1 cm².' },
-  { t: 'Lastige vormen', h: 'Een L-vorm? Maak er een grote rechthoek van en haal het lege stuk eraf.<br>6 × 5 = 30. Leeg stuk: 2 × 2 = 4. 30 − 4 = <b>26 cm²</b>.', v: gridShape(6, 5, { cut: [2, 2], labels: true }) }
+  { t: 'Lastige vormen', h: 'Een L-vorm? Maak er een grote rechthoek van en haal het lege stuk eraf.', w: 'stappen', o: { lines: ['Grote rechthoek: 6 × 5 = <b>30</b>', 'Het lege stuk: 2 × 2 = <b>4</b>', '30 − 4 = <b>26 cm²</b>'] }, v: gridShape(6, 5, { cut: [2, 2], labels: true }) },
+  { t: 'Probeer zelf', h: 'Een gewone rechthoek.', w: 'probeer', o: { q: 'Een rechthoek is <b>6 cm</b> lang en <b>4 cm</b> breed. Wat is de oppervlakte?', opts: ['24 cm²', '20 cm²', '10 cm²'], ok: 0, uitleg: 'Oppervlakte = lengte × breedte = 6 × 4 = <b>24 cm²</b>. (20 cm is de omtrek.)', hint: 'Oppervlakte is keer, omtrek is optellen.' } }
 ] });
 
 registerTopic('rekenen', { id: 'grafiek', name: 'Tabellen & grafieken', sub: 'aflezen en vergelijken', ico: '📊', gen: genGrafiek, pace: { easy: 5, medium: 4, hard: 3.5 }, comma: false, lesson: [
@@ -931,13 +936,13 @@ registerTopic('rekenen', { id: 'klok', name: 'Klokkijken', sub: 'en rekenen met 
   { t: 'De wijzers', h: 'De <b>korte</b> (rode) wijzer wijst het uur aan. De <b>lange</b> (blauwe) wijzer de minuten. Bij elk cijfer komen er 5 minuten bij.', w: 'klok', o: { h: 3, m: 30 } },
   { t: 'Half en kwart', h: '<b>Half vier</b> = 3:30. Het is half op weg naar vier!<br><b>Kwart over drie</b> = 3:15.<br><b>Kwart voor vier</b> = 3:45.', v: `<div class="clockrow">${clockSVG(3, 30, 'mini')}${clockSVG(3, 15, 'mini')}${clockSVG(3, 45, 'mini')}</div>` },
   { t: 'De 24-uursklok', h: 'Na 12 uur \'s middags tel je door: 1 uur \'s middags = <b>13:00</b>, 2 uur = 14:00 … 11 uur \'s avonds = 23:00. Middernacht is 00:00.<br>Truc: tel er 12 bij of haal er 12 af.' },
-  { t: 'Rekenen met tijd', h: '1 uur = 60 minuten. Een kwartier = 15 minuten.<br>Van <b>9:45</b> tot <b>11:20</b>?<br>9:45 → 10:00 = 15 min<br>10:00 → 11:00 = 60 min<br>11:00 → 11:20 = 20 min<br>Samen: <b>95 minuten</b>.' },
+  { t: 'Rekenen met tijd', h: '1 uur = 60 minuten. Een kwartier = 15 minuten. Hoe lang is het van 9:45 tot 11:20? Maak er hele stappen van.', w: 'stappen', o: { lines: ['9:45 → 10:00 = <b>15 min</b>', '10:00 → 11:00 = <b>60 min</b>', '11:00 → 11:20 = <b>20 min</b>', '15 + 60 + 20 = <b>95 minuten</b>'] } },
   { t: 'Op de tablet', h: 'Typ een tijd met de dubbele punt-knop: <b>14:30</b>. Of typ gewoon 1430.' }
 ] });
 
 registerTopic('rekenen', { id: 'verhaal', name: 'Verhaaltjessommen', sub: 'lezen en rekenen', ico: '📖', gen: genVerhaal, pace: { easy: 4, medium: 3, hard: 2.5 }, lesson: [
   { t: 'Het toverstappenplan', h: '<ol class="tips"><li><b>Lees</b> het verhaal rustig.</li><li>Wat wordt er <b>gevraagd</b>?</li><li>Welke <b>getallen</b> heb je nodig?</li><li>Welke <b>som</b> hoort erbij?</li><li><b>Reken</b> uit.</li><li><b>Klopt</b> het antwoord? Kan het echt?</li></ol>' },
   { t: 'Signaalwoorden', h: '<ul class="tips"><li><b>samen, erbij, in totaal</b> → plus +</li><li><b>over, weg, minder, verschil</b> → min −</li><li><b>keer, elk, per, rijen van</b> → keer ×</li><li><b>verdelen, eerlijk, hoeveel keer past</b> → delen :</li></ul>' },
-  { t: 'Voorbeeld', h: 'Pip koopt 3 zakjes snoep van €2. Hij betaalt met €10. Hoeveel krijgt hij terug?<br>Stap 1: 3 × €2 = €6.<br>Stap 2: €10 − €6 = <b>€4</b>.<br>Soms heb je dus <b>twee</b> sommen nodig!' },
+  { t: 'Voorbeeld', h: 'Pip koopt 3 zakjes snoep van €2. Hij betaalt met €10. Hoeveel krijgt hij terug? Soms heb je <b>twee</b> sommen nodig.', w: 'stappen', o: { lines: ['Wat wordt er gevraagd? Het <b>wisselgeld</b>.', 'Som 1: 3 × €2 = <b>€6</b> (kosten)', 'Som 2: €10 − €6 = <b>€4</b>', 'Antwoord: Pip krijgt <b>€4</b> terug.'] } },
   { t: 'Let op met rest!', h: '23 kinderen, in een auto passen 4 kinderen. Hoeveel auto\'s?<br>23 : 4 = 5 rest 3. Die 3 kinderen moeten ook mee! Dus <b>6</b> auto\'s.' }
 ] });

@@ -329,3 +329,42 @@ registerWidget('kaarten', (el, o = {}) => {
     <div class="w-small">Tik op een kaart om hem om te draaien.</div>`;
   $$('.fcard', el).forEach(c => c.onclick = () => c.classList.toggle('flip'));
 });
+
+/* ---------- stappen: een uitgewerkt voorbeeld, regel voor regel ----------
+   o.lines = [html, ...]. Eerst staat alleen de eerste regel er; de knop laat de volgende zien. */
+registerWidget('stappen', (el, o = {}) => {
+  const lines = o.lines || []; let n = 1, fresh = false;
+  const draw = () => {
+    el.innerHTML = `<div class="w-stappen"><ol class="ws-list">${lines.slice(0, n).map((l, i) => `<li class="${i === n - 1 && fresh ? 'ws-new' : ''}">${l}</li>`).join('')}</ol>
+      <div class="wrow">${n < lines.length ? btn('Volgende stap ➜', 'data-next class="wbtn primary"') : btn('↺ Nog een keer', 'data-again class="wbtn"')}</div></div>`;
+    const nw = $('.ws-new', el); if (nw && typeof move === 'function') move(nw, 'inUp');
+    const nx = $('[data-next]', el); if (nx) nx.onclick = () => { n++; fresh = true; if (typeof SND !== 'undefined') SND.click(); draw(); };
+    const ag = $('[data-again]', el); if (ag) ag.onclick = () => { n = 1; fresh = false; draw(); };
+  };
+  draw();
+});
+
+/* ---------- probeer zelf: één kleine vraag zonder druk ----------
+   Geen sterren, geen fouten die tellen. Een fout antwoord grijst alleen die knop uit. */
+registerWidget('probeer', (el, o = {}) => {
+  const opts = (o.opts || []).map((x, i) => ({ x, ok: i === (o.ok || 0) }));
+  for (let i = opts.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [opts[i], opts[j]] = [opts[j], opts[i]]; }
+  let done = false, tries = 0;
+  el.innerHTML = `<div class="w-probeer"><div class="wp-tag">✋ Probeer zelf</div><div class="wp-q">${o.q || ''}</div>
+    <div class="wp-opts">${opts.map((p, i) => `<button class="wbtn wp-o" data-i="${i}">${p.x}</button>`).join('')}</div>
+    <div class="wp-msg" aria-live="polite"></div></div>`;
+  const msg = $('.wp-msg', el);
+  $$('.wp-o', el).forEach(b => b.onclick = () => {
+    if (done) return;
+    const p = opts[+b.dataset.i];
+    if (p.ok) {
+      done = true; b.classList.add('good'); if (typeof SND !== 'undefined') SND.ok();
+      msg.innerHTML = `🎉 <b>Goed gedaan!</b>${o.uitleg ? '<br>' + o.uitleg : ''}`;
+      if (typeof move === 'function') { move(b, 'jelly'); move(msg, 'inUp'); }
+    } else {
+      tries++; b.classList.add('miss'); b.disabled = true; if (typeof SND !== 'undefined') SND.click();
+      msg.innerHTML = tries > 1 && o.hint ? `Bijna! 💡 ${o.hint}` : 'Bijna! Kijk nog eens naar het voorbeeld en probeer opnieuw.';
+      if (typeof move === 'function') move(b, 'nope');
+    }
+  });
+});

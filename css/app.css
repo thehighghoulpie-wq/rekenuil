@@ -699,3 +699,36 @@ body.dark { color: #F1EEFF; }
 body.dark :is(.card, .btn.ghost, .iconbtn, .pill, .bubble, .place, .topic, .fc-f, .purse, .dtable, .readtext, .hintbox, .ansbox, .key, .choice, .tapzin, .orderbuilt, .fb-in, .suggest, .opt, .chip, .banner, .tab, .item, .nameinp, .hs, .mt, .mc-front, .badge, .plot, .diploma, .modal-card, .potdone, .potcard, .toast, .lookpanel, .ward-prev, details, .rv) { color: var(--ink); }
 body.dark .setuphead .muted, body.dark .wrap > .muted, body.dark .wrap > p .muted, body.dark .record { color: #D7D0F7; }
 body.dark .chip.on, body.dark .tab.on, body.dark .btn:not(.ghost) { color: #fff; }
+
+/* ---------- Update 4: uitleg stap voor stap en "probeer zelf" ---------- */
+.w-stappen { text-align: left; }
+.ws-list { list-style: none; counter-reset: ws; margin: 4px 0 12px; padding: 0; display: grid; gap: 8px; }
+.ws-list li { counter-increment: ws; position: relative; background: var(--sl); color: var(--sd); border-radius: 16px; padding: 12px 14px 12px 52px; font-size: 1.1rem; font-weight: 600; }
+.ws-list li::before { content: counter(ws); position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; background: var(--sc); color: #fff; font-weight: 800; display: grid; place-items: center; }
+.ws-list li b { color: var(--sd); }
+.w-stappen .wrow { justify-content: center; }
+.w-probeer { background: var(--sl); border-radius: 18px; padding: 14px; text-align: center; }
+.wp-tag { font-weight: 800; color: var(--sd); font-size: .95rem; margin-bottom: 4px; }
+.wp-q { font-size: 1.2rem; font-weight: 700; color: var(--sd); margin-bottom: 10px; }
+.wp-opts { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.w-probeer .wp-o { background: #fff; color: #2a2350; min-width: 84px; min-height: 52px; font-size: 1.15rem; box-shadow: 0 2px 0 rgba(0,0,0,.12); }
+.w-probeer .wp-o.good { background: #3CB878; color: #fff; }
+.w-probeer .wp-o.miss { background: #e7e3f2; color: #8a85a3; text-decoration: line-through; }
+.wp-msg { margin-top: 10px; min-height: 1.4em; font-weight: 700; color: var(--sd); }
+
+/* ---------- Update 4: Geheime Tuin met planten van Curaçao ---------- */
+.gplot { border: 0; cursor: pointer; font: inherit; color: var(--ink); gap: 2px; }
+.gplot .cplant { width: 96px; height: 100px; }
+.cplant .sway { transform-origin: 50% 98%; transform-box: view-box; animation: gsway 5s ease-in-out infinite; }
+.gplot:nth-child(2n) .cplant .sway { animation-delay: -1.7s; } .gplot:nth-child(3n) .cplant .sway { animation-delay: -3.1s; }
+@keyframes gsway { 0%, 100% { transform: rotate(-1.6deg); } 50% { transform: rotate(1.6deg); } }
+.gplot.st-3 { box-shadow: 0 3px 0 #C9A27A, 0 0 0 3px #FFD21F inset; }
+.gstages { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 8px 0; }
+.gstages span { display: flex; flex-direction: column; align-items: center; width: 70px; opacity: .55; font-weight: 700; }
+.gstages span.done, .gstages span.now, .garden-intro .gstages span { opacity: 1; }
+.gstages span.now { background: #FFF5C9; border-radius: 12px; outline: 2px solid #FFD21F; }
+.gstages small { font-size: .78rem; text-align: center; line-height: 1.1; }
+.cplant.mini { width: 60px; height: 64px; } .cplant.mini .sway { animation: none; }
+.pcard { text-align: center; } .pcard .cplant.big { width: 150px; height: 165px; display: block; margin: 0 auto; }
+.pcard h2 { margin: 4px 0 0; } .pap-name { margin: 2px 0 6px; } .pfact { text-align: left; background: #EFF8E8; border-radius: 14px; padding: 10px 12px; line-height: 1.45; }
+@media (prefers-reduced-motion: reduce) { .cplant .sway { animation: none; } }

@@ -232,13 +232,6 @@ function openJokes() {
   $$('.joke', el).forEach(j => j.onclick = () => { j.classList.toggle('open'); SND.pop(); });
   show('jokes');
 }
-function openGarden() {
-  const el = $('#garden');
-  const flower = st => ({ nieuw: '🌱', oefenen: '🌿', goed: '🌷', super: '🌺' }[st]);
-  el.innerHTML = backbar(t('pl_tuin')) + `<div class="wrap"><div class="card center garden-intro">${pipSVG('lach')}<p>${t('gardenTitle')}</p><p class="legend">🌱 ${statusName('nieuw')} · 🌿 ${statusName('oefenen')} · 🌷 ${statusName('goed')} · 🌺 ${statusName('super')}</p></div>
-    ${SUBJECTS.map(s => `<div class="bed" style="--sc:${s.color};--sl:${s.light}"><h3>${s.ico} ${t('subj_' + s.id)}</h3><div class="plots">${s.topics.map(tp => { const st = topicStatus(tp.key); return `<div class="plot st-${st}"><span class="fl">${flower(st)}</span><small>${tTopic(tp)}</small></div>`; }).join('')}</div></div>`).join('')}</div>`;
-  bindCommon(el); show('garden');
-}
 function openParty() {
   const el = $('#party'), pets = D.owned.pet.filter(p => p !== 'geen');
   const d = new Date();
@@ -285,8 +278,8 @@ function nlNum(n) {
   return u === 0 ? tt : U[u] + (u === 2 || u === 3 ? 'ën' : 'en') + tt;
 }
 function gateSum() {
-  const a = rnd(13, 29), b = rnd(6, 9), c = rnd(5, 19);
-  return { txt: `${nlNum(a)} keer ${nlNum(b)}, min ${nlNum(c)}`, ans: a * b - c };
+  const a = rnd(12, 48), b = rnd(11, 39);
+  return { txt: `${nlNum(a)} plus ${nlNum(b)}`, ans: a + b };
 }
 function parentGate(then) {
   let q = gateSum(), fails = 0, lock = 0, lockTm = null;

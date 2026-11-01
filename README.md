@@ -18,6 +18,7 @@ App-taal: Nederlands, Papiamentu of English (de lessen en vragen zelf zijn Neder
 - `js/voice.js` – familie-stemmen: opnemen en afspelen (IndexedDB, blijft op de tablet)
 - `js/theme.js` – dag en nacht volgens de klok van de tablet (ouders kunnen het vastzetten) en de havenscène
 - `js/motion.js` – veerkrachtige bewegingen (knoppen, Pip, sterren); uit met "Animaties" of "minder beweging"
+- `js/garden.js` – Geheime Tuin: elk onderwerp is een plant van Curaçao die in 4 stappen groeit
 - `img/scene/` – de Handelskade en de Emmabrug in lagen: lucht, wolken, zee, huizen, brug, lichtjes
 - `sw.js` – offline werken (verhoog `VERSION` na elke wijziging)
 

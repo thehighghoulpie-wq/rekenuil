@@ -334,9 +334,11 @@ registerTopic('taal', { id: 'dubbel', name: 'Eén of twee letters?', sub: 'bomen
   { t: 'Let op: man en maan', h: '<b>mannen</b> (meer dan één man) en <b>manen</b> (meer dan één maan). Eén letter verschil, heel andere betekenis! 🌙👨' }
 ] });
 registerTopic('taal', { id: 'dt', name: 'd of t?', sub: 'verlengen & werkwoorden', ico: '✍️', gen: genDt, pace: { easy: 5, medium: 4, hard: 3 }, lesson: [
-  { t: 'Verlengen bij woorden', h: 'Aan het eind hoor je altijd een t. Maak het woord langer:<br>hond → hon<b>d</b>en → <b>d</b><br>kaart → kaar<b>t</b>en → <b>t</b>' },
+  { t: 'Verlengen bij woorden', h: 'Aan het eind van een woord hoor je vaak een t. Maak het woord langer, dan hoor je de echte letter.', w: 'stappen', o: { lines: ['<b>hond</b> → maak het meervoud: hon<b>d</b>en', 'Je hoort een <b>d</b>, dus: hon<b>d</b>', '<b>kaart</b> → kaar<b>t</b>en', 'Je hoort een <b>t</b>, dus: kaar<b>t</b>'] } },
+  { t: 'Probeer zelf', h: 'Verleng het woord.', w: 'probeer', o: { q: 'Hoe schrijf je het? Het <b>paar_</b> rent snel. (paarden)', opts: ['paard', 'paart'], ok: 0, uitleg: 'Verleng: paar<b>d</b>en. Je hoort een d, dus <b>paard</b>.', hint: 'Zeg het meervoud: paarden. Welke letter hoor je?' } },
   { t: 'De stam van een werkwoord', h: 'De <b>stam</b> is het werkwoord min -en. Soms moet je een letter aanpassen.<br>lopen → loop<br>worden → word<br>schrijven → schrijf' },
-  { t: 'Ik, jij, hij', h: '<ul class="tips"><li><b>ik</b> → stam: ik word, ik loop</li><li><b>jij</b> → stam + t: jij wordt, jij loopt</li><li><b>hij/zij/het</b> → stam + t: hij wordt, zij loopt</li></ul>Tip: vervang het werkwoord door <b>lopen</b>. Hoor je een t? Dan schrijf je een t!' },
+  { t: 'Ik, jij, hij', h: 'Bij een werkwoord kijk je naar de <b>stam</b> (het werkwoord min -en).', w: 'stappen', o: { lines: ['<b>ik</b> → alleen de stam: ik word, ik loop', '<b>jij</b> → stam + <b>t</b>: jij word<b>t</b>', '<b>hij, zij, het</b> → stam + <b>t</b>: hij word<b>t</b>', 'Tip: vervang het werkwoord door <b>lopen</b>. Hoor je een t? Dan schrijf je een t.'] } },
+  { t: 'Probeer zelf', h: 'Kijk wie het doet.', w: 'probeer', o: { q: 'Welke is goed? <b>Hij</b> ___ vandaag acht jaar.', opts: ['wordt', 'word'], ok: 0, uitleg: 'Bij <b>hij</b> komt er een t: hij word<b>t</b>. (Net als: hij loopt.)', hint: 'Probeer: hij loopt of hij loop?' } },
   { t: 'Jij achter het werkwoord', h: 'Staat <b>jij</b> achter het werkwoord? Dan krijgt het werkwoord <b>geen t</b>.<br>Jij word<b>t</b> groot. → Word jij groot?<br>(Net als: Loop jij mee?)' }
 ] });
 registerTopic('taal', { id: 'woorden', name: 'Woordenschat', sub: 'wat betekent het?', ico: '💬', gen: genWoord, pace: { easy: 5, medium: 4, hard: 3.5 }, lesson: [
@@ -352,7 +354,7 @@ registerTopic('taal', { id: 'lezen', name: 'Begrijpend lezen', sub: 'teksten en 
 ] });
 registerTopic('taal', { id: 'zinsdelen', name: 'Onderwerp & persoonsvorm', sub: 'zinsdelen', ico: '🧩', gen: genZinsdelen, pace: { easy: 3, medium: 3, hard: 2.5 }, lesson: [
   { t: 'De persoonsvorm', h: 'De <b>persoonsvorm</b> is het werkwoord dat verandert als je de tijd verandert.<br>Pip <b>eet</b> een koekje. → Pip <b>at</b> een koekje.<br>Truc: maak er een vraag van. <b>Eet</b> Pip een koekje? Het woord dat vooraan komt, is de persoonsvorm!' },
-  { t: 'Het onderwerp', h: 'Het <b>onderwerp</b> is wie of wat iets doet. Vraag: <b>Wie of wat</b> + persoonsvorm?<br><i>De kleine kat springt op tafel.</i><br>Wie springt? → <b>De kleine kat</b>.' },
+  { t: 'Het onderwerp', h: 'Het <b>onderwerp</b> is wie of wat iets doet. Stel de vraag: <b>Wie of wat</b> + persoonsvorm?', w: 'stappen', o: { lines: ['<i>De kleine kat springt op tafel.</i>', 'Persoonsvorm: <b>springt</b>', 'Vraag: <b>Wie springt?</b>', 'Antwoord: <b>De kleine kat</b> is het onderwerp.'] } },
   { t: 'Let op!', h: 'Het onderwerp staat niet altijd vooraan.<br><i>Morgen gaan <b>wij</b> naar het strand.</i><br>Wie gaan? → wij.<br>Het onderwerp kan ook uit meer woorden bestaan: <i><b>De kinderen van groep 6</b> spelen buiten.</i>' },
   { t: 'Zo doe je het in de quiz', h: 'Tik op de woorden. Ze worden gekleurd. Tik nog een keer om een woord weer los te laten. Klaar? Druk op <b>Tover!</b>' }
 ] });
