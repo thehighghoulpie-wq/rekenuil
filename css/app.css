@@ -578,10 +578,6 @@ body.noanim *, body.noanim *::before, body.noanim *::after { animation: none !im
 .potdone .potion.big { width: 70px; animation: hopNow .8s ease 2; }
 
 /* Ouderhoek */
-.holdbtn { position: relative; overflow: hidden; user-select: none; touch-action: none; }
-.holdbtn i { position: absolute; inset: 0; background: rgba(255, 255, 255, .35); transform: scaleX(0); transform-origin: left; }
-.holdbtn.holding i { transform: scaleX(1); transition: transform 3s linear; }
-.holdbtn span { position: relative; }
 .card.pad { padding: 12px; margin-bottom: 10px; }
 .vcat summary { cursor: pointer; padding: 4px 0; }
 .vrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; border-top: 1px solid var(--line); }
@@ -620,6 +616,86 @@ body.noanim .avatar.hopnow { animation: none !important; }
 @media (prefers-reduced-motion: reduce) { .avatar.hopnow { animation: none !important; } }
 .avatar.mini .eyes, .avatar.mini .wand, .avatar.mini { animation: none !important; }
 .vbtn:not([hidden]) { width: 44px; height: 44px; }
-.holdbtn.holding { filter: brightness(.85); }
 .potcard .btn { --sc: #8A4FD6; }
 .hs span { font-size: .9rem; }
+
+.gateq { font-size: 1.25rem; text-align: center; margin: 10px 0; }
+#gatein { text-align: center; font-size: 1.4rem; }
+#gatemsg { min-height: 1.4em; text-align: center; }
+
+/* =====================================================================
+   Update 3: dag en nacht, de haven van Willemstad, Pip 2.0 en veerkracht
+   ===================================================================== */
+/* thema's: overdag zonnig, schemering, 's nachts de sterrenhemel */
+body[data-theme="day"] { --bg: #DFF2FF; --bg2: #FFF4DA; }
+body[data-theme="dusk"] { --bg: #2B2A78; --bg2: #A65A86; }
+body[data-theme="night"] { --bg: #0A1250; --bg2: #1A2876; }
+.sky { opacity: 0; transition: opacity 2s ease; }
+body.dark .sky { opacity: .95; }
+body[data-theme="day"] .topbar, body[data-theme="day"] .qtop { background: rgba(223, 242, 255, .88); }
+body.dark .topbar, body.dark .qtop { background: rgba(10, 18, 80, .82); }
+body.dark .tb-title, body.dark .qinfo { color: #fff; }
+body.dark .wrap > .sect, body.dark .wrap > h2, body.dark .wrap > h3, body.dark .wrap > p, body.dark .foot, body.dark .hello-box, body.dark .cnote { color: #F1EEFF; }
+body.dark .hello-box .sub { color: #CFC8F5; }
+
+/* de haven: lucht, wolken, zee, huizen, brug en lichtjes */
+.scene { position: relative; width: 100%; aspect-ratio: 1400 / 520; min-height: 240px; margin-top: 10px; border-radius: 28px; overflow: hidden; box-shadow: 0 10px 30px rgba(20, 40, 120, .22); background: #7CCBF7; isolation: isolate; }
+.scene .layers, .scene .l { position: absolute; inset: 0; width: 100%; height: 100%; }
+.scene .l { object-fit: cover; user-select: none; -webkit-user-drag: none; pointer-events: none; transition: opacity 2.4s ease, filter 2.4s ease; }
+.scene .night { opacity: 0; }
+body[data-theme="dusk"] .scene .night { opacity: .6; }
+body[data-theme="night"] .scene .night { opacity: 1; }
+body[data-theme="night"] .scene .day { opacity: 0; }
+body[data-theme="dusk"] .scene .town { filter: brightness(.8) saturate(1.05) sepia(.12); }
+body[data-theme="night"] .scene .town { filter: brightness(.5) saturate(1.1); }
+.scene .clouds { animation: cloudDrift 48s ease-in-out infinite alternate; }
+@keyframes cloudDrift { from { transform: translateX(-3%); } to { transform: translateX(3%); } }
+.scene .sea { animation: seaBob 5s ease-in-out infinite; }
+@keyframes seaBob { 50% { transform: translateY(.6%); } }
+body[data-theme="night"] .scene .lights { animation: lampGlow 4s ease-in-out infinite; }
+@keyframes lampGlow { 50% { opacity: .8; } }
+.scene .actors { position: absolute; right: 5%; bottom: 23.5%; height: 52%; display: flex; align-items: flex-end; gap: 1%; pointer-events: none; }
+.scene .actor { pointer-events: auto; border: 0; background: none; padding: 0; height: 100%; cursor: pointer; display: block; }
+.scene .actor .avatar { height: 100%; width: auto; display: block; animation: breathe 3.6s ease-in-out infinite; transform-origin: 50% 100%; }
+.scene .pip-actor { height: 58%; }
+.scene .pip-actor .pip { height: 100%; width: auto; display: block; animation: pipFloat 3s ease-in-out infinite; }
+.scene .actor-pet { height: 40%; width: auto; margin-right: -2%; }
+.hero-row { display: flex; gap: 14px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
+.hello-box { flex: 1 1 200px; }
+.pipsay { flex: 2 1 320px; }
+.pipsay::before { content: ''; position: absolute; right: 16%; top: -11px; border: 11px solid transparent; border-top: 0; border-bottom-color: #fff; }
+@media (max-width: 760px) { .scene { border-radius: 22px; } .scene .actors { right: 3%; height: 50%; } .pipsay::before { right: 22%; } }
+
+/* Pip leeft: vleugels, staart en knipperende ogen */
+.pip .pip-wl { transform-origin: 62px 92px; animation: flapL 2.6s ease-in-out infinite; }
+.pip .pip-wr { transform-origin: 138px 92px; animation: flapR 2.6s ease-in-out infinite; }
+.pip .pip-tail { transform-origin: 150px 150px; animation: wag 2.2s ease-in-out infinite; }
+.pip .pip-eyes { transform-origin: 100px 110px; animation: blinkEyes 4.8s infinite; }
+.pip.mood-lach .pip-wl, .pip.mood-lach .pip-wr { animation-duration: .5s; }
+.pip.mood-slaap .pip-wl, .pip.mood-slaap .pip-wr, .pip.mood-slaap .pip-tail { animation: none; }
+@keyframes flapL { 0%, 100% { transform: none; } 50% { transform: rotate(-12deg); } }
+@keyframes flapR { 0%, 100% { transform: none; } 50% { transform: rotate(12deg); } }
+@keyframes wag { 0%, 100% { transform: none; } 50% { transform: rotate(9deg); } }
+
+/* Pip in de quiz, naast je eigen tovenaar */
+.qpip { position: absolute; width: 76px; right: -10px; bottom: -6px; }
+.qpip .pip { width: 100%; display: block; }
+@media (max-width: 760px) { .qpip { right: 84px; top: -56px; bottom: auto; width: 58px; } }
+
+/* voortgangsbalk met glans */
+.qbar i { position: relative; overflow: hidden; transition: width .6s cubic-bezier(.3, 1.4, .5, 1); }
+.qbar i::before { content: ''; position: absolute; left: 6px; right: 6px; top: 2px; height: 3px; border-radius: 2px; background: rgba(255, 255, 255, .5); }
+.qbar i::after { content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, .7) 50%, transparent 70%); transform: translateX(-100%); animation: barShine 2.8s ease-in-out infinite; }
+@keyframes barShine { 55%, 100% { transform: translateX(100%); } }
+
+/* schermen glijden met een veertje in; sterren ploppen via motion.js */
+.screen.active.in-fwd { animation: inFwd .45s cubic-bezier(.2, .9, .25, 1.12); }
+.screen.active.in-back { animation: inBack .45s cubic-bezier(.2, .9, .25, 1.12); }
+.bigstars .on { animation: none; }
+body.noanim .scene .l, body.noanim .pip * { animation: none !important; }
+@media (prefers-reduced-motion: reduce) { .scene .l, .pip * { animation: none !important; } }
+/* donker thema: tekst op de lucht wordt licht, tekst op witte vlakken blijft donker */
+body.dark { color: #F1EEFF; }
+body.dark :is(.card, .btn.ghost, .iconbtn, .pill, .bubble, .place, .topic, .fc-f, .purse, .dtable, .readtext, .hintbox, .ansbox, .key, .choice, .tapzin, .orderbuilt, .fb-in, .suggest, .opt, .chip, .banner, .tab, .item, .nameinp, .hs, .mt, .mc-front, .badge, .plot, .diploma, .modal-card, .potdone, .potcard, .toast, .lookpanel, .ward-prev, details, .rv) { color: var(--ink); }
+body.dark .setuphead .muted, body.dark .wrap > .muted, body.dark .wrap > p .muted, body.dark .record { color: #D7D0F7; }
+body.dark .chip.on, body.dark .tab.on, body.dark .btn:not(.ghost) { color: #fff; }

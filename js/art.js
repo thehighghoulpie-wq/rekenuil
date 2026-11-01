@@ -349,22 +349,37 @@ function petSVG(id, cls = '') {
   return `<svg class="pet ${cls}" viewBox="0 -4 100 104" role="img" aria-label="Huisdier"><ellipse cx="50" cy="96" rx="30" ry="4" fill="#000" opacity=".1"/>${b}</svg>`;
 }
 
-/* ---------- Pip, het mini-draakje (de gids) ---------- */
+/* ---------- Pip, het sterrendraakje (de gids) ----------
+   Stemmingen: blij, lach (juichen), oeps (nadenken, nooit verdrietig) en slaap.
+   Vleugels, staart en ogen hebben eigen klassen, zodat ze kunnen bewegen. */
+const PIP_STAR = 'M0 -11 L3 -3 L11 0 L3 3 L0 11 L-3 3 L-11 0 L-3 -3Z';
 function pipSVG(mood = 'blij', cls = '') {
-  return `<svg class="pip ${cls}" viewBox="0 0 120 120" role="img" aria-label="Pip het draakje">
-    <ellipse cx="60" cy="114" rx="30" ry="4" fill="#000" opacity=".1"/>
-    <path d="M86 92 Q112 96 108 70 Q104 78 96 76" stroke="#3FBFA4" stroke-width="10" fill="none" stroke-linecap="round"/><path d="${starPath(108, 66, 6)}" fill="#FFD36E"/>
-    <path d="M30 70 Q6 56 12 34 Q24 50 38 56Z" fill="#A6EAD8"/><path d="M90 70 Q114 56 108 34 Q96 50 82 56Z" fill="#A6EAD8"/>
-    <ellipse cx="60" cy="90" rx="28" ry="22" fill="#4FD1B4"/><ellipse cx="60" cy="94" rx="16" ry="14" fill="#FFE6C2"/>
-    <ellipse cx="44" cy="110" rx="9" ry="5" fill="#3FBFA4"/><ellipse cx="76" cy="110" rx="9" ry="5" fill="#3FBFA4"/>
-    <ellipse cx="60" cy="54" rx="36" ry="32" fill="#5CDBBE"/>
-    <path d="M40 26 L36 10 L48 22Z M80 26 L84 10 L72 22Z" fill="#FFD36E"/>
-    <path d="M44 22 L56 6 Q60 2 64 6 L76 22Z" fill="#8B6CF0"/><path d="${starPath(60, 14, 4)}" fill="#FFD36E"/>
-    ${animeEye(46, 56, '#6A4BC4', .78, mood)}${animeEye(74, 56, '#6A4BC4', .78, mood)}
-    ${blush(34, 86, 68, .7)}${mouth(60, 72, mood, .8)}
-    <circle cx="54" cy="66" r="1.6" fill="#2E8A74"/><circle cx="66" cy="66" r="1.6" fill="#2E8A74"/>
-    ${mood === 'oeps' ? `<path d="M92 34 q5 8 0 11 q-5 -3 0 -11Z" fill="#7FD3F7"/>` : ''}
-    ${mood === 'lach' ? sparkle(100, 30, 7) + sparkle(18, 30, 5) : ''}
+  const lach = mood === 'lach', oeps = mood === 'oeps', slaap = mood === 'slaap';
+  const eyes = lach ? `<path d="M66 112 Q78 94 90 112 M110 112 Q122 94 134 112" fill="none" stroke="#2B2147" stroke-width="5" stroke-linecap="round"/>`
+    : slaap ? `<path d="M66 114 Q78 124 90 114 M110 114 Q122 124 134 114" fill="none" stroke="#2B2147" stroke-width="5" stroke-linecap="round"/>`
+    : `<g class="pip-eyes"><ellipse cx="78" cy="110" rx="11" ry="13" fill="#2B2147"/><ellipse cx="122" cy="110" rx="11" ry="13" fill="#2B2147"/>
+       <circle cx="${oeps ? 74 : 82}" cy="${oeps ? 104 : 105}" r="4.6" fill="#fff"/><circle cx="${oeps ? 118 : 126}" cy="${oeps ? 104 : 105}" r="4.6" fill="#fff"/>${oeps ? '' : '<circle cx="75" cy="115" r="2" fill="#fff"/><circle cx="119" cy="115" r="2" fill="#fff"/>'}</g>`;
+  const mouthP = lach ? `<path d="M82 126 Q100 156 118 126Z" fill="#5B1F3A"/><path d="M90 143 Q100 135 110 143 Q100 152 90 143Z" fill="#FF6F91"/>`
+    : oeps ? `<path d="M92 132 Q100 128 110 134" fill="none" stroke="#2B2147" stroke-width="4" stroke-linecap="round"/>`
+    : slaap ? `<ellipse cx="100" cy="132" rx="6" ry="5" fill="#5B3FC0"/>`
+    : `<path d="M90 130 Q100 140 110 130" fill="none" stroke="#2B2147" stroke-width="4" stroke-linecap="round"/>`;
+  const arms = lach ? `<ellipse cx="28" cy="82" rx="10" ry="15" fill="#7A55EE" transform="rotate(-28 28 82)"/><ellipse cx="172" cy="82" rx="10" ry="15" fill="#7A55EE" transform="rotate(28 172 82)"/>`
+    : oeps ? `<ellipse cx="42" cy="140" rx="9" ry="13" fill="#7A55EE" transform="rotate(22 42 140)"/><ellipse cx="146" cy="128" rx="9" ry="13" fill="#7A55EE" transform="rotate(-60 146 128)"/>`
+    : `<ellipse cx="42" cy="140" rx="9" ry="13" fill="#7A55EE" transform="rotate(22 42 140)"/><ellipse cx="158" cy="140" rx="9" ry="13" fill="#7A55EE" transform="rotate(-22 158 140)"/>`;
+  const extra = lach ? `<g fill="#FFD86B">${[[22, 30, 1], [180, 34, 1], [100, 12, .7], [8, 110, .6], [192, 112, .6]].map(([x, y, s]) => `<path transform="translate(${x} ${y}) scale(${s})" d="${PIP_STAR}"/>`).join('')}</g>`
+    : oeps ? `<path d="M66 92 Q78 84 90 92 M110 88 Q122 78 134 90" fill="none" stroke="#5B3FC0" stroke-width="4" stroke-linecap="round"/><g fill="#fff" stroke="#CDBBFF" stroke-width="2"><circle cx="150" cy="58" r="5"/><circle cx="163" cy="42" r="7"/><circle cx="180" cy="22" r="10"/></g>`
+    : slaap ? `<g fill="none" stroke="#FFD86B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"><path d="M142 46 h20 l-20 22 h20"/><path d="M170 18 h13 l-13 15 h13"/></g>` : '';
+  return `<svg class="pip mood-${mood} ${cls}" viewBox="0 0 200 200" role="img" aria-label="Pip het draakje">
+    <ellipse cx="100" cy="188" rx="54" ry="8" fill="#000" opacity=".12"/>
+    <path class="pip-wl" d="M46 98 Q8 70 16 36 Q46 50 64 84Z" fill="#B79CFF"/><path class="pip-wr" d="M154 98 Q192 70 184 36 Q154 50 136 84Z" fill="#B79CFF"/>
+    <g class="pip-tail"><path d="M150 160 Q194 164 186 124 Q176 146 148 142Z" fill="#7A55EE"/><path d="M186 124 L198 112 L200 130Z" fill="#FFD86B"/></g>
+    <ellipse cx="72" cy="178" rx="18" ry="10" fill="#7A55EE"/><ellipse cx="128" cy="178" rx="18" ry="10" fill="#7A55EE"/>
+    <ellipse cx="100" cy="118" rx="60" ry="62" fill="#8E6BFF"/><ellipse cx="100" cy="146" rx="36" ry="30" fill="#E9DEFF"/>
+    <path d="M80 140 h40 M82 152 h36" stroke="#CDBBFF" stroke-width="3" stroke-linecap="round"/>
+    <path d="M62 72 L56 32 L84 58Z M138 72 L144 32 L116 58Z" fill="#FFD86B"/><path d="M90 58 L100 40 L110 58Z" fill="#FFB800"/>
+    <ellipse cx="72" cy="88" rx="14" ry="8" fill="#fff" opacity=".28" transform="rotate(-30 72 88)"/>
+    ${eyes}<ellipse cx="58" cy="128" rx="9" ry="6" fill="#FF9EC0" opacity=".8"/><ellipse cx="142" cy="128" rx="9" ry="6" fill="#FF9EC0" opacity=".8"/>
+    ${slaap || lach ? '' : '<circle cx="95" cy="123" r="1.6" fill="#5B3FC0"/><circle cx="105" cy="123" r="1.6" fill="#5B3FC0"/>'}${mouthP}${arms}${extra}
   </svg>`;
 }
 

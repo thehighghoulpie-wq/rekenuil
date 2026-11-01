@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 520" preserveAspectRatio="xMidYMid slice">
+<!-- De Koningin Emmabrug: drijvende pontonbrug met witte bogen en hanglampen -->
+<defs>
+<pattern id="pont" width="150" height="24" patternUnits="userSpaceOnUse" x="15" y="440"><rect x="0" y="4" width="112" height="20" rx="5" fill="#4A3A30"/><rect x="0" y="2" width="112" height="7" rx="3" fill="#F4F2EC"/></pattern>
+<pattern id="truss" width="40" height="22" patternUnits="userSpaceOnUse" x="0" y="418"><rect width="40" height="22" fill="#7A5634"/><path d="M0 0 L20 22 L40 0 M0 22 L20 0 L40 22" stroke="#4E3420" stroke-width="3" fill="none"/><path d="M0 0 V22" stroke="#5E4128" stroke-width="3"/></pattern>
+<pattern id="rail" width="30" height="26" patternUnits="userSpaceOnUse" x="0" y="372"><rect x="13" y="0" width="4" height="26" fill="#F7F7F4"/></pattern>
+</defs>
+<rect x="0" y="440" width="1400" height="24" fill="url(#pont)"/>
+<rect x="0" y="418" width="1400" height="22" fill="url(#truss)"/>
+<rect x="0" y="404" width="1400" height="14" fill="#5E4128"/>
+<rect x="0" y="397" width="1400" height="8" fill="#C9A878"/>
+<rect x="0" y="397" width="1400" height="2" fill="#E2C89C"/>
+<g stroke="#F4F4F0" stroke-width="5" stroke-linecap="round"><path d="M70 398 V236 M370 398 V236 M670 398 V236 M970 398 V236 M1270 398 V236"/></g>
+<g fill="none" stroke-linecap="round">
+<g stroke="#8E99A6" stroke-width="7" opacity=".35"><path d="M-80 398 C-80 196 100 196 100 398 M70 398 C70 196 250 196 250 398 M220 398 C220 196 400 196 400 398 M370 398 C370 196 550 196 550 398 M520 398 C520 196 700 196 700 398 M670 398 C670 196 850 196 850 398 M820 398 C820 196 1000 196 1000 398 M970 398 C970 196 1150 196 1150 398 M1120 398 C1120 196 1300 196 1300 398 M1270 398 C1270 196 1450 196 1450 398"/></g>
+<g stroke="#E6EBF0" stroke-width="4"><path d="M-80 398 C-80 196 100 196 100 398 M70 398 C70 196 250 196 250 398 M220 398 C220 196 400 196 400 398 M370 398 C370 196 550 196 550 398 M520 398 C520 196 700 196 700 398 M670 398 C670 196 850 196 850 398 M820 398 C820 196 1000 196 1000 398 M970 398 C970 196 1150 196 1150 398 M1120 398 C1120 196 1300 196 1300 398 M1270 398 C1270 196 1450 196 1450 398"/></g>
+</g>
+<g><g fill="#B8C0CA"><rect x="5" y="250" width="10" height="4" rx="2"/><rect x="155" y="250" width="10" height="4" rx="2"/><rect x="305" y="250" width="10" height="4" rx="2"/><rect x="455" y="250" width="10" height="4" rx="2"/><rect x="605" y="250" width="10" height="4" rx="2"/><rect x="755" y="250" width="10" height="4" rx="2"/><rect x="905" y="250" width="10" height="4" rx="2"/><rect x="1055" y="250" width="10" height="4" rx="2"/><rect x="1205" y="250" width="10" height="4" rx="2"/><rect x="1355" y="250" width="10" height="4" rx="2"/></g>
+<g fill="#fff"><circle cx="10" cy="258" r="5"/><circle cx="160" cy="258" r="5"/><circle cx="310" cy="258" r="5"/><circle cx="460" cy="258" r="5"/><circle cx="610" cy="258" r="5"/><circle cx="760" cy="258" r="5"/><circle cx="910" cy="258" r="5"/><circle cx="1060" cy="258" r="5"/><circle cx="1210" cy="258" r="5"/><circle cx="1360" cy="258" r="5"/></g></g>
+<rect x="0" y="372" width="1400" height="26" fill="url(#rail)"/>
+<g stroke="#ECEFF3" stroke-width="2.5"><path d="M0 376 H1400 M0 387 H1400"/></g>
+</svg>

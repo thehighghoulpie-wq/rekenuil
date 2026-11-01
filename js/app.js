@@ -12,7 +12,7 @@ function defaults() {
     owned: { outfit: ['paars'], hat: ['geen', 'puntmuts'], wand: ['ster'], pet: ['geen'] },
     topics: {}, highs: {}, badges: {}, days: [], lessons: {}, jokes: [], games: {}, unlocked: [], gifts: {},
     grade: 6, daylog: {}, review: {}, potion: { streak: 0, last: '', best: 0, total: 0, got: {}, freezeWeek: '' },
-    settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10 },
+    settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10, theme: 'auto' },
     counters: { correct: 0, answered: 0, quizzes: 0, perfect: 0, bestStreak: 0, timed: 0, pap: 0, hard3: 0, purchases: 0, pets: 0 },
     lastSetup: { mode: 'practice', diff: 'easy', count: 10, duration: 60 }, subjectsTried: {}, created: Date.now()
   };
@@ -58,6 +58,7 @@ function cleanSave(d) {
   const s = obj(d.settings);
   for (const k of ['sound', 'anim', 'big', 'jokes']) if (s[k] != null) out.settings[k] = !!s[k];
   out.settings.lang = pick(s.lang, LANGS.map(l => l[0]), 'nl'); out.settings.dailyGoal = pick(+s.dailyGoal, [5, 10, 15, 20], 10);
+  out.settings.theme = pick(s.theme, ['auto', 'day', 'night'], 'auto');
   out.settings.voiceWho = pick(s.voiceWho, ['Mama', 'Papa', 'Wela', 'Welo', 'Tanta'], '');
   for (const k of Object.keys(def.counters)) out.counters[k] = num(obj(d.counters)[k]);
   const ls = obj(d.lastSetup);
@@ -257,10 +258,13 @@ function openMap() {
   checkUnlocks(true);
   const el = $('#map');
   const pipLine = kies(tList(PIP_HELLO, PIPHELLO_I18N));
+  // je eigen tovenaar, je huisdier en Pip staan op de Emmabrug in Willemstad
+  const actors = `<div class="actors">${look().pet !== 'geen' ? petSVG(look().pet, 'actor-pet') : ''}<button class="actor me" id="meact" aria-label="${esc(playerName())}">${avatarSVG(look())}</button>
+    <button class="actor pip-actor" id="pipjoke" aria-label="${t('pipJokeBtn')}">${pipSVG('blij')}</button></div>`;
   el.innerHTML = topbar(t('appName')) + `<div class="wrap">
-    <div class="hero"><div class="hero-me">${avatarSVG(look())}${look().pet !== 'geen' ? petSVG(look().pet, 'hero-pet') : ''}</div>
-      <div class="hero-txt"><div class="hello">${t('hi')} <b>${esc(playerName())}</b>!</div><div class="sub">${t('student')}</div>
-      <button class="pipbox" id="pipjoke" aria-label="Pip">${pipSVG('blij')}<span class="bubble" id="pipsay">${pipLine}</span></button></div></div>
+    ${sceneHTML(actors)}
+    <div class="hero-row"><div class="hello-box"><div class="hello">${t('hi')} <b>${esc(playerName())}</b>!</div><div class="sub">${t('student')}</div></div>
+      <div class="bubble pipsay" id="pipsay" aria-live="polite">${pipLine}</div></div>
     ${potionCard()}
     <h2 class="sect">${t('chooseWhere')}</h2>
     <div class="map">${PLACES.map(p => {
@@ -280,10 +284,15 @@ function openMap() {
   $('#pipjoke').onclick = () => {
     SND.pop(); const pool = JOKES; jk = (jk + 1 + rnd(0, pool.length - 2)) % pool.length; const j = pool[jk];
     $('#pipsay').innerHTML = `<b>${j[0]}</b><br><span class="punch">${j[1]}</span>`;
-    const svg = $('#pipjoke .pip'); svg.outerHTML = pipSVG('lach');
-    sparkleBurst($('#pipjoke .pip'), 8);   // Pip niest glitter
+    pipReact($('#pipjoke'), 'lach');
+    sparkleBurst($('#pipjoke'), 8);   // Pip niest glitter
+    move($('#pipsay'), 'pop');
   };
+  $('#meact').onclick = () => { SND.pop(); move($('#meact .avatar'), 'hop'); sparkleBurst($('#meact'), 10, WAND_SPARKS[look().wand]); };
   show('map');
+  move($('.scene', el), 'inUp', { duration: 700 });
+  stagger([$('.hero-row', el), $('.potcard', el)].filter(Boolean), 'inUp', 80, 120);
+  stagger($$('.place', el), 'inUp', 40, 220);
 }
 
 /* =====================================================================
@@ -308,6 +317,7 @@ function openClass(sid) {
       <div class="t-btns"><button class="btn small" data-play="${sid}/mix">✨ ${t('practise')}</button></div></div></div></div>`;
   bindCommon(el);
   $$('[data-learn]', el).forEach(b => b.onclick = () => { SND.click(); openLesson(b.dataset.learn, 0, 'class'); });
+  stagger($$('.topic', el), 'inUp', 40, 120);
   $$('[data-play]', el).forEach(b => b.onclick = () => { SND.click(); openSetup(b.dataset.play); });
   show('class');
 }
@@ -405,7 +415,7 @@ function startQuiz() {
       <div class="qcard card" id="qcard"><div class="qtopic" id="qtopic"></div><div class="qtext" id="qtext"></div><div class="qvis" id="qvis"></div>
         <div class="qhelp"><button class="btn small ghost" id="qhint">${t('how')}</button><button class="btn small ghost" id="qskip">${t('dunno')}</button></div>
         <div class="hintbox" id="hintbox"></div></div>
-      <div class="qside"><div class="qme" id="qme">${avatarSVG(look(), 'blij', 'small')}</div>${look().pet !== 'geen' ? petSVG(look().pet, 'qpet') : ''}${S.potion ? `<div class="potbottle" id="potb">${potionSVG(0, nextPotion()[1])}</div>` : ''}</div>
+      <div class="qside"><div class="qme" id="qme">${avatarSVG(look(), 'blij', 'small')}</div><div class="qpip" id="qpip">${pipSVG('blij')}</div>${look().pet !== 'geen' ? petSVG(look().pet, 'qpet') : ''}${S.potion ? `<div class="potbottle" id="potb">${potionSVG(0, nextPotion()[1])}</div>` : ''}</div>
     </div>
     <div class="qinput" id="qinput"></div>
     <div class="fb" id="fb"></div>
@@ -449,7 +459,9 @@ function renderQuestion() {
   $('#qme').innerHTML = avatarSVG(look(), 'blij', 'small');
   S.qStart = Date.now();
   renderInput(); updateBar();
-  $('#qcard').classList.remove('pop'); void $('#qcard').offsetWidth; $('#qcard').classList.add('pop');
+  if (S.pipMood !== 'blij') { $('#qpip').innerHTML = pipSVG('blij'); S.pipMood = 'blij'; }
+  move($('#qcard'), 'inUp', { duration: 480 });
+  stagger($$('.choice, .tw, .orderpool .ow', $('#qinput')), 'pop', 35, 120, 10);
 }
 function updateBar() {
   const p = S.mode === 'practice' ? (S.i - 1) / S.count : 1 - Math.max(0, S.endAt - Date.now()) / (S.duration * 1000);
@@ -628,8 +640,12 @@ function feedback(ok, g, choiceIdx) {
   if (q.kind === 'choice') $$('.choice').forEach((b, i) => { b.disabled = true; if (i === q.answer) b.classList.add('right'); else if (i === choiceIdx) b.classList.add('wrong'); });
   if (q.kind === 'tap') $$('.tw').forEach(b => { const i = +b.dataset.t; b.disabled = true; if (q.answer.includes(i)) b.classList.add('right'); else if (S.sel.has(i)) b.classList.add('wrong'); });
   updateBar();
+  const chosen = choiceIdx != null ? $$('.choice')[choiceIdx] : null;
   if (ok) {
     SND.ok();
+    S.pipMood = 'lach'; pipReact($('#qpip'), 'lach');
+    move(chosen || $('#ansrow') || $('.tapzin') || $('.orderbuilt'), 'jelly');
+    move($('#qbarfill'), 'jelly', { duration: 420 });
     $('#qme').innerHTML = avatarSVG(look(), 'lach', 'small casting');
     const sb = $('#spellbanner');
     const sm = STREAK_MSG[S.streak];
@@ -644,6 +660,8 @@ function feedback(ok, g, choiceIdx) {
   }
   SND.boing();
   $('#qme').innerHTML = avatarSVG(look(), 'oeps', 'small');
+  S.pipMood = 'oeps'; pipReact($('#qpip'), 'oeps');
+  if (chosen) { move(chosen, 'nope'); move($$('.choice')[q.answer], 'jelly', { delay: 260 }); }
   const fb = $('#fb'), [fe, ft] = kies(FAILS);
   $('#quiz').classList.add('showfb');
   if (timed) {
@@ -664,6 +682,7 @@ function feedback(ok, g, choiceIdx) {
     <div class="fb-exp">${q.explain || ''}</div>${sugg}
     <button class="btn primary" id="fbnext">${S.mode === 'practice' && S.i >= S.count ? t('toResults') : t('nextQ')}</button></div>`;
   fb.className = 'fb show bad';
+  move($('.fb-in', fb), 'inUp');
   $('#fbnext').onclick = () => { fb.className = 'fb'; next(); };
   if ($('#fblesson')) $('#fblesson').onclick = () => { pause(); openLesson(tk, 0, 'quiz'); };
   setTimeout(() => fb.scrollIntoView({ behavior: D.settings.anim ? 'smooth' : 'auto', block: 'nearest' }), 50);
@@ -731,6 +750,13 @@ function renderResults(r) {
   if ($('#toclass')) $('#toclass').onclick = () => openClass(S.subject);
   if ($('#reslesson')) $('#reslesson').onclick = () => openLesson(weakTopic[0], 0, 'class');
   show('results');
+  move($('.res', el), 'inUp');
+  // sterren ploppen één voor één, elk met een eigen toontje
+  $$('.bigstars .on', el).forEach((sp, i) => {
+    const at = 320 + i * 300; move(sp, 'starIn', { delay: at });
+    setTimeout(() => { if (!sp.isConnected) return; sparkleBurst(sp, 6); tone([660 + i * 200], .12, 'triangle', .05); }, at + 330);
+  });
+  if (r.stars >= 2) move($('.pipline .pip', el), 'dance', { delay: 1300 });
   $$('.res-grid b[data-n]', el).forEach((b, i) => setTimeout(() => countUp(b, +b.dataset.n), 150 + i * 120));
   if (r.stars >= 2) { setTimeout(() => { confetti(r.stars === 3 ? 180 : 90); SND.fanfare(); }, 300); }
 }

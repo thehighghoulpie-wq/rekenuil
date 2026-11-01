@@ -256,6 +256,7 @@ function applySettings() {
   document.body.classList.toggle('big', !!D.settings.big);
   document.documentElement.lang = lang() === 'pap' ? 'pap' : lang();
   document.title = t('appName');
+  applyTheme();
 }
 function openSettings() {
   const tg = (k, label) => `<div class="setrow"><span>${label}</span><button class="toggle ${D.settings[k] ? 'on' : ''}" data-set="${k}">${D.settings[k] ? t('on') : t('off')}</button></div>`;
@@ -274,16 +275,44 @@ function openSettings() {
 /* =====================================================================
    OUDERHOEK (achter een oudercheck)
    ===================================================================== */
+/* Parent gate: no long-press and no gestures (they differ per tablet and browser); only a tap and typing.
+   The sum is spoken in Dutch words, so it needs reading and thinking, and it locks for a while after 3 wrong tries. */
+function nlNum(n) {
+  const U = ['nul', 'een', 'twee', 'drie', 'vier', 'vijf', 'zes', 'zeven', 'acht', 'negen', 'tien', 'elf', 'twaalf', 'dertien', 'veertien', 'vijftien', 'zestien', 'zeventien', 'achttien', 'negentien'];
+  const T = ['', '', 'twintig', 'dertig', 'veertig', 'vijftig', 'zestig', 'zeventig', 'tachtig', 'negentig'];
+  if (n < 20) return U[n];
+  const u = n % 10, tt = T[Math.floor(n / 10)];
+  return u === 0 ? tt : U[u] + (u === 2 || u === 3 ? 'ën' : 'en') + tt;
+}
+function gateSum() {
+  const a = rnd(13, 29), b = rnd(6, 9), c = rnd(5, 19);
+  return { txt: `${nlNum(a)} keer ${nlNum(b)}, min ${nlNum(c)}`, ans: a * b - c };
+}
 function parentGate(then) {
-  const a = rnd(13, 29), b = rnd(6, 9);
-  modal(`<h2>👪 ${t('forParents')}</h2><p>${t('gateHold')}</p><button class="btn primary wide holdbtn" id="hold"><i></i><span>${t('gateHoldBtn')}</span></button>
-    <div id="gateq" class="hidden"><p>${t('gateQ')} <b>${a} × ${b}</b></p><input id="gatein" class="nameinp" inputmode="numeric" autocomplete="off"></div>`,
+  let q = gateSum(), fails = 0, lock = 0, lockTm = null;
+  modal(`<h2>👪 ${t('forParents')}</h2><p>${t('gateHold')}</p>
+    <p class="gateq"><b id="gatetxt"></b></p>
+    <input id="gatein" class="nameinp" inputmode="numeric" pattern="[0-9]*" autocomplete="off" aria-label="${t('gateQ')}">
+    <p id="gatemsg" class="muted" aria-live="polite"></p>
+    <button class="btn primary wide" id="gatego">${t('gateGo')}</button>`,
     [{ label: t('cancel'), cls: 'ghost' }]);
-  const h = $('#hold'); let tm = null;
-  const start = e => { e.preventDefault(); h.classList.add('holding'); $('span', h).textContent = t('gateKeep'); tm =setTimeout(() => { h.classList.add('hidden'); $('#gateq').classList.remove('hidden'); $('#gatein').focus(); }, 3000); };
-  const stop = () => { h.classList.remove('holding'); $('span', h).textContent = t('gateHoldBtn'); clearTimeout(tm); };
-  h.addEventListener('pointerdown', start); ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => h.addEventListener(ev, stop));
-  $('#gatein').oninput = e => { if (+e.target.value === a * b) { closeModal(); then(); } };
+  const inp = $('#gatein'), msg = $('#gatemsg'), go = $('#gatego');
+  const ask = () => { $('#gatetxt').textContent = q.txt.charAt(0).toUpperCase() + q.txt.slice(1) + '?'; inp.value = ''; };
+  const tick = () => {
+    const left = Math.ceil((lock - Date.now()) / 1000);
+    if (left > 0) { msg.textContent = t('gateWait', { n: left }); lockTm = setTimeout(tick, 500); }
+    else { go.disabled = inp.disabled = false; msg.textContent = ''; inp.focus(); }
+  };
+  const check = () => {
+    if (lock > Date.now()) return;
+    if (inp.value.trim() !== '' && +inp.value === q.ans) { closeModal(); clearTimeout(lockTm); then(); return; }
+    fails++; shake($('#modal-card')); inp.value = '';
+    if (fails % 3 === 0) { q = gateSum(); ask(); lock = Date.now() + 30000; go.disabled = inp.disabled = true; tick(); }
+    else msg.textContent = t('gateWrong');
+  };
+  go.onclick = check;
+  inp.onkeydown = e => { if (e.key === 'Enter') check(); };
+  ask(); setTimeout(() => inp.focus(), 50);
 }
 let parTab = 'week';
 function openParents() { renderParents(); show('parents'); }
@@ -318,6 +347,7 @@ function renderParents() {
   if (parTab === 'set') {
     body = `<label class="lbl">${t('parGrade')}</label><div class="chips">${[3, 4, 5, 6, 7, 8].map(g => `<button class="chip ${D.grade === g ? 'on' : ''}" data-grade="${g}">${g}</button>`).join('')}</div><p class="muted">${t('parGradeInfo')}</p>
       <label class="lbl">${t('parGoal')}</label><div class="chips">${[5, 10, 15, 20].map(g => `<button class="chip ${D.settings.dailyGoal === g ? 'on' : ''}" data-goal="${g}">${g}</button>`).join('')}</div>
+      <label class="lbl">${t('themeLbl')}</label><div class="chips">${THEMES.map(k => `<button class="chip ${(D.settings.theme || 'auto') === k ? 'on' : ''}" data-th="${k}">${t('th_' + k)}</button>`).join('')}</div><p class="muted">${t('themeInfo')}</p>
       <label class="lbl">${t('parBackup')}</label><p class="muted">${t('parBackupInfo')}</p>
       <div class="btnrow"><button class="btn" id="bkdown">⬇️ ${t('parSave')}</button><label class="btn ghost">⬆️ ${t('parLoad')}<input type="file" id="bkup" accept=".json,application/json" hidden></label></div>
       <p>${t('parentInfo')}</p><p class="muted">${t('contentNote')}</p>
@@ -328,6 +358,7 @@ function renderParents() {
   $$('[data-tab]', el).forEach(b => b.onclick = () => { parTab = b.dataset.tab; renderParents(); });
   $$('[data-grade]', el).forEach(b => b.onclick = () => { D.grade = +b.dataset.grade; save(); renderParents(); });
   $$('[data-goal]', el).forEach(b => b.onclick = () => { D.settings.dailyGoal = +b.dataset.goal; save(); renderParents(); });
+  $$('[data-th]', el).forEach(b => b.onclick = () => { D.settings.theme = b.dataset.th; save(); applyTheme(); renderParents(); });
   $$('[data-who]', el).forEach(b => b.onclick = () => { D.settings.voiceWho = b.dataset.who; save(); renderParents(); });
   $$('[data-play]', el).forEach(b => b.onclick = () => voicePlay(b.dataset.play));
   $$('[data-del]', el).forEach(b => b.onclick = () => voiceDel(b.dataset.del).then(keepOpen(renderParents)));

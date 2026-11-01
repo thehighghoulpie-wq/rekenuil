@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 520" preserveAspectRatio="xMidYMid slice">
+<defs><linearGradient id="w" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2E8AD8"/><stop offset="1" stop-color="#0C3A8C"/></linearGradient></defs>
+<rect x="0" y="374" width="1400" height="146" fill="url(#w)"/>
+<g opacity=".3"><rect x="20" y="388" width="120" height="44" fill="#2F6B52"/><rect x="140" y="388" width="110" height="40" fill="#F4A6C0"/><rect x="250" y="388" width="130" height="44" fill="#8ED9C2"/><rect x="380" y="388" width="90" height="38" fill="#F7DF5A"/><rect x="470" y="388" width="110" height="44" fill="#F29A2E"/><rect x="580" y="388" width="90" height="42" fill="#3A6FD0"/><rect x="670" y="388" width="180" height="56" fill="#F2B21E"/><rect x="850" y="388" width="106" height="40" fill="#8FCF4A"/></g>
+<path d="M0 470 Q100 458 200 470 T400 470 T600 470 T800 470 T1000 470 T1200 470 T1400 470" fill="none" stroke="#5AA8E8" stroke-width="3" opacity=".55"/>
+<path d="M0 496 Q100 484 200 496 T400 496 T600 496 T800 496 T1000 496 T1200 496 T1400 496" fill="none" stroke="#4690DC" stroke-width="3" opacity=".5"/>
+<g fill="#fff" opacity=".85"><rect x="300" y="474" width="50" height="4" rx="2"/><rect x="640" y="488" width="64" height="4" rx="2"/><rect x="1090" y="480" width="70" height="5" rx="2.5"/><rect x="900" y="500" width="44" height="4" rx="2"/></g>
+</svg>
