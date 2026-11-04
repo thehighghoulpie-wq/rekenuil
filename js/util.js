@@ -65,5 +65,8 @@ function registerTopic(subjectId, t) {
   return t;
 }
 // lesstappen: { t: titel, h: uitleg (html), v: plaatje (html), w: 'widget-naam', o: opties }
+// soorten vragen (uitbreidbaar): registerKind('naam', { render, guess, empty, check, answerText, givenText, mark })
+const KINDS = {};
+function registerKind(name, k) { KINDS[name] = k; }
 const WIDGETS = {};
 function registerWidget(name, fn) { WIDGETS[name] = fn; }

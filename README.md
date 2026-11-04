@@ -12,6 +12,7 @@ App-taal: Nederlands, Papiamentu of English (de lessen en vragen zelf zijn Neder
 - `js/visuals.js` – klok, breukstroken, getallenlijn, cijferen, grafieken, geld + interactieve lesonderdelen
 - `js/art.js` – het chibi-personage, huisdieren, Pip en de leraren
 - `js/fun.js` – grapjes en grappige reacties
+- `js/engine.js` – vragen-motor: nieuwe soorten vragen (`registerKind`), nakijken als gegevens (`gradeSpec`) en het onderwerp Toverlab (schuiflijn, vakjes kleuren, kies alles)
 - `js/rekenen.js`, `js/taal.js`, `js/papiamentu.js` – vragen en lessen per vak
 - `js/app.js`, `js/extra.js` – de app zelf (extra.js: kledingkamer/Toverspiegel, spelletjes, Ouderhoek, intro)
 - `js/review.js` – herhalen met Leitner-doosjes en de dagelijkse Toverdrank
@@ -42,6 +43,6 @@ Nog niet bevestigd en extra belangrijk om te checken: `orañá` (oranje), `rosa`
 - **Spellingwoorden, spreekwoorden, leesteksten:** voeg regels toe aan de lijsten in `js/taal.js`.
 - **Nieuw onderwerp:** schrijf een functie `gen(diff)` die een vraag teruggeeft en meld hem aan:
   `registerTopic('rekenen', { id, name, sub, ico, gen, lesson: [{ t, h, v, w, o }] })`.
-  Soorten vragen: `num`, `rest`, `time`, `choice`, `tap` (woorden aantikken) en `order` (zin bouwen).
+  Soorten vragen: `num`, `rest`, `time`, `choice`, `tap` (woorden aantikken), `order` (zin bouwen) en, uit engine.js, `line`, `grid` en `multi`. Een eigen soort maak je met `registerKind(naam, { render, guess, empty, check, answerText, givenText, mark })`; nakijken kan met `gradeSpec({method:'value'|'set'|'order', exact, interval, required, distinct}, gegeven)`.
 - **Herhalen:** laat `gen(diff, item)` een vaste vraag maken als `item` is meegegeven en zet `item` op de vraag. Foute antwoorden komen dan vanzelf terug in de Toverdrank.
 - **Andere leeftijden (later):** geef een onderwerp `grades: [min, max]` (groep). De groep staat in de Ouderhoek.

@@ -458,7 +458,7 @@ function next(first) {
   if (!first && S.mode === 'practice' && S.i >= S.count) return finish();
   if (S.mode === 'timed' && Date.now() >= S.endAt) return finish();
   S.q = makeQuestion(); S.i++; S.hintUsed = false; S.locked = false;
-  S.input = { a: '', r: '', field: 'a' }; S.sel = new Set(); S.order = [];
+  S.input = { a: '', r: '', field: 'a' }; S.sel = new Set(); S.order = []; S.ext = {};
   renderQuestion();
 }
 function renderQuestion() {
@@ -501,6 +501,7 @@ function resume() { if (S.pausedAt) { S.endAt += Date.now() - S.pausedAt; S.paus
 /* ---------- invoer ---------- */
 function renderInput() {
   const q = S.q, box = $('#qinput');
+  if (KINDS[q.kind]) return KINDS[q.kind].render(q, box, { submit: () => submit() });
   if (q.kind === 'choice') {
     box.innerHTML = `<div class="choices ${q.choiceCls || ''} ${q.big ? 'bigc' : ''} n${q.choices.length}">${q.choices.map((c, i) => `<button class="choice" data-c="${i}">${c}</button>`).join('')}</div>`;
     $$('.choice', box).forEach(b => b.onclick = () => submit(+b.dataset.c));
@@ -574,6 +575,7 @@ function parseTime(s) {
   if (isNaN(h) || isNaN(m) || m > 59 || h > 24) return null; return { h, m };
 }
 function checkAnswer(q, g) {
+  if (KINDS[q.kind]) return KINDS[q.kind].check(q, g);
   switch (q.kind) {
     case 'num': { const v = parseDec(g.a); return !isNaN(v) && Math.abs(v - q.answer) < 1e-6; }
     case 'rest': return /^\d+$/.test(g.a) && +g.a === q.answer.q && (g.r === '' || g.r == null ? 0 : +g.r) === q.answer.r;
@@ -585,6 +587,7 @@ function checkAnswer(q, g) {
   return false;
 }
 function answerText(q) {
+  if (KINDS[q.kind]) return KINDS[q.kind].answerText(q);
   if (q.answerText) return q.answerText;
   switch (q.kind) {
     case 'num': return (q.prefix ? q.prefix + ' ' : '') + fmt(q.answer) + (q.unit ? ' ' + q.unit : '');
@@ -596,6 +599,7 @@ function answerText(q) {
 }
 function givenText(q, g) {
   if (g.skip) return 'overgeslagen';
+  if (KINDS[q.kind]) return KINDS[q.kind].givenText(q, g);
   switch (q.kind) {
     case 'num': return (q.prefix ? q.prefix + ' ' : '') + esc(g.a) + (q.unit ? ' ' + q.unit : '');
     case 'rest': return g.r && g.r !== '0' ? `${esc(g.a)} rest ${esc(g.r)}` : esc(g.a);
@@ -608,6 +612,7 @@ function givenText(q, g) {
 }
 function currentGuess(choiceIdx) {
   const q = S.q;
+  if (KINDS[q.kind]) return KINDS[q.kind].guess(q);
   if (q.kind === 'choice') return { choice: choiceIdx };
   if (q.kind === 'tap') return { sel: [...S.sel] };
   if (q.kind === 'order') return { order: S.order.map(o => o.w) };
@@ -616,6 +621,7 @@ function currentGuess(choiceIdx) {
 function submit(choiceIdx) {
   if (S.locked) return;
   const q = S.q, g = currentGuess(choiceIdx);
+  if (KINDS[q.kind] && KINDS[q.kind].empty(g)) { shake($('.xk')); return; }
   if (['num', 'time'].includes(q.kind) && !g.a) { shake($('#ansrow')); return; }
   if (q.kind === 'rest' && !g.a) { shake($('#ansrow')); return; }
   if (q.kind === 'time' && !parseTime(g.a)) { shake($('#ansrow')); toast(t('timeFormat')); return; }
@@ -653,12 +659,13 @@ function record(q, ok, g) {
 function feedback(ok, g, choiceIdx) {
   const q = S.q, timed = S.mode === 'timed';
   if (q.kind === 'choice') $$('.choice').forEach((b, i) => { b.disabled = true; if (i === q.answer) b.classList.add('right'); else if (i === choiceIdx) b.classList.add('wrong'); });
+  if (KINDS[q.kind] && KINDS[q.kind].mark) KINDS[q.kind].mark(q, g);
   if (q.kind === 'tap') $$('.tw').forEach(b => { const i = +b.dataset.t; b.disabled = true; if (q.answer.includes(i)) b.classList.add('right'); else if (S.sel.has(i)) b.classList.add('wrong'); });
   updateBar();
   const chosen = choiceIdx != null ? $$('.choice')[choiceIdx] : null;
   if (ok) {
     S.pipMood = pipJoyMood(); pipReact($('#qpip'), S.pipMood);
-    move(chosen || $('#ansrow') || $('.tapzin') || $('.orderbuilt'), 'jelly');
+    move(chosen || $('#ansrow') || $('.tapzin') || $('.orderbuilt') || $('.xk'), 'jelly');
     move($('#qbarfill'), 'jelly', { duration: 420 });
     $('#qme').innerHTML = avatarSVG(look(), 'lach', 'small casting');
     const sb = $('#spellbanner');

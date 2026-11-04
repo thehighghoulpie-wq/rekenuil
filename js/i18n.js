@@ -36,6 +36,8 @@ const STR = {
   lessonFirst: ['📖 Eerst de les bekijken', '📖 Wak e lès promé', '📖 Look at the lesson first'],
   qOf: ['Vraag {i} van {n}', 'Pregunta {i} di {n}', 'Question {i} of {n}'], right: ['goed', 'bon', 'right'],
   how: ['💡 Hoe doe je dit?', '💡 Kon bo ta hasi esaki?', '💡 How do I do this?'], dunno: ['🤷 Weet ik niet', '🤷 Mi no sa', '🤷 I don\'t know'],
+  // pap-teksten hieronder: needs family check
+  lineMove: ['Schuif langs de lijn', 'Schuif langs de lijn', 'Slide along the line'], gridOf: ['van', 'di', 'of'],
   cast: ['Tover! ✨', 'Hasi magia! ✨', 'Cast! ✨'], tapOrder: ['Tik de woordjes in de goede volgorde…', 'Tok e palabranan den òrden korekto…', 'Tap the words in the right order…'],
   timeFormat: ['Typ de tijd zo: <b>14:30</b> of 1430', 'Tipa e ora asina: <b>14:30</b> òf 1430', 'Type the time like this: <b>14:30</b> or 1430'],
   withHelp: ['(met hulp: halve punten)', '(ku yudansa: mitar di punto)', '(with help: half points)'],
