@@ -18,6 +18,10 @@ App-taal: Nederlands, Papiamentu of English (de lessen en vragen zelf zijn Neder
 - `js/leven.js` – ster die naar de teller vliegt, Pip's mond volgt de stem, scènes als gegevens, Rustmoment, poets-timer
 - `js/eiland.js` – Mijn Eiland: bouwen en spelen, huisjes verven, cadeautjes van Pip de postbode
 - `js/gezin.js` – ei uitbroeden, Brievenbus, sterren met een reden, gast en meerdere spelers, speeltijden, Ouderhoek-tab Gezin
+- `js/editor2.js` – Toverspiegel 4.0: onderdelen met pijltjes en dobbelsteen, kleurenwiel met eigen kleuren, gezichtsvoorbeelden, outfit-sets, omlijning aan/uit, vleugels/staart/cape, 12 poses, 8 gezichtjes, personages bewaren en kopiëren
+- `js/strip.js` – Stripmaker: stripverhaal van tot 4 plaatjes met personages, achtergrond en tekstballonnen
+- `js/motoren.js` – 15 puzzelmotoren (blokken, weegschaal, kassa, klok zetten, meetgereedschap, taartpunten, lettergrepen, dictee, sorteerband, stippen verbinden, schatkaart, poortrenner, spiegelbeeld, paren zoeken, echo-muziek) met onderwerpen per groep
+- `js/taalmotoren.js` – taal: zinnen bouwen, letters leggen, gesprekjes, zeg het zelf, werkwoordsvormen, luister en kies, typ het Papiamentu, woordparen, meer leesboekjes, woord van de dag, wizard-rangen
 - `js/engine.js` – vragen-motor: nieuwe soorten vragen (`registerKind`), nakijken als gegevens (`gradeSpec`) en het onderwerp Toverlab (schuiflijn, vakjes kleuren, kies alles)
 - `js/rekenen.js`, `js/taal.js`, `js/papiamentu.js` – vragen en lessen per vak
 - `js/app.js`, `js/extra.js` – de app zelf (extra.js: kledingkamer/Toverspiegel, spelletjes, Ouderhoek, intro)

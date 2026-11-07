@@ -7,53 +7,7 @@
 /* ---------- personage-keuzes (gedeeld door intro en kledingkamer) ---------- */
 // De Toverspiegel: tabbladen met keuzes en een live voorbeeld (intro én kledingkamer)
 let lpTab = 'face', lookHop = false;   // lookHop: het voorbeeld maakt een sprongetje na een keuze
-function lookPanel(L, onChange, withName = true) {
-  const sw = (arr, key, order) => `<div class="swatches">${(order || arr.map((_, i) => i)).map(i => `<button class="sw ${L[key] === i ? 'on' : ''}" data-k="${key}" data-v="${i}" style="--c:${arr[i]}" aria-label="${key} ${i + 1}"></button>`).join('')}</div>`;
-  // keuze met een klein gezichtje als voorbeeld
-  const pick = (key, vals, label = v => '') => `<div class="hairstyles">${vals.map(v => `<button class="hs ${L[key] === v ? 'on' : ''}" data-k="${key}" data-s="${v}">${avatarSVG(Object.assign({}, L, { [key]: v, hat: 'geen', pet: 'geen' }), 'blij', 'mini')}<span>${label(v)}</span></button>`).join('')}</div>`;
-  const tog = (key, on, off) => `<div class="chips"><button class="chip ${!L[key] ? 'on' : ''}" data-k="${key}" data-b="0">${off}</button><button class="chip ${L[key] ? 'on' : ''}" data-k="${key}" data-b="1">${on}</button></div>`;
-  const tabs = [['face', '🙂 ' + t('lpFace')], ['hair', '💇 ' + t('hair')], ['eyes', '👀 ' + t('eyes')], ['extra', '✨ ' + t('lpExtra')], ['robe', '🧥 ' + t('lpRobe')], ['magic', '🪄 ' + t('lpMagic')]];
-  let body = '';
-  if (lpTab === 'face') body = `<label class="lbl">${t('lpBody')}</label><div class="hairstyles starters">${STARTERS.map(s => `<button class="hs" data-starter="${s.id}">${avatarSVG(Object.assign({}, DEFAULT_LOOK, s.look), 'blij', 'mini')}<span>${s.name}</span></button>`).join('')}</div><p class="muted">${t('lpBodyInfo')}</p>
-    <label class="lbl">${t('lpMantel')}</label><div class="chips big">${BODIES.map(([id, e]) => `<button class="chip ${(L.body || 'meisje') === id ? 'on' : ''}" data-body="${id}">${e} ${t('body_' + id)}</button>`).join('')}</div>
-    <label class="lbl">${t('skin')}</label>${sw(SKINS, 'skin', SKIN_ORDER)}
-    <label class="lbl">${t('lpTint')}</label><input type="range" class="w-range" min="-3" max="3" step="1" value="${L.tint || 0}" data-tint aria-label="${t('lpTint')}">
-    <label class="lbl">${t('lpFreckles')}</label>${tog('sproet', '✅', '—')}
-    <label class="lbl">${t('lpBlush')}</label><div class="chips">${[0, 1, 2].map(i => `<button class="chip ${L.blush === i ? 'on' : ''}" data-k="blush" data-v="${i}">${['—', '🌸', '🌸🌸'][i]}</button>`).join('')}</div>
-    <label class="lbl">${t('lpBrows')}</label>${pick('brows', BROWS)}`;
-  if (lpTab === 'hair') body = `<div class="hairstyles">${HAIRSTYLES.map(h => `<button class="hs ${L.hair === h.id ? 'on' : ''}" data-k="hair" data-s="${h.id}">${avatarSVG(Object.assign({}, L, { hair: h.id, hat: 'geen', pet: 'geen' }), 'blij', 'mini')}<span>${h.name}</span></button>`).join('')}</div>
-    <label class="lbl">${t('hairColor')}</label>${sw(HAIRCOLORS, 'hairColor')}
-    <label class="lbl">${t('lpTips')}</label><div class="swatches"><button class="sw none ${L.tips < 0 ? 'on' : ''}" data-k="tips" data-v="-1" aria-label="geen">—</button>${HAIRCOLORS.map((c, i) => `<button class="sw ${L.tips === i ? 'on' : ''}" data-k="tips" data-v="${i}" style="--c:${c}"></button>`).join('')}</div>`;
-  if (lpTab === 'eyes') body = `<label class="lbl">${t('lpEyeColor')}</label>${sw(EYECOLORS, 'eyes')}<label class="lbl">${t('lpEyeShape')}</label>${pick('eyeShape', EYESHAPES)}<label class="lbl">${t('lpLashes')}</label>${tog('lashes', '✅', '—')}`;
-  if (lpTab === 'extra') body = `<label class="lbl">${t('lpGlasses')}</label>${pick('bril', GLASSES)}<label class="lbl">${t('lpEarrings')}</label>${pick('oorbel', EARRINGS)}<label class="lbl">${t('lpClips')}</label>${pick('clip', CLIPS)}
-    <label class="lbl">${t('lpBeard')}</label><div class="chips">${BEARDS.map(b => `<button class="chip ${(L.baard || 'geen') === b ? 'on' : ''}" data-k="baard" data-s="${b}">${t('beard_' + b)}</button>`).join('')}</div>
-    <label class="lbl">${t('lpLeg')}</label><div class="chips">${LEGS.map(b => `<button class="chip ${(L.prothese || 'geen') === b ? 'on' : ''}" data-k="prothese" data-s="${b}">${t('leg_' + b)}</button>`).join('')}</div>`;
-  if (lpTab === 'robe') body = `<label class="lbl">${t('lpRobeColor')}</label>${sw(ROBECOLS, 'robeColor')}<p class="muted">${t('lpRobeNote')}</p>
-    <label class="lbl">${t('lpSign')}</label><div class="chips big">${TEKENS.map(([id, e]) => `<button class="chip ${L.teken === id ? 'on' : ''}" data-k="teken" data-s="${id}">${e} ${t('sign_' + id)}</button>`).join('')}</div>`;
-  if (lpTab === 'magic') body = `<label class="lbl">${t('lpBg')}</label><div class="chips">${MIRROR_BGS.map(([id, e]) => `<button class="chip ${L.bg === id ? 'on' : ''}" data-k="bg" data-s="${id}">${e} ${t('bg_' + id)}</button>`).join('')}</div>
-    <label class="lbl">${t('lpGlitter')}</label><div class="chips">${GLITTERS.map(([id, e]) => `<button class="chip ${L.glitter === id ? 'on' : ''}" data-k="glitter" data-s="${id}">${e} ${t('gl_' + id)}</button>`).join('')}</div>
-    <label class="lbl">${t('lpPose')}</label><div class="chips">${POSES.map(([id, e]) => `<button class="chip" data-pose="${id}">${e} ${t('pose_' + id)}</button>`).join('')}</div>
-    <label class="lbl">${t('lpFaceNow')}</label><div class="chips big">${FACES.map(([id, e]) => `<button class="chip ${spiegelMood === id ? 'on' : ''}" data-face="${id}" aria-label="${id}">${e}</button>`).join('')}</div>`;
-  return `<div class="lookpanel">
-    ${withName ? `<label class="lbl">${t('name')}</label><input id="nameinp" class="nameinp" maxlength="16" value="${esc((D.profile && D.profile.name) || '')}" placeholder="${t('namePh')}" autocomplete="off">` : ''}
-    <div class="tabs small">${tabs.map(([k, n]) => `<button class="tab ${lpTab === k ? 'on' : ''}" data-lp="${k}">${n}</button>`).join('')}</div>${body}
-    <button class="btn ghost wide" id="surprise">🎲 ${t('lpSurprise')}</button></div>`;
-}
-function bindLookPanel(root, L, onChange) {
-  const done = () => { SND.click(); lookHop = D.settings.anim; onChange(); lookHop = false; spiegelPoof(root); };
-  $$('[data-lp]', root).forEach(b => b.onclick = () => { lpTab = b.dataset.lp; SND.click(); onChange(); });
-  $$('[data-k][data-v]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = +b.dataset.v; done(); });
-  $$('[data-k][data-s]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = b.dataset.s; done(); });
-  $$('[data-k][data-b]', root).forEach(b => b.onclick = () => { L[b.dataset.k] = b.dataset.b === '1'; done(); });
-  const sp = $('#surprise', root); if (sp) sp.onclick = () => { sp.classList.remove('diceshake'); void sp.offsetWidth; sp.classList.add('diceshake'); tone([300, 360, 420], .05, 'square', .03); setTimeout(() => { Object.assign(L, randomLook(L)); SND.pop(); onChange(); const p = $('.ward-prev', root); sparkleBurst(p, 14, glitterSyms()); spiegelPoof(root); }, motionOK() ? 380 : 0); };
-  $$('[data-pose]', root).forEach(b => b.onclick = () => spiegelPose(root, b.dataset.pose));
-  // jongen of meisje: in de intro ook een passende begin-look; in de kledingkamer alleen de vorm (je eigen keuzes blijven)
-  $$('[data-body]', root).forEach(b => b.onclick = () => { L.body = b.dataset.body; done(); });
-  $$('[data-starter]', root).forEach(b => b.onclick = () => { const st = STARTERS.find(x => x.id === b.dataset.starter); if (!st) return; Object.assign(L, { sproet: false, clip: 'geen', oorbel: 'geen', tips: -1, bril: 'geen', baard: 'geen', prothese: 'geen', tint: 0 }, st.look); SND.click(); done(); });
-  $$('[data-tint]', root).forEach(r => r.onchange = () => { L.tint = +r.value; done(); });
-  $$('[data-face]', root).forEach(b => b.onclick = () => { spiegelMood = b.dataset.face; SND.click(); onChange(); });
-  const n = $('#nameinp', root); if (n) n.oninput = () => { D.profile.name = n.value.trim() || D.profile.name; save(); };
-}
+// lookPanel en bindLookPanel staan nu in js/editor2.js (Toverspiegel 4.0)
 
 /* =====================================================================
    KLEDINGKAMER
@@ -125,9 +79,9 @@ function openGames() {
   const card = (id, ico, best) => `<button class="gamecard card" data-g="${id}"><span class="g-ico">${ico}</span><b>${t('g_' + id)}</b><small>${t('gs_' + id)}</small>${best ? `<span class="pill">🏆 ${t('best')}: ${best}</span>` : ''}</button>`;
   el.innerHTML = backbar(t('pl_speel')) + `<div class="wrap"><h2 class="sect">${t('games')}</h2><div class="gamegrid">
     ${card('match', '🧩', gm.match && gm.match.best ? fmtSec(gm.match.best * 1000) : '')}${card('memory', '🃏', gm.memory && gm.memory.best ? gm.memory.best + ' ' + t('moves') : '')}${card('bellen', '🫧', gm.bellen && gm.bellen.best)}
-    ${card('koppel', '⚡', gm.koppel && gm.koppel.best)}${card('piano', '🎹', gm.piano && gm.piano.best ? gm.piano.best + ' 🎵' : '')}${card('walk', '🚶', '')}${card('wela', '📞', '')}${card('liedjes', '🎵', '')}${card('rust', '🌙', '')}${card('poets', '🪥', '')}</div></div>`;
+    ${card('koppel', '⚡', gm.koppel && gm.koppel.best)}${card('piano', '🎹', gm.piano && gm.piano.best ? gm.piano.best + ' 🎵' : '')}${card('walk', '🚶', '')}${card('wela', '📞', '')}${card('liedjes', '🎵', '')}${card('rust', '🌙', '')}${card('poets', '🪥', '')}${card('strip', '🎬', '')}</div></div>`;
   bindCommon(el);
-  const go = { bellen: startBellen, koppel: () => startKoppel(), piano: startPiano, walk: startWalk, wela: startWela, liedjes: startLiedjes, rust: startRust, poets: startPoets };
+  const go = { bellen: startBellen, koppel: () => startKoppel(), piano: startPiano, walk: startWalk, wela: startWela, liedjes: startLiedjes, rust: startRust, poets: startPoets, strip: openStrip };
   $$('[data-g]', el).forEach(b => b.onclick = () => { SND.click(); go[b.dataset.g] ? go[b.dataset.g]() : pickCategory(b.dataset.g); });
   stagger($$('.gamecard', el), 'inUp', 50, 80);
   show('games');

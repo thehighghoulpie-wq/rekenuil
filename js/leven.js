@@ -25,10 +25,10 @@ function starFly(from) {
 /* ---------- Pip's mond volgt de stem ---------- */
 let LIP = { t: 0, raf: 0, ctx: null };
 function pipMouthEls() { return $$('.screen.active .pip .pip-mouth, .screen.active .pip-actor .pip-mouth, .modal.show .pip .pip-mouth'); }
-function pipLipStop() { cancelAnimationFrame(LIP.raf); clearInterval(LIP.t); $$('.pip.talk').forEach(p => p.classList.remove('talk')); pipMouthEls().forEach(m => { m.style.transform = ''; }); }
+function pipLipStop() { cancelAnimationFrame(LIP.raf); clearInterval(LIP.t); $$('.pip.talk, .cast-img.talk').forEach(p => p.classList.remove('talk')); pipMouthEls().forEach(m => { m.style.transform = ''; }); }
 function pipLipAudio(audio) {
   pipLipStop(); if (!motionOK()) return;
-  const pips = $$('.screen.active .pip'); pips.forEach(p => p.classList.add('talk'));
+  const pips = $$('.screen.active .pip, .screen.active .cast-img'); pips.forEach(p => p.classList.add('talk'));
   try {
     LIP.ctx = LIP.ctx || new (window.AudioContext || window.webkitAudioContext)();
     const src = LIP.ctx.createMediaElementSource(audio), an = LIP.ctx.createAnalyser(); an.fftSize = 256; src.connect(an); an.connect(LIP.ctx.destination);
@@ -44,7 +44,7 @@ function pipLipAudio(audio) {
 // een opgenomen stem afspelen: Pip praat mee
 { const _vp = voicePlay; voicePlay = k => _vp(k).then(r => { if (typeof voiceAudio !== 'undefined' && voiceAudio) pipLipAudio(voiceAudio); return r; }); }
 // een computerstem: Pip praat zolang hij praat
-{ const _sp = speakNL; speakNL = (txt, el) => { _sp(txt, el); try { if (window.speechSynthesis && window.speechSynthesis.speaking && motionOK()) { pipLipStop(); $$('.screen.active .pip').forEach(p => p.classList.add('talk')); LIP.t = setInterval(() => { if (!window.speechSynthesis.speaking) pipLipStop(); }, 300); } } catch (e) { } }; }
+{ const _sp = speakNL; speakNL = (txt, el) => { _sp(txt, el); try { if (window.speechSynthesis && window.speechSynthesis.speaking && motionOK()) { pipLipStop(); $$('.screen.active .pip, .screen.active .cast-img').forEach(p => p.classList.add('talk')); LIP.t = setInterval(() => { if (!window.speechSynthesis.speaking) pipLipStop(); }, 300); } } catch (e) { } }; }
 
 /* ---------- scènes als gegevens ---------- */
 // { stappen: [{ t: ms, zeg: 'tekst', stem: 'zwaai', beweeg: 'hop', geluid: 'pop', klaar: fn }] }
@@ -68,7 +68,7 @@ function speel(el, scene, done) {
 /* ---------- Rustmoment ---------- */
 function startRust() {
   G.over = false; G.again = startRust;
-  gameShell('🌙 ' + t('g_rust'), `<div class="rust"><div class="rust-pip" id="rustpip">${pipSVG('slaap')}</div><div class="rust-ring" id="rustring"><span id="rusttxt">${tri(['Klaar? Adem rustig mee met Pip.', 'Pronto? Rospiná trankil huntu ku Pip.', 'Ready? Breathe slowly with Pip.'])}</span></div>
+  gameShell('🌙 ' + t('g_rust'), `<div class="rust"><div class="rust-pip" id="rustpip">${castImg('maanlicht', 'cast-idle')}</div><div class="rust-ring" id="rustring"><span id="rusttxt">${tri(['Klaar? Adem rustig mee met Pip.', 'Pronto? Rospiná trankil huntu ku Pip.', 'Ready? Breathe slowly with Pip.'])}</span></div>
     <div class="center"><button class="btn primary huge" id="rustgo">${tri(['Begin', 'Kuminsá', 'Start'])}</button></div></div>`);
   let timers = [], on = false;
   const stop = () => { timers.forEach(clearTimeout); timers = []; on = false; };
@@ -79,7 +79,7 @@ function startRust() {
     const ring = $('#rustring'), txt = $('#rusttxt'); let c = 0, total = 6;
     const cycle = () => {
       if (!on || current !== 'game') return stop();
-      if (c >= total) { txt.textContent = tri(['Goed gedaan. Wat een rustige tovenaar!', 'Bon hasi. Kuantu trankil!', 'Well done. What a calm wizard!']); ring.style.transform = 'scale(1)'; $('#rustpip').innerHTML = pipSVG('hart'); addStars(2); toast('⭐ +2'); return stop(); }
+      if (c >= total) { txt.textContent = tri(['Goed gedaan. Wat een rustige tovenaar!', 'Bon hasi. Kuantu trankil!', 'Well done. What a calm wizard!']); ring.style.transform = 'scale(1)'; castReact($('#rustpip'), 'hart'); addStars(2); toast('⭐ +2'); return stop(); }
       txt.textContent = tri(['Adem in…', 'Hala rospiná…', 'Breathe in…']); ring.style.transform = 'scale(1.45)';
       timers.push(setTimeout(() => { txt.textContent = tri(['Adem uit…', 'Saka rospiná…', 'Breathe out…']); ring.style.transform = 'scale(1)'; }, 4000));
       timers.push(setTimeout(() => { c++; cycle(); }, 8000));

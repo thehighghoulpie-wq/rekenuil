@@ -133,7 +133,7 @@ function eiGift() {
   const I = D.island, id = EI_GIFTS.find(x => !(I.owned || []).includes(x)) || EI_GIFTS[(I.got || 0) % EI_GIFTS.length];
   I.owned = I.owned || []; if (!I.owned.includes(id)) I.owned.push(id); I.got = (I.got || 0) + 1; save();
   SND.fanfare(); confetti(70);
-  modal(`<div class="m-ico">${pipSVG('lach')}</div><h2>🎁 ${EI_BY[id].name}!</h2><p>${tri(['Pip de postbode bracht een cadeautje voor je eiland. Je vindt het in de lade onder 🎁.', 'Pip e kartero a trese un regalo pa bo isla. Bo ta haña esaki den e laman bou 🎁.', 'Pip the postman brought a gift for your island. Find it in the drawer under 🎁.'])}</p>`, [{ label: t('ok'), cls: 'primary', fn: () => { EI.tab = 'cadeaus'; EI.mode = 'bouw'; renderIsland(); } }]);
+  modal(`<div class="m-ico">${castImg('nova', 'mcast')}</div><h2>🎁 ${EI_BY[id].name}!</h2><p>${tri(['Pip de postbode bracht een cadeautje voor je eiland. Je vindt het in de lade onder 🎁.', 'Pip e kartero a trese un regalo pa bo isla. Bo ta haña esaki den e laman bou 🎁.', 'Pip the postman brought a gift for your island. Find it in the drawer under 🎁.'])}</p>`, [{ label: t('ok'), cls: 'primary', fn: () => { EI.tab = 'cadeaus'; EI.mode = 'bouw'; renderIsland(); } }]);
 }
 function eiCell(c) {
   const x = +c.dataset.x, y = +c.dataset.y, k = x + ',' + y, I = D.island, cell = I.cells[k], z = zoneOfRow(y);

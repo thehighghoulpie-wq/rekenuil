@@ -95,7 +95,7 @@ function gezinOutside() {
 const gezinMin = () => { const l = D.daylog[today()]; return l ? l.sec / 60 : 0; };
 const gezinTimeUp = () => { const p = D.settings.play; return !!(p && p.on && p.max && gezinMin() >= p.max); };
 function gezinSleepModal(out) {
-  modal(`<div class="m-ico">${pipSVG('slaap')}</div><h2>${out ? tri(['Pip slaapt 😴', 'Pip ta drumi 😴', 'Pip is asleep 😴']) : tri(['Genoeg getoverd voor vandaag!', 'Basta magia pa awe!', 'Enough magic for today!'])}</h2><p>${tri(['Tot morgen! Je kunt nog wel spelen op je eiland.', 'Te mañan! Bo por hunga ketu riba bo isla.', 'See you tomorrow! You can still play on your island.'])}</p>`, [{ label: tri(['Naar mijn eiland', 'Bai mi isla', 'To my island']), cls: 'primary', fn: () => openIsland() }, { label: t('ok'), cls: 'ghost' }]);
+  modal(`<div class="m-ico">${castImg('maanlicht', 'mcast')}</div><h2>${out ? tri(['Pip slaapt 😴', 'Pip ta drumi 😴', 'Pip is asleep 😴']) : tri(['Genoeg getoverd voor vandaag!', 'Basta magia pa awe!', 'Enough magic for today!'])}</h2><p>${tri(['Tot morgen! Je kunt nog wel spelen op je eiland.', 'Te mañan! Bo por hunga ketu riba bo isla.', 'See you tomorrow! You can still play on your island.'])}</p>`, [{ label: tri(['Naar mijn eiland', 'Bai mi isla', 'To my island']), cls: 'primary', fn: () => openIsland() }, { label: t('ok'), cls: 'ghost' }]);
 }
 { const _sq = startQuiz; startQuiz = () => { if (gezinOutside()) return gezinSleepModal(true); if (gezinTimeUp()) return gezinSleepModal(false); _sq(); }; }
 { const _nx = next; next = first => { if (!first && gezinTimeUp() && current === 'quiz' && !S.potion) { toast(tri(['Pip wordt moe. Tot morgen!', 'Pip ta kansa. Te mañan!', 'Pip is getting tired. See you tomorrow!']), 3000); return finish(); } _nx(first); }; }
@@ -106,7 +106,7 @@ function gezinMap(el) {
   const anchor = $('.hero-row', el); if (!anchor) return;
   const out = [];
   if (GUEST.on) out.push(`<div class="gcard guest">👤 ${tri(['Gast speelt mee: er wordt niets bewaard.', 'Bishita ta hunga: nada no ta wardá.', 'Guest is playing: nothing is saved.'])} <button class="btn small" id="guestoff">${tri(['Gast klaar', 'Bishita kaba', 'Guest done'])}</button></div>`);
-  if (gezinOutside()) out.push(`<div class="gcard sleep">${pipSVG('slaap', 'tiny')}<span>${tri(['Pip slaapt. Tot morgen!', 'Pip ta drumi. Te mañan!', 'Pip is asleep. See you tomorrow!'])}</span></div>`);
+  if (gezinOutside()) out.push(`<div class="gcard sleep">${castImg('maanlicht', 'tiny')}<span>${tri(['Pip slaapt. Tot morgen!', 'Pip ta drumi. Te mañan!', 'Pip is asleep. See you tomorrow!'])}</span></div>`);
   const ps = (D.parentStars || []).find(x => !x.seen);
   if (ps) out.push(`<div class="gcard pstar">⭐ <span><b>${esc(ps.who || tri(['Thuis', 'Kas', 'Home']))}</b> ${tri(['gaf je', 'a duna bo', 'gave you'])} <b>${ps.n}</b> ${tri(['sterren', 'strea', 'stars'])}: ${tri(STAR_WHY.find(w => w[0] === ps.why) || [esc(ps.why), esc(ps.why), esc(ps.why)])}</span> <button class="btn small" id="pstarok">💜</button></div>`);
   if (eiPending() > 0) out.push(`<div class="gcard gift">🎁 <span>${tri(['Pip de postbode heeft iets voor je eiland!', 'Pip e kartero tin algu pa bo isla!', 'Pip the postman has something for your island!'])}</span> <button class="btn small" id="giftgo">${tri(['Kijken', 'Wak', 'Look'])}</button></div>`);

@@ -11,7 +11,7 @@ function defaults() {
     v: 1, profile: null, stars: 0, starsTotal: 0,
     owned: { outfit: ['paars'], hat: ['geen', 'puntmuts'], wand: ['ster'], pet: ['geen'] },
     topics: {}, highs: {}, badges: {}, days: [], lessons: {}, jokes: [], games: {}, unlocked: [], gifts: {},
-    island: { cells: {}, floor: {}, tod: 'dag', owned: [], got: 0 }, parentStars: [],
+    island: { cells: {}, floor: {}, tod: 'dag', owned: [], got: 0 }, parentStars: [], chars: [], colorPresets: [], strips: [],
     grade: 6, niveau: { rekenen: 0, taal: 0, papiamentu: 0 }, daylog: {}, review: {}, potion: { streak: 0, last: '', best: 0, total: 0, got: {}, freezeWeek: '' },
     settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10, theme: 'auto', vibrate: false, play: { on: false, from: '07:00', to: '19:30', max: 0 } },
     counters: { correct: 0, answered: 0, quizzes: 0, perfect: 0, bestStreak: 0, timed: 0, pap: 0, hard3: 0, purchases: 0, pets: 0, lessonRuns: 0, games: 0, garden: 0, walks: 0, calls: 0, challenge: 0, secret: 0, piano: 0, questAll: 0 },
@@ -42,8 +42,8 @@ function cleanSave(d) {
     out.island = { cells, floor, tod: pick(I.tod, ['dag', 'avond', 'nacht'], 'dag'), owned: (Array.isArray(I.owned) ? I.owned : []).filter(x => typeof x === 'string' && /^[a-z]{2,12}$/.test(x)).slice(0, 20), got: num(I.got, 0, 9999) }; }
   out.parentStars = (Array.isArray(d.parentStars) ? d.parentStars : []).slice(0, 30).map(x => { x = obj(x); return { d: isDay(x.d) ? x.d : '', n: num(x.n, 1, 3), who: str(x.who, 12), why: str(x.why, 80), seen: !!x.seen }; }).filter(x => x.d);
   out.niveau = { rekenen: num((+obj(d.niveau).rekenen) || 0, -3, 3), taal: num((+obj(d.niveau).taal) || 0, -3, 3), papiamentu: num((+obj(d.niveau).papiamentu) || 0, -3, 3) }; out.created = num(d.created, 0, 1e13) || Date.now();
-  if (d.profile && typeof d.profile === 'object') {
-    const l = obj(d.profile.look), L = Object.assign({}, DEFAULT_LOOK);
+  const cleanLook = lk => {
+    const l = obj(lk), L = Object.assign({}, DEFAULT_LOOK);
     for (const k of ['skin', 'hairColor', 'eyes', 'robeColor', 'blush']) if (l[k] != null) L[k] = num(l[k], 0, 20);
     if (l.tips != null) L.tips = num(l.tips, -1, 20);
     L.hair = pick(l.hair, HAIRSTYLES.map(h => h.id), L.hair); L.eyeShape = pick(l.eyeShape, EYESHAPES, L.eyeShape); L.brows = pick(l.brows, BROWS, L.brows);
@@ -52,8 +52,15 @@ function cleanSave(d) {
     L.tint = num((+l.tint) || 0, -3, 3); L.baard = pick(l.baard, BEARDS, L.baard); L.prothese = pick(l.prothese, LEGS, L.prothese);
     L.sproet = !!l.sproet; L.lashes = !!l.lashes; L.body = pick(l.body, BODIES.map(x => x[0]), L.body);
     L.bg = pick(l.bg, MIRROR_BGS.map(x => x[0]), L.bg); L.glitter = pick(l.glitter, GLITTERS.map(x => x[0]), L.glitter);
-    out.profile = { name: str(d.profile.name, 16), look: L };
-  }
+    L.outline = l.outline !== false; L.hatBack = !!l.hatBack; L.vorm = pick(l.vorm, VORMEN, 'normaal'); L.wings = pick(l.wings, WINGS, 'geen'); L.staart = pick(l.staart, TAILS, 'geen'); L.cape = pick(l.cape, CAPES, 'geen');
+    L.col = {}; for (const k of COLKEYS) { const v = obj(l.col)[k]; if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v)) L.col[k] = v; }
+    return L;
+  };
+  if (d.profile && typeof d.profile === 'object') out.profile = { name: str(d.profile.name, 16), look: cleanLook(d.profile.look) };
+  out.chars = (Array.isArray(d.chars) ? d.chars : []).slice(0, 8).map(c => { c = obj(c); return { name: str(c.name, 16), look: cleanLook(c.look) }; });
+  { const BG = ['dag', 'avond', 'nacht', 'strand', 'zee', 'klas', 'bos', 'feest', 'haven'], MD = FACES.map(f => f[0]), act = a => /^(me|pip|pet|nova|kiko|maanlicht|yuana|dax|c[0-7])$/.test(a) ? a : 'me';
+    out.strips = (Array.isArray(d.strips) ? d.strips : []).slice(0, 6).map(sv => { sv = obj(sv); return { title: str(sv.title, 20), panels: (Array.isArray(sv.panels) ? sv.panels : []).slice(0, 4).map(p => { p = obj(p); const sd = x => { x = obj(x); return { a: act(x.a), m: pick(x.m, MD, 'blij') }; }; return { bg: pick(p.bg, BG, 'dag'), l: sd(p.l), r: sd(p.r), tl: str(p.tl, 40), tr: str(p.tr, 40) }; }) }; }).filter(sv => sv.panels.length); }
+  out.colorPresets = (Array.isArray(d.colorPresets) ? d.colorPresets : []).filter(x => typeof x === 'string' && /^#[0-9a-fA-F]{6}$/.test(x)).slice(0, 12);
   for (const k of Object.keys(def.owned)) { const ids = ITEMS[k].map(i => i.id); out.owned[k] = [...new Set([...def.owned[k], ...(Array.isArray(obj(d.owned)[k]) ? d.owned[k] : []).filter(x => ids.includes(x))])]; }
   out.topics = map(d.topics, t => { t = obj(t); return { answered: num(t.answered), correct: num(t.correct), quizzes: num(t.quizzes), best: num(t.best, 0, 3), recent: (Array.isArray(t.recent) ? t.recent : []).slice(-20).map(x => x ? 1 : 0) }; });
   out.highs = map(d.highs, v => num(v));
