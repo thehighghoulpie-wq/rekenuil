@@ -17,6 +17,7 @@ function lookPanel(L, onChange, withName = true) {
   if (lpTab === 'face') body = `<label class="lbl">${t('lpBody')}</label><div class="hairstyles starters">${STARTERS.map(s => `<button class="hs" data-starter="${s.id}">${avatarSVG(Object.assign({}, DEFAULT_LOOK, s.look), 'blij', 'mini')}<span>${s.name}</span></button>`).join('')}</div><p class="muted">${t('lpBodyInfo')}</p>
     <label class="lbl">${t('lpMantel')}</label><div class="chips big">${BODIES.map(([id, e]) => `<button class="chip ${(L.body || 'meisje') === id ? 'on' : ''}" data-body="${id}">${e} ${t('body_' + id)}</button>`).join('')}</div>
     <label class="lbl">${t('skin')}</label>${sw(SKINS, 'skin', SKIN_ORDER)}
+    <label class="lbl">${t('lpTint')}</label><input type="range" class="w-range" min="-3" max="3" step="1" value="${L.tint || 0}" data-tint aria-label="${t('lpTint')}">
     <label class="lbl">${t('lpFreckles')}</label>${tog('sproet', '✅', '—')}
     <label class="lbl">${t('lpBlush')}</label><div class="chips">${[0, 1, 2].map(i => `<button class="chip ${L.blush === i ? 'on' : ''}" data-k="blush" data-v="${i}">${['—', '🌸', '🌸🌸'][i]}</button>`).join('')}</div>
     <label class="lbl">${t('lpBrows')}</label>${pick('brows', BROWS)}`;
@@ -24,7 +25,9 @@ function lookPanel(L, onChange, withName = true) {
     <label class="lbl">${t('hairColor')}</label>${sw(HAIRCOLORS, 'hairColor')}
     <label class="lbl">${t('lpTips')}</label><div class="swatches"><button class="sw none ${L.tips < 0 ? 'on' : ''}" data-k="tips" data-v="-1" aria-label="geen">—</button>${HAIRCOLORS.map((c, i) => `<button class="sw ${L.tips === i ? 'on' : ''}" data-k="tips" data-v="${i}" style="--c:${c}"></button>`).join('')}</div>`;
   if (lpTab === 'eyes') body = `<label class="lbl">${t('lpEyeColor')}</label>${sw(EYECOLORS, 'eyes')}<label class="lbl">${t('lpEyeShape')}</label>${pick('eyeShape', EYESHAPES)}<label class="lbl">${t('lpLashes')}</label>${tog('lashes', '✅', '—')}`;
-  if (lpTab === 'extra') body = `<label class="lbl">${t('lpGlasses')}</label>${pick('bril', GLASSES)}<label class="lbl">${t('lpEarrings')}</label>${pick('oorbel', EARRINGS)}<label class="lbl">${t('lpClips')}</label>${pick('clip', CLIPS)}`;
+  if (lpTab === 'extra') body = `<label class="lbl">${t('lpGlasses')}</label>${pick('bril', GLASSES)}<label class="lbl">${t('lpEarrings')}</label>${pick('oorbel', EARRINGS)}<label class="lbl">${t('lpClips')}</label>${pick('clip', CLIPS)}
+    <label class="lbl">${t('lpBeard')}</label><div class="chips">${BEARDS.map(b => `<button class="chip ${(L.baard || 'geen') === b ? 'on' : ''}" data-k="baard" data-s="${b}">${t('beard_' + b)}</button>`).join('')}</div>
+    <label class="lbl">${t('lpLeg')}</label><div class="chips">${LEGS.map(b => `<button class="chip ${(L.prothese || 'geen') === b ? 'on' : ''}" data-k="prothese" data-s="${b}">${t('leg_' + b)}</button>`).join('')}</div>`;
   if (lpTab === 'robe') body = `<label class="lbl">${t('lpRobeColor')}</label>${sw(ROBECOLS, 'robeColor')}<p class="muted">${t('lpRobeNote')}</p>
     <label class="lbl">${t('lpSign')}</label><div class="chips big">${TEKENS.map(([id, e]) => `<button class="chip ${L.teken === id ? 'on' : ''}" data-k="teken" data-s="${id}">${e} ${t('sign_' + id)}</button>`).join('')}</div>`;
   if (lpTab === 'magic') body = `<label class="lbl">${t('lpBg')}</label><div class="chips">${MIRROR_BGS.map(([id, e]) => `<button class="chip ${L.bg === id ? 'on' : ''}" data-k="bg" data-s="${id}">${e} ${t('bg_' + id)}</button>`).join('')}</div>
@@ -46,7 +49,8 @@ function bindLookPanel(root, L, onChange) {
   $$('[data-pose]', root).forEach(b => b.onclick = () => spiegelPose(root, b.dataset.pose));
   // jongen of meisje: in de intro ook een passende begin-look; in de kledingkamer alleen de vorm (je eigen keuzes blijven)
   $$('[data-body]', root).forEach(b => b.onclick = () => { L.body = b.dataset.body; done(); });
-  $$('[data-starter]', root).forEach(b => b.onclick = () => { const st = STARTERS.find(x => x.id === b.dataset.starter); if (!st) return; Object.assign(L, { sproet: false, clip: 'geen', oorbel: 'geen', tips: -1 }, st.look); SND.click(); done(); });
+  $$('[data-starter]', root).forEach(b => b.onclick = () => { const st = STARTERS.find(x => x.id === b.dataset.starter); if (!st) return; Object.assign(L, { sproet: false, clip: 'geen', oorbel: 'geen', tips: -1, bril: 'geen', baard: 'geen', prothese: 'geen', tint: 0 }, st.look); SND.click(); done(); });
+  $$('[data-tint]', root).forEach(r => r.onchange = () => { L.tint = +r.value; done(); });
   $$('[data-face]', root).forEach(b => b.onclick = () => { spiegelMood = b.dataset.face; SND.click(); onChange(); });
   const n = $('#nameinp', root); if (n) n.oninput = () => { D.profile.name = n.value.trim() || D.profile.name; save(); };
 }
@@ -121,9 +125,9 @@ function openGames() {
   const card = (id, ico, best) => `<button class="gamecard card" data-g="${id}"><span class="g-ico">${ico}</span><b>${t('g_' + id)}</b><small>${t('gs_' + id)}</small>${best ? `<span class="pill">🏆 ${t('best')}: ${best}</span>` : ''}</button>`;
   el.innerHTML = backbar(t('pl_speel')) + `<div class="wrap"><h2 class="sect">${t('games')}</h2><div class="gamegrid">
     ${card('match', '🧩', gm.match && gm.match.best ? fmtSec(gm.match.best * 1000) : '')}${card('memory', '🃏', gm.memory && gm.memory.best ? gm.memory.best + ' ' + t('moves') : '')}${card('bellen', '🫧', gm.bellen && gm.bellen.best)}
-    ${card('koppel', '⚡', gm.koppel && gm.koppel.best)}${card('piano', '🎹', gm.piano && gm.piano.best ? gm.piano.best + ' 🎵' : '')}${card('walk', '🚶', '')}${card('wela', '📞', '')}${card('liedjes', '🎵', '')}</div></div>`;
+    ${card('koppel', '⚡', gm.koppel && gm.koppel.best)}${card('piano', '🎹', gm.piano && gm.piano.best ? gm.piano.best + ' 🎵' : '')}${card('walk', '🚶', '')}${card('wela', '📞', '')}${card('liedjes', '🎵', '')}${card('rust', '🌙', '')}${card('poets', '🪥', '')}</div></div>`;
   bindCommon(el);
-  const go = { bellen: startBellen, koppel: () => startKoppel(), piano: startPiano, walk: startWalk, wela: startWela, liedjes: startLiedjes };
+  const go = { bellen: startBellen, koppel: () => startKoppel(), piano: startPiano, walk: startWalk, wela: startWela, liedjes: startLiedjes, rust: startRust, poets: startPoets };
   $$('[data-g]', el).forEach(b => b.onclick = () => { SND.click(); go[b.dataset.g] ? go[b.dataset.g]() : pickCategory(b.dataset.g); });
   stagger($$('.gamecard', el), 'inUp', 50, 80);
   show('games');
@@ -329,7 +333,7 @@ let parTab = 'week';
 function openParents() { renderParents(); show('parents'); }
 function renderParents() {
   const el = $('#parents');
-  const tabs = [['week', '📊 ' + t('parWeek')], ['voice', '🎙️ ' + t('parVoice')], ['set', '⚙️ ' + t('parSettings')]];
+  const tabs = [['week', '📊 ' + t('parWeek')], ['gezin', '👪 ' + t('parGezin')], ['voice', '🎙️ ' + t('parVoice')], ['set', '⚙️ ' + t('parSettings')]];
   let body = '';
   if (parTab === 'week') {
     const days = Array.from({ length: 7 }, (_, i) => addDays(i - 6)), logs = days.map(d => D.daylog[d] || { sec: 0, q: 0, ok: 0 });
@@ -355,6 +359,7 @@ function renderParents() {
   if (parTab === 'voice') body += `<details class="card pad vcat"><summary><b>${t('parGram')}</b> <small class="vcheck">? ${t('papCheck')}</small></summary>
     ${[...PTIME.map(([w, n]) => `${papZin('mi', 'kome', w)} = ${n}`), 'Mi no ta kome = ik eet niet', 'kachó → kachónan', ...GZIN.map(([p, n]) => `${p} = ${n}`)]
       .map(x => `<div class="vrow"><span class="vw pap">${esc(x)}</span></div>`).join('')}</details>`;
+  if (parTab === 'gezin') body = gezinParentHTML();
   if (parTab === 'set') {
     body = `<label class="lbl">${t('parGrade')}</label><div class="chips">${[1, 2, 3, 4, 5, 6, 7, 8].map(g => `<button class="chip ${D.grade === g ? 'on' : ''}" data-grade="${g}">${g}</button>`).join('')}</div><p class="muted">${t('parGradeInfo')}</p>
       ${niveauParentHTML()}
@@ -373,6 +378,7 @@ function renderParents() {
   $$('[data-tab]', el).forEach(b => b.onclick = () => { parTab = b.dataset.tab; renderParents(); });
   $$('[data-grade]', el).forEach(b => b.onclick = () => { D.grade = +b.dataset.grade; save(); renderParents(); });
   niveauParentBind(el, renderParents);
+  if (parTab === 'gezin') gezinParentBind(el, renderParents);
   $$('[data-goal]', el).forEach(b => b.onclick = () => { D.settings.dailyGoal = +b.dataset.goal; save(); renderParents(); });
   $$('[data-th]', el).forEach(b => b.onclick = () => { D.settings.theme = b.dataset.th; save(); applyTheme(); renderParents(); });
   $$('[data-who]', el).forEach(b => b.onclick = () => { D.settings.voiceWho = b.dataset.who; save(); renderParents(); });
@@ -453,7 +459,7 @@ function openIntro() {
 function renderIntro() {
   const el = $('#intro');
   let body = '', btn = t('continue');
-  if (introStep === 0) body = `<div class="intro-pip">${pipSVG('zwaai')}</div><div class="bubble big">${t('introHi')}</div>
+  if (introStep === 0) body = `${eggHTML()}
     <h3>${t('introLang')}</h3><div class="langs big">${LANGS.map(([c, f, n]) => `<button class="chip ${lang() === c ? 'on' : ''}" data-lang="${c}">${f} ${n}</button>`).join('')}</div>`;
   if (introStep === 1) body = `<div class="intro-pip">${pipSVG('blij')}</div><div class="bubble big">${t('introName')}</div><input id="introname" class="nameinp big" maxlength="16" placeholder="${t('namePh')}" value="${esc(D.profile.name || '')}" autocomplete="off">
     <h3>${t('introGrade')}</h3><div class="chips igrades">${[1, 2, 3, 4, 5, 6, 7, 8].map(g => `<button class="chip ${D.grade === g ? 'on' : ''}" data-igrade="${g}">${g}</button>`).join('')}</div><p class="muted">${t('introGradeInfo')}</p>`;
@@ -462,6 +468,7 @@ function renderIntro() {
   el.innerHTML = `<div class="wrap narrow intro"><div class="intro-title">✨ ${t('appName')} ✨</div>${body}<button class="btn primary huge" id="introgo">${btn}</button></div>`;
   $$('[data-lang]', el).forEach(b => b.onclick = () => { D.settings.lang = b.dataset.lang; save(); applySettings(); SND.click(); renderIntro(); });
   $$('[data-igrade]', el).forEach(b => b.onclick = () => { D.grade = +b.dataset.igrade; save(); SND.click(); $$('[data-igrade]', el).forEach(x => x.classList.toggle('on', x === b)); });
+  if (introStep === 0) eggBind(el);
   if (introStep === 2) { bindLookPanel(el, introLook, renderIntro); spiegelBind(el); }
   $('#introgo').onclick = () => {
     if (introStep === 1) { const n = $('#introname').value.trim(); if (!n) { shake($('#introname')); return; } D.profile.name = n; }

@@ -13,6 +13,11 @@ App-taal: Nederlands, Papiamentu of English (de lessen en vragen zelf zijn Neder
 - `js/art.js` – het chibi-personage, huisdieren, Pip en de leraren
 - `js/fun.js` – grapjes en grappige reacties
 - `js/groepen.js` – groep 1 t/m 8: welke onderwerpen bij welke groep horen, nieuwe onderwerpen (tellen, vormen, rekenen tot 20, splitsen, rijmen, eerste letter, woorden lezen, verhoudingen, procenten, 't kofschip) en eigen liedjes
+- `js/leerhulp.js` – lesmotor: foute vragen komen terug, hulp die opklimt, "bijna"-opmerkingen, "Samen in stapjes", niveau per vak, "Waar begin je?", "Ik kan…"
+- `js/inhoud.js` – meer onderwerpen voor groep 1-3 en 6-8, leesboekjes en De Route (figuurtje per onderwerp)
+- `js/leven.js` – ster die naar de teller vliegt, Pip's mond volgt de stem, scènes als gegevens, Rustmoment, poets-timer
+- `js/eiland.js` – Mijn Eiland: bouwen en spelen, huisjes verven, cadeautjes van Pip de postbode
+- `js/gezin.js` – ei uitbroeden, Brievenbus, sterren met een reden, gast en meerdere spelers, speeltijden, Ouderhoek-tab Gezin
 - `js/engine.js` – vragen-motor: nieuwe soorten vragen (`registerKind`), nakijken als gegevens (`gradeSpec`) en het onderwerp Toverlab (schuiflijn, vakjes kleuren, kies alles)
 - `js/rekenen.js`, `js/taal.js`, `js/papiamentu.js` – vragen en lessen per vak
 - `js/app.js`, `js/extra.js` – de app zelf (extra.js: kledingkamer/Toverspiegel, spelletjes, Ouderhoek, intro)

@@ -125,6 +125,8 @@ const STR = {
   lpFace: ['Gezicht', 'Kara', 'Face'], lpExtra: ["Extra's", 'Ekstra', 'Extras'], lpRobe: ['Mantel', 'Mantel', 'Robe'],
   lpFreckles: ['Sproetjes', 'Pintanan', 'Freckles'], lpBlush: ['Blosjes', 'Kara kòrá', 'Blush'], lpBrows: ['Wenkbrauwen', 'Wènkbrou', 'Eyebrows'],
   lpTips: ['Gekleurde puntjes', 'Puntanan di koló', 'Coloured tips'], lpEyeColor: ['Oogkleur', 'Koló di wowo', 'Eye colour'], lpEyeShape: ['Oogvorm', 'Forma di wowo', 'Eye shape'], lpLashes: ['Wimpers', 'Pestaña', 'Eyelashes'],
+  lpTint: ['Huid lichter of donkerder', 'Kuero mas kla òf mas skur', 'Skin lighter or darker'], lpBeard: ['Baard en snor', 'Barba i bigoti', 'Beard and moustache'], lpLeg: ['Been', 'Pia', 'Leg'],
+  beard_geen: ['Geen', 'Ningun', 'None'], beard_stoppel: ['Stoppels', 'Stopelnan', 'Stubble'], beard_snor: ['Snor', 'Bigoti', 'Moustache'], beard_baard: ['Baard', 'Barba', 'Beard'], leg_geen: ['Mijn been', 'Mi pia', 'My leg'], leg_been: ['Prothese', 'Prótesis', 'Prosthetic'],
   lpGlasses: ['Bril', 'Bril', 'Glasses'], lpEarrings: ['Oorbellen', 'Arete', 'Earrings'], lpClips: ['In je haar', 'Den bo kabei', 'In your hair'],
   lpRobeColor: ['Kleur van je mantel', 'Koló di bo mantel', 'Robe colour'], lpRobeNote: ['Geldt voor de leerlingenmantel.', 'Ta pa e mantel di studiante.', 'Applies to the student robe.'],
   lpSign: ['Jouw toverteken', 'Bo señal di magia', 'Your magic sign'], sign_ster: ['Ster', 'Strea', 'Star'], sign_maan: ['Maan', 'Luna', 'Moon'], sign_zee: ['Zee', 'Laman', 'Sea'], sign_zon: ['Zon', 'Solo', 'Sun'],

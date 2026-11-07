@@ -26,7 +26,9 @@ const HAIRSTYLES = [
 const EYESHAPES = ['rond', 'sprank', 'slaperig', 'kat'];
 const BROWS = ['zacht', 'recht', 'boog', 'dik'];
 const GLASSES = ['geen', 'rond', 'ster', 'hart'];
-const EARRINGS = ['geen', 'knopje', 'ring', 'ster'];
+const EARRINGS = ['geen', 'knopje', 'ring', 'ster', 'gehoor'];   // gehoor = gehoorapparaatje
+const BEARDS = ['geen', 'stoppel', 'snor', 'baard'];
+const LEGS = ['geen', 'been'];   // been = prothese
 const CLIPS = ['geen', 'strikjes', 'sterren', 'bloem', 'haarband', 'hoofddoek'];
 const ROBECOLS = ['#8B6CF0', '#4D6BDB', '#14A3C7', '#4FC8A4', '#FFB547', '#E85D5D', '#FF8FB8', '#2A2366'];
 const TEKENS = [['ster', '⭐'], ['maan', '🌙'], ['zee', '🌊'], ['zon', '☀️']];
@@ -84,7 +86,7 @@ const ITEMS = {
 const ITEM = {}; for (const k in ITEMS) for (const it of ITEMS[k]) ITEM[k + ':' + it.id] = it;
 
 const DEFAULT_LOOK = { skin: 3, hair: 'staarten', hairColor: 0, eyes: 0, outfit: 'paars', hat: 'puntmuts', wand: 'ster', pet: 'geen',
-  tips: -1, eyeShape: 'rond', lashes: false, brows: 'zacht', sproet: false, blush: 1, bril: 'geen', oorbel: 'geen', clip: 'geen', robeColor: 0, teken: 'ster', bg: 'geen', glitter: 'staf', body: 'meisje' };
+  tips: -1, eyeShape: 'rond', lashes: false, brows: 'zacht', sproet: false, blush: 1, bril: 'geen', oorbel: 'geen', clip: 'geen', robeColor: 0, teken: 'ster', bg: 'geen', glitter: 'staf', body: 'meisje', tint: 0, baard: 'geen', prothese: 'geen' };
 // Jongen of meisje: bepaalt alleen de vorm van de kleding (broek en tuniek, of mantel) en een begin-look.
 // Alle kapsels, kleren en spullen blijven voor iedereen te kiezen.
 const BODIES = [['meisje', '🧙'], ['jongen', '🧥']];   // alleen de tekenstijl van de kleding (wijde mantel of tuniek met broek)
@@ -97,7 +99,11 @@ const STARTERS = [
   { id: 'luna', name: 'Luna', look: { body: 'meisje', skin: 7, hair: 'boxbraids', hairColor: 8, eyes: 3, lashes: true, brows: 'zacht', blush: 1 } },
   { id: 'jay', name: 'Jay', look: { body: 'jongen', skin: 5, hair: 'cornrows', hairColor: 0, eyes: 1, lashes: false, brows: 'recht', blush: 0 } },
   { id: 'sunny', name: 'Sunny', look: { body: 'meisje', skin: 2, hair: 'pixie', hairColor: 3, eyes: 2, lashes: true, brows: 'zacht', blush: 1 } },
-  { id: 'rio', name: 'Rio', look: { body: 'jongen', skin: 8, hair: 'stekel', hairColor: 1, eyes: 0, lashes: false, brows: 'recht', blush: 0 } }
+  { id: 'rio', name: 'Rio', look: { body: 'jongen', skin: 8, hair: 'stekel', hairColor: 1, eyes: 0, lashes: false, brows: 'recht', blush: 0 } },
+  { id: 'opa', name: 'Opa Tobi', look: { body: 'jongen', skin: 4, hair: 'kort', hairColor: 9, eyes: 1, lashes: false, brows: 'recht', blush: 0, baard: 'baard', bril: 'rond' } },
+  { id: 'oma', name: 'Oma Lien', look: { body: 'meisje', skin: 6, hair: 'pixie', hairColor: 9, eyes: 0, lashes: true, brows: 'zacht', blush: 1, bril: 'rond' } },
+  { id: 'tess', name: 'Tess', look: { body: 'meisje', skin: 2, hair: 'staarten', hairColor: 2, eyes: 3, lashes: true, brows: 'zacht', blush: 1, oorbel: 'gehoor' } },
+  { id: 'sam', name: 'Sam', look: { body: 'jongen', skin: 5, hair: 'locs', hairColor: 0, eyes: 2, lashes: false, brows: 'recht', blush: 0, prothese: 'been' } }
 ];
 const BODY_PRESET = { meisje: { hair: 'staarten', lashes: true, brows: 'zacht', blush: 1 }, jongen: { hair: 'scheiding', lashes: false, brows: 'recht', blush: 0, clip: 'geen', oorbel: 'geen' } };
 const BOY_HAIR = ['scheiding', 'buzz', 'krulkop', 'stekel', 'kort', 'afro', 'cornrows', 'locs', 'pixie', 'boxbraids'];
@@ -111,7 +117,7 @@ function randomLook(L) {
   const boy = L.body === 'jongen';
   return Object.assign({}, L, { skin: rnd(0, SKINS.length - 1), hair: boy ? kies(BOY_HAIR) : kies(HAIRSTYLES).id, hairColor: rnd(0, HAIRCOLORS.length - 1), eyes: rnd(0, EYECOLORS.length - 1),
     tips: Math.random() < .25 ? rnd(0, HAIRCOLORS.length - 1) : -1, eyeShape: kies(EYESHAPES), lashes: boy ? false : Math.random() < .5, brows: kies(BROWS), sproet: Math.random() < .3,
-    blush: rnd(0, 2), bril: Math.random() < .25 ? kies(GLASSES.slice(1)) : 'geen', oorbel: boy ? (Math.random() < .2 ? 'knopje' : 'geen') : kies(EARRINGS), clip: boy ? (Math.random() < .15 ? 'haarband' : 'geen') : Math.random() < .5 ? kies(CLIPS.slice(1)) : 'geen',
+    blush: rnd(0, 2), bril: Math.random() < .25 ? kies(GLASSES.slice(1)) : 'geen', oorbel: boy ? (Math.random() < .2 ? 'knopje' : 'geen') : kies(EARRINGS.filter(e => e !== 'gehoor')), clip: boy ? (Math.random() < .15 ? 'haarband' : 'geen') : Math.random() < .5 ? kies(CLIPS.slice(1)) : 'geen',
     robeColor: rnd(0, ROBECOLS.length - 1), teken: kies(TEKENS)[0] });
 }
 
@@ -305,9 +311,17 @@ function glassesSVG(id) {
 }
 function earSVG(id) {
   if (!id || id === 'geen') return '';
+  if (id === 'gehoor') return `<path d="M30 98 Q17 100 19 116 Q21 125 30 123" fill="none" stroke="#C9A58C" stroke-width="5" stroke-linecap="round"/><circle cx="31" cy="112" r="3.6" fill="#E8C9B0"/>`;
   const one = x => id === 'ring' ? `<circle cx="${x}" cy="118" r="5" fill="none" stroke="#F2B53A" stroke-width="2.4"/>`
     : id === 'ster' ? `<path d="${starPath(x, 118, 5.5)}" fill="#FFD36E"/>` : `<circle cx="${x}" cy="115" r="3.2" fill="#7FE3F0"/>`;
   return one(34) + one(166);
+}
+function beardSVG(id, H) {
+  if (!id || id === 'geen') return '';
+  const band = 'M46 112 Q44 168 100 176 Q156 168 154 112 Q150 150 100 152 Q50 150 46 112Z';
+  if (id === 'stoppel') return `<path d="${band}" fill="${H}" opacity=".28"/>`;
+  if (id === 'snor') return `<path d="M80 121 Q100 111 120 121 Q100 126 80 121Z" fill="${H}"/>`;
+  return `<path d="${band}" fill="${H}"/><path d="M80 121 Q100 111 120 121 Q100 126 80 121Z" fill="${H}"/>`;
 }
 function clipSVG(id) {
   switch (id) {
@@ -332,7 +346,7 @@ function avatarSVG(look = DEFAULT_LOOK, mood = 'blij', cls = '') {
 function avatarSVG0(look, mood, cls) {
   const L = Object.assign({}, DEFAULT_LOOK, look), wink = mood === 'knipoog';
   if (wink) mood = 'blij';
-  const skin = SKINS[L.skin] || SKINS[3], skinD = shade(skin, -.12);
+  const skin = shade(SKINS[L.skin] || SKINS[3], (L.tint || 0) * .05), skinD = shade(skin, -.12);
   const H = HAIRCOLORS[L.hairColor] || HAIRCOLORS[0], eye = EYECOLORS[L.eyes] || EYECOLORS[0], tip = L.tips >= 0 ? HAIRCOLORS[L.tips] : '';
   const wandHand = mood === 'oeps' ? '' : `<g class="wand"><line x1="146" y1="196" x2="172" y2="150" stroke="#7A4E2D" stroke-width="5" stroke-linecap="round"/>${wandTip(L.wand, 174, 146)}</g>`;
   return `<svg class="avatar ${cls}" viewBox="0 -34 200 284" role="img" aria-label="Jouw tovenaarsleerling">
@@ -347,13 +361,14 @@ function avatarSVG0(look, mood, cls) {
     <circle cx="56" cy="204" r="8" fill="${skin}"/>
     <ellipse cx="140" cy="180" rx="9" ry="19" fill="${robeCol(L)}" transform="rotate(-30 140 180)"/>
     ${wandHand}<circle cx="146" cy="196" r="8" fill="${skin}"/>
+    ${L.prothese === 'been' ? `<rect x="${L.body === 'jongen' ? 103 : 105}" y="214" width="8" height="22" rx="3" fill="#B9C2D0"/><rect x="101" y="232" width="16" height="5" rx="2" fill="#7D8798"/>` : ''}
     <rect x="92" y="140" width="16" height="16" rx="6" fill="${skinD}"/>
     <circle cx="36" cy="104" r="10" fill="${skin}"/><circle cx="164" cy="104" r="10" fill="${skin}"/>${earSVG(L.oorbel)}
     <ellipse cx="100" cy="94" rx="64" ry="60" fill="${skin}"/>
     ${blush(64, 136, 122, 1, [0, .38, .62][L.blush == null ? 1 : L.blush])}
     ${L.sproet ? [[58, 116], [66, 120], [62, 124], [134, 116], [142, 120], [138, 124]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="${shade(skin, -.35)}"/>`).join('') : ''}
     <g class="eyes">${animeEye(76, 106, eye, 1, mood, { shape: L.eyeShape, lashes: L.lashes })}${animeEye(124, 106, eye, 1, wink ? 'lach' : mood, { shape: L.eyeShape, lashes: L.lashes })}</g>
-    ${mouth(100, 126, mood)}
+    ${beardSVG(L.baard, H)}${mouth(100, 126, mood)}
     ${mood === 'oeps' ? `<path d="M156 66 q6 10 0 14 q-6 -4 0 -14Z" fill="#7FD3F7"/>` : ''}
     <g class="hair hair-f">${hairFront(L.hair, H)}</g>
     ${browSVG(L.brows, shade(H, -.2))}${glassesSVG(L.bril)}${clipSVG(L.clip)}

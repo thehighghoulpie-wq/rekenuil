@@ -11,8 +11,9 @@ function defaults() {
     v: 1, profile: null, stars: 0, starsTotal: 0,
     owned: { outfit: ['paars'], hat: ['geen', 'puntmuts'], wand: ['ster'], pet: ['geen'] },
     topics: {}, highs: {}, badges: {}, days: [], lessons: {}, jokes: [], games: {}, unlocked: [], gifts: {},
+    island: { cells: {}, floor: {}, tod: 'dag', owned: [], got: 0 }, parentStars: [],
     grade: 6, niveau: { rekenen: 0, taal: 0, papiamentu: 0 }, daylog: {}, review: {}, potion: { streak: 0, last: '', best: 0, total: 0, got: {}, freezeWeek: '' },
-    settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10, theme: 'auto', vibrate: false },
+    settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10, theme: 'auto', vibrate: false, play: { on: false, from: '07:00', to: '19:30', max: 0 } },
     counters: { correct: 0, answered: 0, quizzes: 0, perfect: 0, bestStreak: 0, timed: 0, pap: 0, hard3: 0, purchases: 0, pets: 0, lessonRuns: 0, games: 0, garden: 0, walks: 0, calls: 0, challenge: 0, secret: 0, piano: 0, questAll: 0 },
     stickers: [], toured: 0, quests: { day: '', ids: [], base: {}, done: [], s5: 0, all: 0 },
     lastSetup: { mode: 'practice', diff: 'easy', count: 10, duration: 60 }, subjectsTried: {}, created: Date.now()
@@ -35,6 +36,11 @@ function cleanSave(d) {
   if (!d || typeof d !== 'object') return def;
   const out = def;
   out.stars = num(d.stars); out.starsTotal = num(d.starsTotal); out.grade = num(d.grade || 6, 1, 8);
+  { const I = obj(d.island), cells = {}, floor = {};
+    for (const [k, v] of Object.entries(obj(I.cells)).slice(0, 80)) { const m = /^(\d),(\d)$/.exec(k), it = obj(v); if (m && +m[1] < 8 && +m[2] < 6 && /^[a-z]{2,12}$/.test(String(it.id))) cells[k] = { id: it.id, st: num(it.st, 0, 3), c: num(it.c, 0, 7) }; }
+    for (const [k, v] of Object.entries(obj(I.floor)).slice(0, 80)) if (/^\d,\d$/.test(k)) floor[k] = num(v, 0, 2);
+    out.island = { cells, floor, tod: pick(I.tod, ['dag', 'avond', 'nacht'], 'dag'), owned: (Array.isArray(I.owned) ? I.owned : []).filter(x => typeof x === 'string' && /^[a-z]{2,12}$/.test(x)).slice(0, 20), got: num(I.got, 0, 9999) }; }
+  out.parentStars = (Array.isArray(d.parentStars) ? d.parentStars : []).slice(0, 30).map(x => { x = obj(x); return { d: isDay(x.d) ? x.d : '', n: num(x.n, 1, 3), who: str(x.who, 12), why: str(x.why, 80), seen: !!x.seen }; }).filter(x => x.d);
   out.niveau = { rekenen: num((+obj(d.niveau).rekenen) || 0, -3, 3), taal: num((+obj(d.niveau).taal) || 0, -3, 3), papiamentu: num((+obj(d.niveau).papiamentu) || 0, -3, 3) }; out.created = num(d.created, 0, 1e13) || Date.now();
   if (d.profile && typeof d.profile === 'object') {
     const l = obj(d.profile.look), L = Object.assign({}, DEFAULT_LOOK);
@@ -43,6 +49,7 @@ function cleanSave(d) {
     L.hair = pick(l.hair, HAIRSTYLES.map(h => h.id), L.hair); L.eyeShape = pick(l.eyeShape, EYESHAPES, L.eyeShape); L.brows = pick(l.brows, BROWS, L.brows);
     L.bril = pick(l.bril, GLASSES, L.bril); L.oorbel = pick(l.oorbel, EARRINGS, L.oorbel); L.clip = pick(l.clip, CLIPS, L.clip); L.teken = pick(l.teken, TEKENS.map(x => x[0]), L.teken);
     for (const k of ['outfit', 'hat', 'wand', 'pet']) L[k] = pick(l[k], ITEMS[k].map(i => i.id), L[k]);
+    L.tint = num((+l.tint) || 0, -3, 3); L.baard = pick(l.baard, BEARDS, L.baard); L.prothese = pick(l.prothese, LEGS, L.prothese);
     L.sproet = !!l.sproet; L.lashes = !!l.lashes; L.body = pick(l.body, BODIES.map(x => x[0]), L.body);
     L.bg = pick(l.bg, MIRROR_BGS.map(x => x[0]), L.bg); L.glitter = pick(l.glitter, GLITTERS.map(x => x[0]), L.glitter);
     out.profile = { name: str(d.profile.name, 16), look: L };
@@ -62,6 +69,7 @@ function cleanSave(d) {
   for (const k of ['sound', 'anim', 'big', 'jokes', 'vibrate']) if (s[k] != null) out.settings[k] = !!s[k];
   out.settings.lang = pick(s.lang, LANGS.map(l => l[0]), 'nl'); out.settings.dailyGoal = pick(+s.dailyGoal, [5, 10, 15, 20], 10);
   out.settings.theme = pick(s.theme, ['auto', 'day', 'night'], 'auto');
+  { const p = obj(s.play), hm = (v, dflt) => /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : dflt; out.settings.play = { on: !!p.on, from: hm(p.from, '07:00'), to: hm(p.to, '19:30'), max: pick(+p.max, [0, 15, 20, 30, 45, 60], 0) }; }
   out.settings.voiceWho = pick(s.voiceWho, ['Mama', 'Papa', 'Wela', 'Welo', 'Tanta'], '');
   for (const k of Object.keys(def.counters)) out.counters[k] = num(obj(d.counters)[k]);
   const ls = obj(d.lastSetup);
@@ -316,15 +324,17 @@ function openClass(sid) {
   el.innerHTML = backbar(t('place_' + sid)) + `<div class="wrap" style="--sc:${s.color};--sl:${s.light};--sd:${s.dark}">
     <div class="classhead">${teacherSVG(s.teacher)}<div class="bubble big">${say}<div class="who">— ${s.teacherName}</div></div></div>
     <h2 class="sect">${t('subj_' + sid)} <span class="gband">${groepLabel(sid)}</span></h2>${lang() !== 'nl' ? `<p class="muted cnote">${t('contentNote')}</p>` : ''}
+    ${routeHTML(sid, tl)}
     <div class="topics">${tl.map(tp => {
       const st = topicStatus(tp.key), ts = D.topics[tp.key], best = ts ? ts.best : 0;
       return `<div class="topic st-${st}"><div class="t-ico">${tp.ico}</div><div class="t-body"><div class="t-name">${tTopic(tp)}</div><div class="t-sub">${lang() === 'nl' ? tp.sub : tp.name}</div>
         <div class="t-meta"><span class="spill ${st}">${statusName(st)}</span><span class="tstars">${[1, 2, 3].map(i => STARICO(i <= best)).join('')}</span></div></div>
         <div class="t-btns"><button class="btn small ghost" data-learn="${tp.key}">📖 ${t('learn')}</button><button class="btn small" data-play="${tp.key}">✨ ${t('practise')}</button></div></div>`;
     }).join('')}
+    ${placeCardHTML(sid)}
     <div class="topic mix"><div class="t-ico">🎲</div><div class="t-body"><div class="t-name">${t('mix')}</div><div class="t-sub">${t('mixSub')}</div></div>
       <div class="t-btns"><button class="btn small" data-play="${sid}/mix">✨ ${t('practise')}</button></div></div></div></div>`;
-  bindCommon(el);
+  bindCommon(el); placeBind(el, sid); routeBind(el);
   $$('[data-learn]', el).forEach(b => b.onclick = () => { SND.click(); openLesson(b.dataset.learn, 0, 'class'); });
   stagger($$('.topic', el), 'inUp', 40, 120);
   $$('[data-play]', el).forEach(b => b.onclick = () => { SND.click(); openSetup(b.dataset.play); });
@@ -376,7 +386,7 @@ const isMix = k => /\/mix$/.test(k);
 const topicName = k => isMix(k) ? t('mix') : tTopic(TOPIC[k]);
 function highKey() { return `${S.topicKey}|${S.mode}|${S.diff}|${S.mode === 'timed' ? S.duration : S.count}`; }
 function openSetup(key) {
-  S.topicKey = key; S.subject = key.split('/')[0]; L.subject = S.subject; S.potion = false; S.queue = null; S.challenge = false;
+  S.topicKey = key; S.subject = key.split('/')[0]; L.subject = S.subject; S.potion = false; S.queue = null; S.challenge = false; S.placement = false;
   Object.assign(S, { mode: D.lastSetup.mode, diff: D.lastSetup.diff, count: D.lastSetup.count, duration: D.lastSetup.duration });
   renderSetup(); show('setup');
 }
@@ -414,7 +424,7 @@ function renderSetup() {
 let timerId = null;
 const subjOf = () => S.potion ? POTION_SUBJ : SUBJECT[S.subject];
 function startQuiz() {
-  if (!S.potion) D.lastSetup = { mode: S.mode, diff: S.diff, count: S.count, duration: S.duration };
+  if (!S.potion && !S.placement) D.lastSetup = { mode: S.mode, diff: S.diff, count: S.count, duration: S.duration };
   if (S.potion) S.challenge = false; else if (S.challenge) S.diff = 'hard';
   S.challengeWon = false; S.lastQ4 = 0;
   save();
@@ -644,7 +654,7 @@ function record(q, ok, g) {
   ts.answered++; ts.recent.push(ok ? 1 : 0); if (ts.recent.length > 20) ts.recent.shift();
   D.counters.answered++;
   if (ok) {
-    S.correct++; S.streak++; ts.correct++; D.counters.correct++;
+    S.correct++; S.streak++; ts.correct++; D.counters.correct++; starFly($('#qcard'));
     if (q.topic.subject === 'papiamentu') D.counters.pap++;
     S.bestStreak = Math.max(S.bestStreak, S.streak); D.counters.bestStreak = Math.max(D.counters.bestStreak, S.streak);
     const base = { easy: 10, medium: 15, hard: 20 }[S.diff];
@@ -704,11 +714,12 @@ function feedback(ok, g, choiceIdx) {
   fb.innerHTML = `<div class="fb-in"><div class="fb-fun">${D.settings.jokes ? `<span class="fb-emo">${fe}</span><span>${ft}</span>` : `<span class="fb-emo">💫</span><span>${t('almost')}</span>`}</div>
     <div class="fb-comfort">${kies(tList(COMFORT, COMFORT_I18N))}</div>
     <div class="fb-ans">${g.skip ? '' : `${t('youSaid')}: <s>${givenText(q, g)}</s> · `}${t('goodAns')}: <b class="ans">${answerText(q)}</b></div>
-    <div class="fb-exp">${q.explain || ''}${mistakeNote(q, g)}</div>${sugg}
+    <div class="fb-exp">${q.explain || ''}${mistakeNote(q, g)}</div>${stapjesHTML(q)}${sugg}
     <button class="btn primary" id="fbnext">${S.mode === 'practice' && S.i >= S.count ? t('toResults') : t('nextQ')}</button></div>`;
   fb.className = 'fb show bad';
   move($('.fb-in', fb), 'inUp');
   $('#fbnext').onclick = () => { fb.className = 'fb'; next(); };
+  stapjesBind(q);
   if ($('#fblesson')) $('#fblesson').onclick = () => { pause(); openLesson(tk, 0, 'quiz'); };
   setTimeout(() => fb.scrollIntoView({ behavior: D.settings.anim ? 'smooth' : 'auto', block: 'nearest' }), 50);
 }

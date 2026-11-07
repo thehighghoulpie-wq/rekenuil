@@ -13,7 +13,7 @@
    ===================================================================== */
 
 /* ---------- 1. foute vragen komen terug ---------- */
-const retryOn = () => S.mode === 'practice' && !S.potion && !S.challenge && !S.queue;
+const retryOn = () => S.mode === 'practice' && !S.potion && !S.challenge && !S.queue && !S.placement;
 function retryAdd(q) {
   if (!retryOn() || q.retried) return;
   (S.retry = S.retry || []).push({ q, due: S.i + 3 });
@@ -57,6 +57,10 @@ function mistakeNote(q, g) {
   if (!g || g.skip || q.kind !== 'num' || g.a == null || g.a === '') return '';
   const given = parseDec(String(g.a)), ans = q.answer;
   if (!isFinite(given) || !isFinite(ans) || given === ans) return '';
+  const tm = q.item && /^(\d+)x(\d+)$/.exec(String(q.item));
+  if (tm) { const A = +tm[1], B = +tm[2], near = [[A + 1, B], [A - 1, B], [A, B + 1], [A, B - 1]].find(([x, y]) => x * y === given); if (near) return `<div class="mnote">💡 ${tri([`Dat is het antwoord van ${near[0]} × ${near[1]}. Let op: de som is ${A} × ${B}.`, `Esei ta e kontesta di ${near[0]} × ${near[1]}. Wak: e som ta ${A} × ${B}.`, `That is the answer to ${near[0]} × ${near[1]}. Careful: the sum is ${A} × ${B}.`])}</div>`; }
+  const om = /^\s*(\d+) ([+−]) (\d+)/.exec(strip(q.text));
+  if (om) { const a = +om[1], b = +om[3]; if (om[2] === '+' && given === a - b) return `<div class="mnote">💡 ${tri(['Je hebt min gedaan, maar het is een plussom.', 'Bo a hasi resta, ma e ta un suma.', 'You subtracted, but it is a plus sum.'])}</div>`; if (om[2] === '−' && given === a + b) return `<div class="mnote">💡 ${tri(['Je hebt plus gedaan, maar het is een minsom.', 'Bo a hasi suma, ma e ta un resta.', 'You added, but it is a minus sum.'])}</div>`; }
   const d = Math.abs(given - ans), gs = String(Math.abs(given)).replace(/\D/g, ''), as = String(Math.abs(ans)).replace(/\D/g, '');
   let msg = '';
   if (d === 1) msg = ['Je zat er maar 1 naast. Tel nog eens rustig na.', 'Bo tabata un so mas leu. Konta atrobe trankil.', 'You were only 1 off. Count again, slowly.'];
@@ -74,12 +78,12 @@ function setNiveau(sid, v) {
 }
 // na een les: Pip biedt een stapje aan (alleen bij een duidelijk resultaat, altijd vrijblijvend)
 function levelOffer(el, r) {
-  if (S.potion || S.stopped || r.stopped || S.answered < 8 || !S.subject) return;
+  if (S.potion || r.stopped || S.answered < (S.placement ? 3 : 8) || !S.subject) return;
   const sid = S.subject, acc = S.correct / S.answered, now = niveauOf(sid);
   let dir = 0;
-  if (acc >= .9 && S.diff !== 'easy' && now < 3 && effGrade(sid) < 8) dir = 1;
-  else if (acc <= .4 && now > -3 && effGrade(sid) > 1) dir = -1;
-  if (!dir) return;
+  if (acc >= .9 && (S.placement || S.diff !== 'easy') && now < 3 && effGrade(sid) < 8) dir = 1;
+  else if (acc <= (S.placement ? .34 : .4) && now > -3 && effGrade(sid) > 1) dir = -1;
+  if (!dir) { if (S.placement) { const bx = document.createElement('div'); bx.className = 'suggest leveloffer'; bx.innerHTML = `${pipSVG('lach', 'tiny')}<div><b>Pip:</b> ${tri(['Dit past goed bij jou! Je begint precies op de goede plek.', 'Esaki ta bon pa bo! Bo ta kuminsá presis unda mester.', 'This fits you well! You start in exactly the right place.'])}</div>`; const an = $('.pipline', el); if (an) an.after(bx); } return; }
   const msg = dir > 0
     ? ['Dit ging heel goed! Zullen we iets moeilijkers proberen?', 'Esaki a bai masha bon! Nos purba algu mas difísil?', 'That went really well! Shall we try something harder?']
     : ['Dit was best lastig. Zullen we een stapje makkelijker beginnen? Dat mag altijd terug.', 'Esaki tabata difísil. Nos kuminsá un pida mas fásil? Bo por bolbe.', 'That was tricky. Shall we start a step easier? You can always switch back.'];
@@ -112,3 +116,29 @@ const IK_KAN = {
   dieren: 'dieren noemen in het Papiamentu', dagen: 'de dagen en maanden in het Papiamentu', zinnen: 'korte zinnen in het Papiamentu', grammatika: 'een zin bouwen met ta, a en lo', weetjes: 'dingen vertellen over Curaçao'
 };
 const ikKan = tp => IK_KAN[tp.id] ? 'Ik kan ' + IK_KAN[tp.id] : '';
+
+/* ---------- A2: "Samen in stapjes" na een fout ---------- */
+function stapjesLines(q) {
+  const ex = (q.explain || '').replace(/<br\s*\/?>/g, '. ');
+  const parts = ex.split(/(?<=[.!?])\s+(?=[A-Z0-9<])/).map(x => x.trim()).filter(Boolean);
+  return parts.length >= 2 ? parts : [];
+}
+const stapjesHTML = q => stapjesLines(q).length ? `<button class="btn small ghost" id="fbsteps">🪜 ${tri(['Laat het in stapjes zien', 'Mustra mi pasito pa pasito', 'Show me in small steps'])}</button><div id="fbstepbox"></div>` : '';
+function stapjesBind(q) {
+  const b = $('#fbsteps'); if (!b) return;
+  b.onclick = () => { b.classList.add('hidden'); WIDGETS.stappen($('#fbstepbox'), { lines: stapjesLines(q) }); };
+}
+
+/* ---------- A3: "Waar begin je?" (3 vragen) ---------- */
+function placeCardHTML(sid) {
+  return `<div class="topic mix place"><div class="t-ico">🧭</div><div class="t-body"><div class="t-name">${tri(['Waar begin je?', 'Unda bo ta kuminsá?', 'Where do you start?'])}</div><div class="t-sub">${tri(['3 vragen. Papa of mama mag meekijken.', '3 pregunta. Tata òf mama por wak huntu.', '3 questions. A parent can watch along.'])}</div></div>
+    <div class="t-btns"><button class="btn small" id="placebtn">🧭 ${tri(['Probeer', 'Purba', 'Try'])}</button></div></div>`;
+}
+function placeBind(el, sid) {
+  const b = $('#placebtn', el); if (!b) return;
+  b.onclick = () => {
+    SND.click();
+    Object.assign(S, { subject: sid, topicKey: sid + '/mix', mode: 'practice', diff: 'medium', count: 3, potion: false, challenge: false, queue: null, placement: true });
+    startQuiz();
+  };
+}
