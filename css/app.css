@@ -990,3 +990,15 @@ body.dark #intro .lookpanel .muted, body.dark #intro .igrades + .muted { color: 
 .starters { grid-template-columns: repeat(4, 1fr); }
 .starters .hs span { font-weight: 800; }
 @media (max-width: 480px) { .starters { grid-template-columns: repeat(2, 1fr); } }
+
+/* ---------- stap A: lesmotor ---------- */
+@keyframes wig { 0%,100% { transform: rotate(0); } 20% { transform: rotate(-6deg) scale(1.06); } 40% { transform: rotate(6deg) scale(1.06); } 60% { transform: rotate(-4deg); } 80% { transform: rotate(3deg); } }
+#qhint.wiggle { animation: wig 1s ease-in-out 3; box-shadow: 0 0 0 3px var(--gold); }
+body.noanim #qhint.wiggle { animation: none; }
+@media (prefers-reduced-motion: reduce) { #qhint.wiggle { animation: none; } }
+.choice.gone { opacity: .25; transform: scale(.94); pointer-events: none; text-decoration: line-through; }
+.mnote { margin-top: 8px; padding: 8px 12px; border-radius: 14px; background: #FFF6D6; color: #5A4300; font-weight: 700; }
+.helpoffer { display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.nivrow { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; margin: 6px 0; }
+.ikkan { display: block; font-weight: 600; color: var(--ok); font-size: .8rem; }
+.leveloffer { margin-top: 10px; }

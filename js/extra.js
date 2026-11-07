@@ -227,7 +227,7 @@ function openProgress() {
     <div class="stats">${[['⭐', D.starsTotal, t('totalStars')], ['📝', c.quizzes, t('quizzes')], ['✅', c.correct, t('correctAns')], ['🔥', c.bestStreak, t('bestStreak')], ['📅', dayStreak(), t('days')]].map(([i, n, l]) => `<div class="stat card"><span>${i}</span><b>${n}</b><small>${l}</small></div>`).join('')}</div>
     ${SUBJECTS.map(s => `<div class="psub card" style="--sc:${s.color};--sl:${s.light}"><h3>${s.ico} ${t('subj_' + s.id)}</h3>${s.topics.filter(tp => topicFits(tp) || D.topics[tp.key]).map(tp => {
       const st = topicStatus(tp.key), a = topicAcc(tp.key), ts = D.topics[tp.key];
-      return `<div class="prow"><span class="p-ico">${tp.ico}</span><span class="p-n">${tTopic(tp)}</span><span class="pbar"><i style="width:${a == null ? 0 : Math.round(a * 100)}%"></i></span>
+      return `<div class="prow"><span class="p-ico">${tp.ico}</span><span class="p-n">${tTopic(tp)}${st === 'super' && ikKan(tp) ? `<small class="ikkan">✅ ${ikKan(tp)}</small>` : ''}</span><span class="pbar"><i style="width:${a == null ? 0 : Math.round(a * 100)}%"></i></span>
         <span class="p-v">${a == null ? `<small>${t('notYet')}</small>` : Math.round(a * 100) + '% ' + t('accuracy')}</span><span class="spill ${st}">${statusName(st)}</span>
         <button class="btn small ghost" data-learn="${tp.key}">📖</button><button class="btn small" data-play="${tp.key}">✨</button></div>`;
     }).join('')}</div>`).join('')}
@@ -357,6 +357,7 @@ function renderParents() {
       .map(x => `<div class="vrow"><span class="vw pap">${esc(x)}</span></div>`).join('')}</details>`;
   if (parTab === 'set') {
     body = `<label class="lbl">${t('parGrade')}</label><div class="chips">${[1, 2, 3, 4, 5, 6, 7, 8].map(g => `<button class="chip ${D.grade === g ? 'on' : ''}" data-grade="${g}">${g}</button>`).join('')}</div><p class="muted">${t('parGradeInfo')}</p>
+      ${niveauParentHTML()}
       <label class="lbl">${t('parGoal')}</label><div class="chips">${[5, 10, 15, 20].map(g => `<button class="chip ${D.settings.dailyGoal === g ? 'on' : ''}" data-goal="${g}">${g}</button>`).join('')}</div>
       <label class="lbl">${t('themeLbl')}</label><div class="chips">${THEMES.map(k => `<button class="chip ${(D.settings.theme || 'auto') === k ? 'on' : ''}" data-th="${k}">${t('th_' + k)}</button>`).join('')}</div><p class="muted">${t('themeInfo')}</p>
       <label class="lbl">${t('parBackup')}</label><p class="muted">${t('parBackupInfo')}</p>
@@ -371,6 +372,7 @@ function renderParents() {
   bindCommon(el);
   $$('[data-tab]', el).forEach(b => b.onclick = () => { parTab = b.dataset.tab; renderParents(); });
   $$('[data-grade]', el).forEach(b => b.onclick = () => { D.grade = +b.dataset.grade; save(); renderParents(); });
+  niveauParentBind(el, renderParents);
   $$('[data-goal]', el).forEach(b => b.onclick = () => { D.settings.dailyGoal = +b.dataset.goal; save(); renderParents(); });
   $$('[data-th]', el).forEach(b => b.onclick = () => { D.settings.theme = b.dataset.th; save(); applyTheme(); renderParents(); });
   $$('[data-who]', el).forEach(b => b.onclick = () => { D.settings.voiceWho = b.dataset.who; save(); renderParents(); });

@@ -11,7 +11,7 @@ function defaults() {
     v: 1, profile: null, stars: 0, starsTotal: 0,
     owned: { outfit: ['paars'], hat: ['geen', 'puntmuts'], wand: ['ster'], pet: ['geen'] },
     topics: {}, highs: {}, badges: {}, days: [], lessons: {}, jokes: [], games: {}, unlocked: [], gifts: {},
-    grade: 6, daylog: {}, review: {}, potion: { streak: 0, last: '', best: 0, total: 0, got: {}, freezeWeek: '' },
+    grade: 6, niveau: { rekenen: 0, taal: 0, papiamentu: 0 }, daylog: {}, review: {}, potion: { streak: 0, last: '', best: 0, total: 0, got: {}, freezeWeek: '' },
     settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10, theme: 'auto', vibrate: false },
     counters: { correct: 0, answered: 0, quizzes: 0, perfect: 0, bestStreak: 0, timed: 0, pap: 0, hard3: 0, purchases: 0, pets: 0, lessonRuns: 0, games: 0, garden: 0, walks: 0, calls: 0, challenge: 0, secret: 0, piano: 0, questAll: 0 },
     stickers: [], toured: 0, quests: { day: '', ids: [], base: {}, done: [], s5: 0, all: 0 },
@@ -34,7 +34,8 @@ function cleanSave(d) {
   const map = (o, fn) => { const r = {}; for (const k of Object.keys(obj(o))) if (k !== '__proto__' && k.length < 80) { const v = fn(o[k], k); if (v !== undefined) r[k] = v; } return r; };
   if (!d || typeof d !== 'object') return def;
   const out = def;
-  out.stars = num(d.stars); out.starsTotal = num(d.starsTotal); out.grade = num(d.grade || 6, 1, 8); out.created = num(d.created, 0, 1e13) || Date.now();
+  out.stars = num(d.stars); out.starsTotal = num(d.starsTotal); out.grade = num(d.grade || 6, 1, 8);
+  out.niveau = { rekenen: num((+obj(d.niveau).rekenen) || 0, -3, 3), taal: num((+obj(d.niveau).taal) || 0, -3, 3), papiamentu: num((+obj(d.niveau).papiamentu) || 0, -3, 3) }; out.created = num(d.created, 0, 1e13) || Date.now();
   if (d.profile && typeof d.profile === 'object') {
     const l = obj(d.profile.look), L = Object.assign({}, DEFAULT_LOOK);
     for (const k of ['skin', 'hairColor', 'eyes', 'robeColor', 'blush']) if (l[k] != null) L[k] = num(l[k], 0, 20);
@@ -89,7 +90,7 @@ const dayStr = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDa
 const today = () => dayStr(new Date());
 const addDays = n => { const d = new Date(); d.setDate(d.getDate() + n); return dayStr(d); };
 // past dit onderwerp bij de groep van het kind? (voor later: meer leeftijden)
-const topicFits = tp => !tp.grades || (D.grade >= tp.grades[0] && D.grade <= tp.grades[1]);
+const topicFits = tp => { if (!tp.grades) return true; const g = typeof effGrade === 'function' ? effGrade(tp.subject) : D.grade; return g >= tp.grades[0] && g <= tp.grades[1]; };
 function logDay(sec, ok) {
   const d = D.daylog[today()] || (D.daylog[today()] = { sec: 0, q: 0, ok: 0 });
   d.sec += sec; d.q++; if (ok) d.ok++;
@@ -314,7 +315,7 @@ function openClass(sid) {
   const say = weak.length && Math.random() < .6 ? t('tipWeak', { t: tTopic(weak[0]) }) : t('hello_' + sid);
   el.innerHTML = backbar(t('place_' + sid)) + `<div class="wrap" style="--sc:${s.color};--sl:${s.light};--sd:${s.dark}">
     <div class="classhead">${teacherSVG(s.teacher)}<div class="bubble big">${say}<div class="who">— ${s.teacherName}</div></div></div>
-    <h2 class="sect">${t('subj_' + sid)} <span class="gband">${groepLabel()}</span></h2>${lang() !== 'nl' ? `<p class="muted cnote">${t('contentNote')}</p>` : ''}
+    <h2 class="sect">${t('subj_' + sid)} <span class="gband">${groepLabel(sid)}</span></h2>${lang() !== 'nl' ? `<p class="muted cnote">${t('contentNote')}</p>` : ''}
     <div class="topics">${tl.map(tp => {
       const st = topicStatus(tp.key), ts = D.topics[tp.key], best = ts ? ts.best : 0;
       return `<div class="topic st-${st}"><div class="t-ico">${tp.ico}</div><div class="t-body"><div class="t-name">${tTopic(tp)}</div><div class="t-sub">${lang() === 'nl' ? tp.sub : tp.name}</div>
@@ -417,7 +418,7 @@ function startQuiz() {
   if (S.potion) S.challenge = false; else if (S.challenge) S.diff = 'hard';
   S.challengeWon = false; S.lastQ4 = 0;
   save();
-  Object.assign(S, { i: 0, score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, wrong: [], recentKeys: [], wrongByTopic: {}, suggested: {}, locked: false, pausedAt: 0 });
+  Object.assign(S, { i: 0, score: 0, streak: 0, bestStreak: 0, correct: 0, answered: 0, wrong: [], recentKeys: [], wrongByTopic: {}, suggested: {}, locked: false, pausedAt: 0, retry: [], helpT: [] });
   if (!D.days.includes(today())) { D.days.push(today()); if (D.days.length > 400) D.days = D.days.slice(-400); save(); }
   if (!S.potion) D.subjectsTried[S.subject] = 1;
   const s = subjOf(), el = $('#quiz');
@@ -444,6 +445,7 @@ function pickTopic() {
   return kies(fitTopics(SUBJECT[S.subject]));
 }
 function makeQuestion() {
+  const rq = retryPick(); if (rq) return rq;   // een eerder foute vraag komt nog één keer terug
   if (S.queue) {   // Toverdrank: vaste lijst van onderwerpen (en woordjes om te herhalen)
     const e = S.queue[S.i] || S.queue[S.queue.length - 1], tp = TOPIC[e.topic];
     S.diff = e.diff; const q = tp.gen(e.diff, e.item); q.topic = tp; return q;
@@ -457,7 +459,7 @@ function makeQuestion() {
 function next(first) {
   if (!first && S.mode === 'practice' && S.i >= S.count) return finish();
   if (S.mode === 'timed' && Date.now() >= S.endAt) return finish();
-  S.q = makeQuestion(); S.i++; S.hintUsed = false; S.locked = false;
+  S.q = makeQuestion(); S.i++; S.hintUsed = false; S.helped = false; S.locked = false;
   S.input = { a: '', r: '', field: 'a' }; S.sel = new Set(); S.order = []; S.ext = {};
   renderQuestion();
 }
@@ -477,6 +479,7 @@ function renderQuestion() {
   move($('#qcard'), 'inUp', { duration: 480 });
   stagger($$('.choice, .tw, .orderpool .ow', $('#qinput')), 'pop', 35, 120, 10);
   quizLabel(q);
+  helpStart();
 }
 function updateBar() {
   const p = S.mode === 'practice' ? (S.i - 1) / S.count : 1 - Math.max(0, S.endAt - Date.now()) / (S.duration * 1000);
@@ -636,7 +639,7 @@ function showHint() {
   $('#qhint').classList.add('hidden');
 }
 function record(q, ok, g) {
-  S.locked = true; S.answered++;
+  S.locked = true; S.answered++; helpStop();
   const ts = topicStats(q.topic.key);
   ts.answered++; ts.recent.push(ok ? 1 : 0); if (ts.recent.length > 20) ts.recent.shift();
   D.counters.answered++;
@@ -647,7 +650,7 @@ function record(q, ok, g) {
     const base = { easy: 10, medium: 15, hard: 20 }[S.diff];
     S.score += Math.round(base * (S.hintUsed ? .5 : 1)) + (S.streak >= 5 ? 10 : S.streak >= 3 ? 5 : 0);
   } else {
-    S.streak = 0; S.wrong.push({ q, g });
+    S.streak = 0; S.wrong.push({ q, g }); retryAdd(q);
     S.wrongByTopic[q.topic.key] = (S.wrongByTopic[q.topic.key] || 0) + 1;
     D.recentWrong = [{ k: q.topic.key, q: strip(q.text).slice(0, 90), a: strip(answerText(q)).slice(0, 40), d: today() }, ...(D.recentWrong || [])].slice(0, 12);
   }
@@ -701,7 +704,7 @@ function feedback(ok, g, choiceIdx) {
   fb.innerHTML = `<div class="fb-in"><div class="fb-fun">${D.settings.jokes ? `<span class="fb-emo">${fe}</span><span>${ft}</span>` : `<span class="fb-emo">💫</span><span>${t('almost')}</span>`}</div>
     <div class="fb-comfort">${kies(tList(COMFORT, COMFORT_I18N))}</div>
     <div class="fb-ans">${g.skip ? '' : `${t('youSaid')}: <s>${givenText(q, g)}</s> · `}${t('goodAns')}: <b class="ans">${answerText(q)}</b></div>
-    <div class="fb-exp">${q.explain || ''}</div>${sugg}
+    <div class="fb-exp">${q.explain || ''}${mistakeNote(q, g)}</div>${sugg}
     <button class="btn primary" id="fbnext">${S.mode === 'practice' && S.i >= S.count ? t('toResults') : t('nextQ')}</button></div>`;
   fb.className = 'fb show bad';
   move($('.fb-in', fb), 'inUp');
@@ -725,7 +728,7 @@ function resultStars() {
   return S.correct >= target ? 3 : S.correct >= target * .66 ? 2 : S.correct >= target * .33 ? 1 : 0;
 }
 function finish(stopped = false) {
-  stopTimer(); clearTimeout(S.autoT); S.locked = true;
+  helpStop(); stopTimer(); clearTimeout(S.autoT); S.locked = true;
   const stars = resultStars(), key = highKey(), prev = D.highs[key] || 0, isRecord = S.score > prev && S.score > 0;
   if (isRecord) D.highs[key] = S.score;
   let earned = S.correct + [0, 2, 5, 10][stars] + (isRecord && prev > 0 ? 5 : 0);
@@ -783,6 +786,7 @@ function renderResults(r) {
   $$('.res-grid b[data-n]', el).forEach((b, i) => setTimeout(() => countUp(b, +b.dataset.n), 150 + i * 120));
   if (r.stars >= 2) { setTimeout(() => { confetti(r.stars === 3 ? 180 : 90); SND.fanfare(); }, 300); }
   resultsExtras(el, r);
+  levelOffer(el, r);
 }
 
 /* ---------- prijzen: badges en nieuwe delen van de school ---------- */

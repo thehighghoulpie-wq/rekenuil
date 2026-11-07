@@ -279,7 +279,7 @@ const fitTopics = s => {
   const f = s.topics.filter(topicFits), list = f.length ? f : s.topics;
   return [...list.filter(tp => tp.grades && tp.grades[1] < 5), ...list.filter(tp => !(tp.grades && tp.grades[1] < 5))];
 };
-const groepLabel = () => `${t('groep')} ${D.grade} · ${t(groepBand(D.grade))}`;
+const groepLabel = sid => { const g = typeof effGrade === 'function' && sid ? effGrade(sid) : D.grade; return `${t('groep')} ${g} · ${t(groepBand(g))}`; };
 // Liedjes in de Speelzaal
 function startLiedjes() {
   G.over = false; G.again = startLiedjes;
