@@ -235,7 +235,5 @@ const eiPending = () => eiEarned() - ((D.island && D.island.got) || 0);
   Object.defineProperty(place, 'name', { get: () => t('pl_eiland') }); Object.defineProperty(place, 'sub', { get: () => t('pls_eiland') });
   PLACES.splice(i + 1, 0, place);
   PARENT.island = 'map';
-  const _pa = placeArt;
-  placeArt = id => id !== 'eiland' ? _pa(id) : `<rect x="0" y="62" width="100" height="30" fill="#5BC8F0"/><ellipse cx="50" cy="64" rx="38" ry="12" fill="#FFE2A8"/><path d="M50 62 Q52 40 46 24" stroke="#9A6B3E" stroke-width="5" fill="none"/><path d="M46 24 Q30 20 26 30 M46 24 Q60 14 68 22 M46 24 Q42 10 32 10 M46 24 Q62 28 64 38" stroke="#4FB35A" stroke-width="6" fill="none" stroke-linecap="round"/><rect x="62" y="48" width="14" height="16" fill="#F2B8C6"/><path d="M60 48 L69 40 L78 48Z" fill="#C8553D"/>`;
 }
 Object.assign(STR, { pl_eiland: ['Mijn Eiland', 'Mi Isla', 'My Island'], pls_eiland: ['bouw en speel op je eigen eiland', 'traha i hunga riba bo mes isla', 'build and play on your own island'] });

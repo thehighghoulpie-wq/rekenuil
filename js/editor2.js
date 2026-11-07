@@ -31,8 +31,8 @@ const LOOK_SETS = [
   ['vos', ['Vosje', 'Vos', 'Foxy'], { wings: 'geen', staart: 'vos', cape: 'geen', col: { robe: '#F29A4B', trim: '#FFFFFF', extra: '#F29A4B' } }],
   ['nacht', ['Nachtwacht', 'Guardia di anochi', 'Night guard'], { wings: 'geen', staart: 'geen', cape: 'lang', col: { robe: '#2A2366', trim: '#B18CF0', cape: '#12123A' } }]
 ];
-const COLOR_NAME = { skin: ['Huid', 'Kuero', 'Skin'], hair: ['Haar', 'Kabei', 'Hair'], eyes: ['Ogen', 'Wowo', 'Eyes'], robe: ['Mantel', 'Mantel', 'Robe'], trim: ['Rand', 'Bordo', 'Trim'], extra: ['Vleugels en staart', 'Alanan i rabu', 'Wings and tail'], cape: ['Cape', 'Kapa', 'Cape'], outline: ['Omlijning', 'Lineanan', 'Outline'] };
-const PARTLIST = { hair: HAIRSTYLES.map(h => h.id), eyeShape: EYESHAPES, brows: BROWS, bril: GLASSES, oorbel: EARRINGS, clip: CLIPS, baard: BEARDS, wings: WINGS, staart: TAILS, cape: CAPES, vorm: VORMEN };
+const COLOR_NAME = { skin: ['Huid', 'Kuero', 'Skin'], hair: ['Haar', 'Kabei', 'Hair'], eyes: ['Ogen', 'Wowo', 'Eyes'], robe: ['Mantel', 'Mantel', 'Robe'], trim: ['Rand', 'Bordo', 'Trim'], extra: ['Vleugels en staart', 'Alanan i rabu', 'Wings and tail'], cape: ['Cape', 'Kapa', 'Cape'], bottom: ['Broek of rok', 'Pantalon òf saya', 'Trousers or skirt'], shoes: ['Schoenen', 'Sapatu', 'Shoes'], gloves: ['Handschoenen', 'Wantu', 'Gloves'], outline: ['Omlijning', 'Lineanan', 'Outline'] };
+const PARTLIST = { hair: HAIRSTYLES.map(h => h.id), eyeShape: EYESHAPES, brows: BROWS, bril: GLASSES, oorbel: EARRINGS, clip: CLIPS, baard: BEARDS, wings: WINGS, staart: TAILS, cape: CAPES, vorm: VORMEN, top: TOP_IDS, bottom: BOTTOM_IDS, shoes: SHOE_IDS, gloves: GLOVE_IDS, neck: NECK_IDS, masker: MASK_IDS };
 const SWATCH_COL = { skin: 'skin', hairColor: 'hair', eyes: 'eyes', robeColor: 'robe' };   // een gewone kleurkeuze wist de eigen kleur
 const CP = { open: null, last: {} };
 
@@ -55,14 +55,15 @@ function hexHsl(hex) {
   if (d) { s = d / (1 - Math.abs(2 * l - 1)); h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; if (h < 0) h += 360; }
   return [Math.round(h), Math.round(s * 100), Math.round(l * 100)];
 }
-const defColor = (L, k) => ({ skin: SKINS[L.skin] || SKINS[3], hair: HAIRCOLORS[L.hairColor] || HAIRCOLORS[0], eyes: EYECOLORS[L.eyes] || EYECOLORS[0], robe: robeCol(L), trim: '#FFD36E', extra: '#B18CF0', cape: '#B8323F', outline: '#2B2147' }[k]);
+const defColor = (L, k) => ({ skin: SKINS[L.skin] || SKINS[3], hair: HAIRCOLORS[L.hairColor] || HAIRCOLORS[0], eyes: EYECOLORS[L.eyes] || EYECOLORS[0], robe: robeCol(L), trim: '#FFD36E', extra: '#B18CF0', cape: '#B8323F', outline: '#2B2147', bottom: botOf(L).c, shoes: (SHOES[L.shoes] || SHOES.sneaker).c, gloves: (GLOVES[L.gloves] || GLOVES.wanten).c }[k]);
 
 /* ---------- het paneel ---------- */
 function lookPanel(L, onChange, withName = true) {
   const sw = (arr, key, order) => `<div class="swatches">${(order || arr.map((_, i) => i)).map(i => `<button class="sw ${L[key] === i && !(SWATCH_COL[key] && L.col && L.col[SWATCH_COL[key]]) ? 'on' : ''}" data-k="${key}" data-v="${i}" style="--c:${arr[i]}" aria-label="${key} ${i + 1}"></button>`).join('')}</div>`;
-  const pick = (key, vals, label = v => '') => `<div class="hairstyles">${vals.map(v => `<button class="hs ${L[key] === v ? 'on' : ''}" data-k="${key}" data-s="${v}">${avatarSVG(Object.assign({}, L, { [key]: v, hat: 'geen', pet: 'geen' }), 'blij', 'mini')}<span>${label(v)}</span></button>`).join('')}</div>`;
+  const zm = (svg, key) => ZOOM[key] ? svg.replace('viewBox="-6 -50 212 300"', `viewBox="${ZOOM[key]}"`) : svg;
+  const pick = (key, vals, label = v => partName(key, v) || '') => `<div class="hairstyles">${vals.map(v => `<button class="hs ${L[key] === v ? 'on' : ''}" data-k="${key}" data-s="${v}">${zm(avatarSVG(Object.assign({}, L, { [key]: v, hat: key === 'bril' ? L.hat : 'geen', pet: 'geen' }), 'blij', 'mini'), key)}<span>${label(v)}</span></button>`).join('')}</div>`;
   const tog = (key, on, off) => `<div class="chips"><button class="chip ${!L[key] ? 'on' : ''}" data-k="${key}" data-b="0">${off}</button><button class="chip ${L[key] ? 'on' : ''}" data-k="${key}" data-b="1">${on}</button></div>`;
-  const pname = (key, v) => key === 'hair' ? ((HAIRSTYLES.find(h => h.id === v) || {}).name || v) : key === 'baard' ? t('beard_' + v) : cap(String(v));
+  const pname = (key, v) => partName(key, v) || (key === 'hair' ? ((HAIRSTYLES.find(h => h.id === v) || {}).name || v) : key === 'baard' ? t('beard_' + v) : cap(String(v)));
   const partRow = (key, label) => {
     const list = PARTLIST[key], i = Math.max(0, list.indexOf(L[key] == null ? list[0] : L[key]));
     return `<label class="lbl">${label}</label><div class="partrow"><button class="chip" data-prt="${key}:-1" aria-label="vorige">◀</button><b>${pname(key, list[i])}</b><button class="chip" data-prt="${key}:1" aria-label="volgende">▶</button><button class="chip" data-prnd="${key}" aria-label="dobbelsteen">🎲</button></div>`;
@@ -79,7 +80,7 @@ function lookPanel(L, onChange, withName = true) {
         <label>${tri(['Licht', 'Kla', 'Light'])}<input type="range" class="w-range" min="8" max="96" value="${l}" data-cw="l"></label>
         <button class="btn small ghost" data-csave="${key}">💾 ${tri(['Bewaar kleur', 'Warda koló', 'Save colour'])}</button></div>` : ''}</div>`;
   };
-  const tabs = [['face', '🙂 ' + t('lpFace')], ['hair', '💇 ' + t('hair')], ['eyes', '👀 ' + t('eyes')], ['extra', '✨ ' + t('lpExtra')], ['robe', '🧥 ' + t('lpRobe')], ['color', '🎨 ' + t('lpColors')], ['magic', '🪄 ' + t('lpMagic')]];
+  const tabs = [['face', '🙂 ' + t('lpFace')], ['hair', '💇 ' + t('hair')], ['eyes', '👀 ' + t('eyes')], ['extra', '✨ ' + t('lpExtra')], ['wear', '👕 ' + tri(['Kleren', 'Paña', 'Clothes'])], ['robe', '🧥 ' + t('lpRobe')], ['color', '🎨 ' + t('lpColors')], ['magic', '🪄 ' + t('lpMagic')]];
   let body = '';
   if (lpTab === 'face') body = `<label class="lbl">${t('lpBody')}</label><div class="hairstyles starters">${STARTERS.map(s => `<button class="hs" data-starter="${s.id}">${avatarSVG(Object.assign({}, DEFAULT_LOOK, s.look), 'blij', 'mini')}<span>${s.name}</span></button>`).join('')}</div><p class="muted">${t('lpBodyInfo')}</p>
     <label class="lbl">${t('lpMantel')}</label><div class="chips big">${BODIES.map(([id, e]) => `<button class="chip ${(L.body || 'meisje') === id ? 'on' : ''}" data-body="${id}">${e} ${t('body_' + id)}</button>`).join('')}</div>
@@ -101,6 +102,10 @@ function lookPanel(L, onChange, withName = true) {
     ${partRow('bril', t('lpGlasses'))}${pick('bril', GLASSES)}${partRow('oorbel', t('lpEarrings'))}${pick('oorbel', EARRINGS)}${partRow('clip', t('lpClips'))}${pick('clip', CLIPS)}
     ${partRow('baard', t('lpBeard'))}
     <label class="lbl">${t('lpLeg')}</label><div class="chips">${LEGS.map(b => `<button class="chip ${(L.prothese || 'geen') === b ? 'on' : ''}" data-k="prothese" data-s="${b}">${t('leg_' + b)}</button>`).join('')}</div>`;
+  if (lpTab === 'wear') body = `<p class="muted">${tri(['Kies een shirt, broek, schoenen en meer. Alles los van elkaar, dus je mixt zelf je outfit. Kies je niets, dan draag je de toverkleding.', 'Kies kamisa, pantalon, sapatu i mas. Tur kos apart, asina bo mixa bo mes outfit.', 'Pick a top, bottoms, shoes and more, all separate, so you mix your own outfit. Pick nothing and you keep the magic robe.'])}</p>
+    ${[['top', tri(['Shirt of jas', 'Kamisa òf jas', 'Top or jacket'])], ['bottom', tri(['Broek of rok', 'Pantalon òf saya', 'Trousers or skirt'])], ['shoes', tri(['Schoenen', 'Sapatu', 'Shoes'])], ['gloves', tri(['Handschoenen', 'Wantu', 'Gloves'])], ['neck', tri(['Sjaal en ketting', 'Bufanda i kadena', 'Scarf and necklace'])], ['masker', tri(['Gezicht', 'Kara', 'Face'])]].map(([k, lb]) => `${partRow(k, lb)}${pick(k, PARTLIST[k])}`).join('')}
+    ${colorRow('robe')}${colorRow('trim')}${colorRow('bottom')}${colorRow('shoes')}${colorRow('gloves')}
+    <button class="btn ghost wide" data-wearreset>↺ ${tri(['Terug naar de toverkleding', 'Bèk na e paña di mágia', 'Back to the magic robe'])}</button>`;
   if (lpTab === 'robe') body = `<label class="lbl">${t('lpRobeColor')}</label>${sw(ROBECOLS, 'robeColor')}${colorRow('robe')}${colorRow('trim')}<p class="muted">${t('lpRobeNote')}</p>
     <label class="lbl">${t('lpSign')}</label><div class="chips big">${TEKENS.map(([id, e]) => `<button class="chip ${L.teken === id ? 'on' : ''}" data-k="teken" data-s="${id}">${e} ${t('sign_' + id)}</button>`).join('')}</div>`;
   if (lpTab === 'color') body = `<p class="muted">${tri(['Elke kleurplek heeft een kleurenwiel (🎨), je opgeslagen kleuren, een dobbelsteen en een terug-knop.', 'Kada koló tin un rueda (🎨), bo koló warda, un dados i un boton pa bai bèk.', 'Every colour spot has a colour wheel (🎨), your saved colours, a dice and a reset button.'])}</p>
@@ -130,9 +135,9 @@ function refreshPreview(root, L) {
 function copyLook(L, c, what) {
   const clone = JSON.parse(JSON.stringify(c.look));
   if (what === 'all') { Object.keys(L).forEach(k => delete L[k]); Object.assign(L, clone); return; }
-  const cloth = ['outfit', 'hat', 'wand', 'robeColor', 'teken', 'body', 'vorm', 'wings', 'staart', 'cape', 'hatBack'];
+  const cloth = ['outfit', 'hat', 'wand', 'robeColor', 'teken', 'body', 'vorm', 'wings', 'staart', 'cape', 'hatBack', 'top', 'bottom', 'shoes', 'gloves', 'neck', 'masker'];
   const head = ['hair', 'hairColor', 'tips', 'eyes', 'eyeShape', 'lashes', 'brows', 'sproet', 'blush', 'bril', 'oorbel', 'clip', 'baard', 'skin', 'tint'];
-  const keys = what === 'cloth' ? cloth : head, colKeys = what === 'cloth' ? ['robe', 'trim', 'extra', 'cape'] : ['skin', 'hair', 'eyes'];
+  const keys = what === 'cloth' ? cloth : head, colKeys = what === 'cloth' ? ['robe', 'trim', 'extra', 'cape', 'bottom', 'shoes', 'gloves'] : ['skin', 'hair', 'eyes'];
   keys.forEach(k => { if (clone[k] !== undefined) L[k] = clone[k]; });
   L.col = Object.assign({}, L.col); colKeys.forEach(k => { if (clone.col && clone.col[k]) L.col[k] = clone.col[k]; else delete L.col[k]; });
 }
@@ -147,6 +152,7 @@ function bindLookPanel(root, L, onChange) {
   $$('[data-prnd]', root).forEach(b => b.onclick = () => { const k = b.dataset.prnd, list = PARTLIST[k]; L[k] = kies(list); done(); });
   $$('[data-fpre]', root).forEach(b => b.onclick = () => { const p = FACE_PRESETS.find(x => x[0] === b.dataset.fpre); if (p) { Object.assign(L, { sproet: false }, p[2]); done(); } });
   $$('[data-set]', root).forEach(b => b.onclick = () => { const p = LOOK_SETS.find(x => x[0] === b.dataset.set); if (p) { Object.assign(L, p[2], { col: Object.assign({}, L.col, p[2].col) }); done(); } });
+  $$('[data-wearreset]', root).forEach(b => b.onclick = () => { Object.assign(L, { top: 'geen', bottom: 'geen', shoes: 'geen', gloves: 'geen', neck: 'geen', masker: 'geen' }); done(); });
   // kleuren
   $$('[data-copen]', root).forEach(b => b.onclick = () => { CP.open = CP.open === b.dataset.copen ? null : b.dataset.copen; SND.click(); onChange(); });
   $$('[data-cset]', root).forEach(b => b.onclick = () => { const [k, c] = b.dataset.cset.split(':'); ensureCol()[k] = c; CP.last[k] = c; done(); });

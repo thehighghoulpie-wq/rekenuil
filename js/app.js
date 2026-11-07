@@ -58,6 +58,7 @@ function cleanSave(d) {
     L.sproet = !!l.sproet; L.lashes = !!l.lashes; L.body = pick(l.body, BODIES.map(x => x[0]), L.body);
     L.bg = pick(l.bg, MIRROR_BGS.map(x => x[0]), L.bg); L.glitter = pick(l.glitter, GLITTERS.map(x => x[0]), L.glitter);
     L.outline = l.outline !== false; L.hatBack = !!l.hatBack; L.vorm = pick(l.vorm, VORMEN, 'normaal'); L.wings = pick(l.wings, WINGS, 'geen'); L.staart = pick(l.staart, TAILS, 'geen'); L.cape = pick(l.cape, CAPES, 'geen');
+    for (const [k, ids] of [['top', TOP_IDS], ['bottom', BOTTOM_IDS], ['shoes', SHOE_IDS], ['gloves', GLOVE_IDS], ['neck', NECK_IDS], ['masker', MASK_IDS]]) L[k] = pick(l[k], ids, 'geen');
     L.col = {}; for (const k of COLKEYS) { const v = obj(l.col)[k]; if (typeof v === 'string' && /^#[0-9a-fA-F]{6}$/.test(v)) L.col[k] = v; }
     return L;
   };
