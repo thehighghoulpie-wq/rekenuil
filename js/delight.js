@@ -68,10 +68,13 @@ function quizLabel(q) {
   const top = $('#qtopic');
   if (lab) top.insertAdjacentHTML('beforeend', ` <span class="qlabel ql-${lab}">${names[lab]}</span>`);
   if (S.challenge) top.insertAdjacentHTML('beforeend', `<div class="coach">${teacherSVG('uil', 'tiny')}<span>${tri(kies(COACH_LINES))}</span></div>`);
-  if (q.long && canRead() && !$('#qread')) {
-    $('.qhelp').insertAdjacentHTML('afterbegin', `<button class="btn small ghost" id="qread">🔊 ${t('readAloud')}</button>`);
-    $('#qread').onclick = () => speakNL(strip(q.text));
-  } else if (!q.long && $('#qread')) $('#qread').remove();
+  // voorlezen: lange teksten, vragen met een eigen voorleestekst en alles voor groep 1-3
+  const readTxt = q.say || strip(q.text);
+  if ((q.long || q.say || D.grade <= 3) && canRead()) {
+    if (!$('#qread')) $('.qhelp').insertAdjacentHTML('afterbegin', `<button class="btn small ghost" id="qread">🔊 ${t('readAloud')}</button>`);
+    $('#qread').onclick = () => speakNL(readTxt);
+    if (D.grade <= 2 && !S.challenge) setTimeout(() => { if (S.q === q && current === 'quiz') speakNL(readTxt); }, 400);   // kleuters: vanzelf voorlezen
+  } else if ($('#qread')) $('#qread').remove();
 }
 
 /* ---------- uitdagingsmodus: zelf gekozen, met Professor Uilenbal ---------- */

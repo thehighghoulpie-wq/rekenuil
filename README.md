@@ -1,6 +1,6 @@
 # Toverschool Sterrenlicht
 
-Een magische leer-app voor groep 6: oefen **rekenen** (Getallenmagie), **taal** (Woordspreuken) en **Papiamentu** (Eilandmagie).
+Een magische leer-app voor groep 1 t/m 8 (gemaakt voor groep 6): oefen **rekenen** (Getallenmagie), **taal** (Woordspreuken) en **Papiamentu** (Eilandmagie).
 Werkt op een tablet, ook zonder internet. Voortgang blijft op het apparaat. Geen reclame, geen inlog, geen externe links.
 App-taal: Nederlands, Papiamentu of English (de lessen en vragen zelf zijn Nederlands, zoals op school).
 
@@ -12,6 +12,7 @@ App-taal: Nederlands, Papiamentu of English (de lessen en vragen zelf zijn Neder
 - `js/visuals.js` – klok, breukstroken, getallenlijn, cijferen, grafieken, geld + interactieve lesonderdelen
 - `js/art.js` – het chibi-personage, huisdieren, Pip en de leraren
 - `js/fun.js` – grapjes en grappige reacties
+- `js/groepen.js` – groep 1 t/m 8: welke onderwerpen bij welke groep horen, nieuwe onderwerpen (tellen, vormen, rekenen tot 20, splitsen, rijmen, eerste letter, woorden lezen, verhoudingen, procenten, 't kofschip) en eigen liedjes
 - `js/engine.js` – vragen-motor: nieuwe soorten vragen (`registerKind`), nakijken als gegevens (`gradeSpec`) en het onderwerp Toverlab (schuiflijn, vakjes kleuren, kies alles)
 - `js/rekenen.js`, `js/taal.js`, `js/papiamentu.js` – vragen en lessen per vak
 - `js/app.js`, `js/extra.js` – de app zelf (extra.js: kledingkamer/Toverspiegel, spelletjes, Ouderhoek, intro)
@@ -45,4 +46,5 @@ Nog niet bevestigd en extra belangrijk om te checken: `orañá` (oranje), `rosa`
   `registerTopic('rekenen', { id, name, sub, ico, gen, lesson: [{ t, h, v, w, o }] })`.
   Soorten vragen: `num`, `rest`, `time`, `choice`, `tap` (woorden aantikken), `order` (zin bouwen) en, uit engine.js, `line`, `grid` en `multi`. Een eigen soort maak je met `registerKind(naam, { render, guess, empty, check, answerText, givenText, mark })`; nakijken kan met `gradeSpec({method:'value'|'set'|'order', exact, interval, required, distinct}, gegeven)`.
 - **Herhalen:** laat `gen(diff, item)` een vaste vraag maken als `item` is meegegeven en zet `item` op de vraag. Foute antwoorden komen dan vanzelf terug in de Toverdrank.
-- **Andere leeftijden (later):** geef een onderwerp `grades: [min, max]` (groep). De groep staat in de Ouderhoek.
+- **Groepen:** geef een onderwerp `grades: [min, max]` (groep 1 t/m 8). Het bereik van bestaande onderwerpen staat in `GRADE_RANGE` in `js/groepen.js`. De groep kies je in de intro en in de Ouderhoek.
+- **Liedjes:** voeg een liedje toe aan `SONGS` in `js/groepen.js` (eigen tekst en eigen melodie, nooit een bestaand liedje). In een les: `{ w: 'liedje', o: { song: 'naam' } }`.

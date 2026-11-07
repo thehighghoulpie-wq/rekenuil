@@ -128,6 +128,7 @@ function openGarden() {
   el.innerHTML = backbar(t('pl_tuin')) + `<div class="wrap"><div class="card center garden-intro">${pipSVG('lach')}<p>${t('gardenTitle')}</p>
       <div class="gstages">${[0, 1, 2, 3].map(s => `<span>${curPlantSVG('flamboyan', s, 'mini')}<small>${t('gStage' + s)}</small></span>`).join('')}</div></div>
     ${SUBJECTS.map((s, si) => `<div class="bed" style="--sc:${s.color};--sl:${s.light}"><h3>${s.ico} ${t('subj_' + s.id)}</h3><div class="plots">${s.topics.map((tp, ti) => {
+      if (!topicFits(tp) && !D.topics[tp.key]) return '';   // andere groep: niet tonen (wel als er al mee geoefend is)
       const st = STAGE_OF[topicStatus(tp.key)] ?? 0, p = plantFor(si, ti);
       return `<button class="plot gplot st-${st}" data-k="${tp.key}" data-si="${si}" data-ti="${ti}">${curPlantSVG(p.id, st)}<small>${tTopic(tp)}</small></button>`;
     }).join('')}</div></div>`).join('')}</div>`;

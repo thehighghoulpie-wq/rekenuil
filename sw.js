@@ -1,8 +1,8 @@
 // Keeps Toverschool Sterrenlicht working without internet.
 // Change VERSION whenever a file changes, so tablets pick up the new version.
-const VERSION = 'toverschool-v10';
+const VERSION = 'toverschool-v11';
 const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-180.png', './css/app.css',
-  './js/util.js', './js/i18n.js', './js/visuals.js', './js/art.js', './js/fun.js', './js/rekenen.js', './js/taal.js', './js/papiamentu.js', './js/engine.js', './js/app.js',
+  './js/util.js', './js/i18n.js', './js/visuals.js', './js/art.js', './js/fun.js', './js/rekenen.js', './js/taal.js', './js/papiamentu.js', './js/engine.js', './js/groepen.js', './js/app.js',
   './js/review.js', './js/voice.js', './js/extra.js', './js/sw-register.js', './js/theme.js', './js/motion.js', './js/garden.js', './js/delight.js', './js/collect.js', './js/games2.js',
   ...['sky-day', 'sky-night', 'clouds', 'sea-day', 'sea-night', 'houses', 'bridge', 'lights'].map(f => `./img/scene/${f}.svg`)];
 

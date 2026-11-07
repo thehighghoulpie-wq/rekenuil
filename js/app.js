@@ -34,7 +34,7 @@ function cleanSave(d) {
   const map = (o, fn) => { const r = {}; for (const k of Object.keys(obj(o))) if (k !== '__proto__' && k.length < 80) { const v = fn(o[k], k); if (v !== undefined) r[k] = v; } return r; };
   if (!d || typeof d !== 'object') return def;
   const out = def;
-  out.stars = num(d.stars); out.starsTotal = num(d.starsTotal); out.grade = num(d.grade || 6, 3, 8); out.created = num(d.created, 0, 1e13) || Date.now();
+  out.stars = num(d.stars); out.starsTotal = num(d.starsTotal); out.grade = num(d.grade || 6, 1, 8); out.created = num(d.created, 0, 1e13) || Date.now();
   if (d.profile && typeof d.profile === 'object') {
     const l = obj(d.profile.look), L = Object.assign({}, DEFAULT_LOOK);
     for (const k of ['skin', 'hairColor', 'eyes', 'robeColor', 'blush']) if (l[k] != null) L[k] = num(l[k], 0, 20);
@@ -42,7 +42,7 @@ function cleanSave(d) {
     L.hair = pick(l.hair, HAIRSTYLES.map(h => h.id), L.hair); L.eyeShape = pick(l.eyeShape, EYESHAPES, L.eyeShape); L.brows = pick(l.brows, BROWS, L.brows);
     L.bril = pick(l.bril, GLASSES, L.bril); L.oorbel = pick(l.oorbel, EARRINGS, L.oorbel); L.clip = pick(l.clip, CLIPS, L.clip); L.teken = pick(l.teken, TEKENS.map(x => x[0]), L.teken);
     for (const k of ['outfit', 'hat', 'wand', 'pet']) L[k] = pick(l[k], ITEMS[k].map(i => i.id), L[k]);
-    L.sproet = !!l.sproet; L.lashes = !!l.lashes;
+    L.sproet = !!l.sproet; L.lashes = !!l.lashes; L.body = pick(l.body, BODIES.map(x => x[0]), L.body);
     L.bg = pick(l.bg, MIRROR_BGS.map(x => x[0]), L.bg); L.glitter = pick(l.glitter, GLITTERS.map(x => x[0]), L.glitter);
     out.profile = { name: str(d.profile.name, 16), look: L };
   }
@@ -310,12 +310,12 @@ const L = { subject: null, topic: null, step: 0, from: null };
 function openClass(sid) {
   const s = SUBJECT[sid]; L.subject = sid;
   const el = $('#class');
-  const weak = s.topics.filter(t => topicStatus(t.key) === 'oefenen');
+  const tl = fitTopics(s), weak = tl.filter(t => topicStatus(t.key) === 'oefenen');
   const say = weak.length && Math.random() < .6 ? t('tipWeak', { t: tTopic(weak[0]) }) : t('hello_' + sid);
   el.innerHTML = backbar(t('place_' + sid)) + `<div class="wrap" style="--sc:${s.color};--sl:${s.light};--sd:${s.dark}">
     <div class="classhead">${teacherSVG(s.teacher)}<div class="bubble big">${say}<div class="who">— ${s.teacherName}</div></div></div>
-    <h2 class="sect">${t('subj_' + sid)}</h2>${lang() !== 'nl' ? `<p class="muted cnote">${t('contentNote')}</p>` : ''}
-    <div class="topics">${s.topics.map(tp => {
+    <h2 class="sect">${t('subj_' + sid)} <span class="gband">${groepLabel()}</span></h2>${lang() !== 'nl' ? `<p class="muted cnote">${t('contentNote')}</p>` : ''}
+    <div class="topics">${tl.map(tp => {
       const st = topicStatus(tp.key), ts = D.topics[tp.key], best = ts ? ts.best : 0;
       return `<div class="topic st-${st}"><div class="t-ico">${tp.ico}</div><div class="t-body"><div class="t-name">${tTopic(tp)}</div><div class="t-sub">${lang() === 'nl' ? tp.sub : tp.name}</div>
         <div class="t-meta"><span class="spill ${st}">${statusName(st)}</span><span class="tstars">${[1, 2, 3].map(i => STARICO(i <= best)).join('')}</span></div></div>
@@ -441,7 +441,7 @@ function startQuiz() {
 }
 function pickTopic() {
   if (!isMix(S.topicKey)) return TOPIC[S.topicKey];
-  return kies(SUBJECT[S.subject].topics);
+  return kies(fitTopics(SUBJECT[S.subject]));
 }
 function makeQuestion() {
   if (S.queue) {   // Toverdrank: vaste lijst van onderwerpen (en woordjes om te herhalen)
@@ -792,7 +792,7 @@ const BADGES = [
   ['vijftig', '🏅', 'Toverstudent', 'Maak 50 quizzen af', d => d.counters.quizzes >= 50],
   ['honderd', '💯', 'Honderd!', 'Beantwoord 100 vragen goed', d => d.counters.correct >= 100],
   ['vijfhonderd', '🌟', 'Sterrenregen', 'Beantwoord 500 vragen goed', d => d.counters.correct >= 500],
-  ['duizend', '👑', 'Koningin van de kennis', 'Beantwoord 1000 vragen goed', d => d.counters.correct >= 1000],
+  ['duizend', '👑', 'Kampioen van de kennis', 'Beantwoord 1000 vragen goed', d => d.counters.correct >= 1000],
   ['reeks10', '🔥', 'Vuurspreuk', '10 goed op een rij', d => d.counters.bestStreak >= 10],
   ['reeks20', '☄️', 'Komeet', '20 goed op een rij', d => d.counters.bestStreak >= 20],
   ['perfect', '💎', 'Foutloos', 'Een quiz van 10+ vragen helemaal goed', d => d.counters.perfect >= 1],
