@@ -6,8 +6,8 @@
 
 registerSubject({
   id: 'taal', name: 'Woordspreuken', school: 'Taal', ico: '📚', place: 'bieb', placeName: 'De Woordenbibliotheek',
-  teacher: 'inkie', teacherName: 'Juf Inkie', color: '#E85D9E', light: '#FFEEF6', dark: '#B8326F',
-  hello: 'Hallo-hallo! Ik ben Juf Inkie. Met mijn acht armen schrijf ik acht woorden tegelijk. Welke spreuk leren we vandaag?'
+  teacher: 'maanlicht', teacherName: 'Juf Maanlicht', color: '#E85D9E', light: '#FFEEF6', dark: '#B8326F',
+  hello: 'Hallo-hallo! Ik ben Juf Maanlicht. Wolkje en ik lezen graag voor. Welke spreuk leren we vandaag?'
 });
 
 // zin met ~ op de plek van het woord; het woord krijgt een gat
@@ -123,7 +123,7 @@ function genDt(diff) {
       explain: `<div class="sentence">${fullSentence(s, w)}</div>Verleng het woord: <b>${long}</b>. Je hoort een <b>${ans}</b>, dus: <b>${w}</b>.` };
   }
   const [inf, stam, tail] = kies(VERBS);
-  const subj = diff === 'easy' ? kies(['Ik', 'Hij', 'Zij', 'Pip']) : kies(['Ik', 'Hij', 'Zij', 'Pip', 'Juf Inkie', 'Jij', 'Het meisje', 'INV']);
+  const subj = diff === 'easy' ? kies(['Ik', 'Hij', 'Zij', 'Pip']) : kies(['Ik', 'Hij', 'Zij', 'Pip', 'Juf Maanlicht', 'Jij', 'Het meisje', 'INV']);
   const tEnd = /t$/.test(stam);
   let form, sentence, why;
   if (subj === 'INV') {
@@ -215,7 +215,7 @@ const ZINNEN = [
   'De|ow kleine|bn,ow kat|zn,ow springt|pv,ww op de tafel|zn .', 'Pip|ow,zn eet|pv,ww een grote|bn pastechi|zn .', 'Mijn|ow oma|zn,ow woont|pv,ww op Curaçao|zn .',
   'Morgen gaan|pv,ww wij|ow naar het strand|zn .', 'De|ow juf|zn,ow leest|pv,ww een spannend|bn verhaal|zn .', 'Het|ow witte|bn,ow konijn|zn,ow huppelt|pv,ww door de tuin|zn .',
   'Wij|ow hebben|pv,ww een nieuwe|bn toverstok|zn gekocht|ww .', 'In de zomer|zn zwemmen|pv,ww de|ow kinderen|zn,ow in de zee|zn .', 'De|ow flamingo|zn,ow staat|pv,ww op één poot|zn .',
-  'Professor|ow,zn Uilenbal|ow,zn schrijft|pv,ww een moeilijke|bn som|zn op het bord|zn .', 'Kun|pv,ww jij|ow mij helpen|ww ?', 'De|ow oude|bn,ow brug|zn,ow drijft|pv,ww op het water|zn .',
+  'Professor|ow,zn Kiko|ow,zn schrijft|pv,ww een moeilijke|bn som|zn op het bord|zn .', 'Kun|pv,ww jij|ow mij helpen|ww ?', 'De|ow oude|bn,ow brug|zn,ow drijft|pv,ww op het water|zn .',
   'Mijn|ow broertje|zn,ow heeft|pv,ww rode|bn laarzen|zn .', 'Gisteren vond|pv,ww Yara|ow,zn een glimmende|bn schelp|zn .', 'De|ow leguaan|zn,ow ligt|pv,ww in de warme|bn zon|zn .',
   'Zij|ow wil|pv,ww later piloot|zn worden|ww .', 'Het|ow kleine|bn,ow draakje|zn,ow niest|pv,ww gouden|bn sterretjes|zn .', 'Wanneer begint|pv,ww de|ow les|zn,ow ?',
   'De|ow kinderen|zn,ow van|ow groep|zn,ow 6|ow spelen|pv,ww op het plein|zn .', 'Papa|ow,zn bakt|pv,ww heerlijke|bn pannenkoeken|zn .', 'Op zaterdag|zn gaat|pv,ww de|ow hele|bn,ow familie|zn,ow naar de markt|zn .',

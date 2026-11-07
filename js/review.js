@@ -27,7 +27,7 @@ function autoDiff(key) {
 }
 
 /* ---------- de Toverdrank van vandaag ---------- */
-const POTION_SUBJ = { id: 'potion', color: '#9B5DE5', light: '#F1E8FF', dark: '#6A3FB5', teacher: 'uil', teacherName: 'Professor Uilenbal' };
+const POTION_SUBJ = { id: 'potion', color: '#9B5DE5', light: '#F1E8FF', dark: '#6A3FB5', teacher: 'nova', teacherName: 'Nova' };
 const POTIONS = [['pot0', '#FFD36E'], ['pot1', '#C9D6FF'], ['pot2', '#4FC8BA'], ['pot3', '#FF6F91'], ['pot4', '#FF9EC4'], ['pot5', '#8FD3FF'], ['pot6', '#FF8A3D']];
 const potionName = i => t(POTIONS[i][0]);
 const streakTxt = n => n === 1 ? t('potStreak1') : t('potStreak', { n });

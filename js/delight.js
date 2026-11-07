@@ -67,7 +67,7 @@ function quizLabel(q) {
   const names = { again: '🔁 ' + t('lblAgain'), new: '✨ ' + t('lblNew'), spicy: '🌶️ ' + t('lblSpicy') };
   const top = $('#qtopic');
   if (lab) top.insertAdjacentHTML('beforeend', ` <span class="qlabel ql-${lab}">${names[lab]}</span>`);
-  if (S.challenge) top.insertAdjacentHTML('beforeend', `<div class="coach">${teacherSVG('uil', 'tiny')}<span>${tri(kies(COACH_LINES))}</span></div>`);
+  if (S.challenge) top.insertAdjacentHTML('beforeend', `<div class="coach">${teacherSVG('dax', 'tiny')}<span>${tri(kies(COACH_LINES))}</span></div>`);
   // voorlezen: lange teksten, vragen met een eigen voorleestekst en alles voor groep 1-3
   const readTxt = q.say || strip(q.text);
   if ((q.long || q.say || D.grade <= 3) && canRead()) {
@@ -77,7 +77,7 @@ function quizLabel(q) {
   } else if ($('#qread')) $('#qread').remove();
 }
 
-/* ---------- uitdagingsmodus: zelf gekozen, met Professor Uilenbal ---------- */
+/* ---------- uitdagingsmodus: zelf gekozen, met Dax ---------- */
 function challengeHTML() {
   return `<button class="opt chall ${S.challenge ? 'on' : ''}" id="chall"><span class="o-ico">🌶️🦉</span><b>${t('challT')}</b><small>${t('challS')}</small></button>`;
 }
@@ -91,7 +91,7 @@ function challengeBonus() {
 
 /* ---------- uitslag: perfecte les, uitdaging en de cast viert mee ---------- */
 const CAST = [['pet', 'kat', 'Miepie'], ['pet', 'flamingo', 'Flip'], ['pet', 'leguaan', 'Luna'], ['pet', 'uil', 'Hoepla'], ['pet', 'schildpad', 'Turbo'],
-  ['pet', 'wolk', 'Pluis'], ['teacher', 'uil', 'Professor Uilenbal'], ['teacher', 'inkie', 'Juf Inkie'], ['teacher', 'yuana', 'Shon Yuana']];
+  ['pet', 'wolk', 'Pluis'], ['teacher', 'kiko', 'Professor Kiko'], ['teacher', 'maanlicht', 'Juf Maanlicht'], ['teacher', 'yuana', 'Shon Yuana'], ['teacher', 'nova', 'Nova'], ['teacher', 'dax', 'Dax']];
 const CHEERS = [['Hoera!', 'Hurá!', 'Hooray!'], ['Wat knap!', 'Bon hasi!', 'So clever!'], ['Ik ben trots op je!', null, 'I am proud of you!'], ['Feest!', 'Fiesta!', 'Party!']];
 function resultsExtras(el, r) {
   const res = $('.res', el); if (!res) return;

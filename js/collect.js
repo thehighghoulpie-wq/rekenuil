@@ -68,7 +68,7 @@ const STICKERS = [
   ['kibrahacha', '🌼', ['Kibrahacha', 'Kibrahacha', 'Kibrahacha'], ['Laat een plant helemaal bloeien in de tuin', null, 'Make a garden plant bloom fully'], () => Object.keys(TOPIC).some(k => topicStatus(k) === 'super')],
   ['schildpad', '🐢', ['Zeeschildpad', null, 'Sea turtle'], ['Oefen op 3 verschillende dagen', null, 'Practise on 3 different days'], d => d.days.length >= 3],
   ['dividivi', '🌳', ['Dividiviboom', 'Dividivi', 'Divi-divi tree'], ['Oefen in alle drie de klassen', null, 'Practise in all three classes'], d => Object.keys(d.subjectsTried).length >= 3],
-  ['brug', '🌉', ['Emmabrug', null, 'Queen Emma bridge'], ['Win een uitdaging met Professor Uilenbal', null, 'Win a challenge with Professor Owl'], d => d.counters.challenge >= 1],
+  ['brug', '🌉', ['Emmabrug', null, 'Queen Emma bridge'], ['Win een uitdaging met Dax', null, 'Win a challenge with Dax'], d => d.counters.challenge >= 1],
   ['cactus', '🌵', ['Cactus', null, 'Cactus'], ['Haal 3 sterren op Moeilijk', null, 'Get 3 stars on Hard'], d => d.counters.hard3 >= 1],
   ['zeester', '⭐', ['Zeester', null, 'Starfish'], ['Haal 10 goed op een rij', null, 'Get 10 right in a row'], d => d.counters.bestStreak >= 10],
   ['parkiet', '🦜', ['Parkiet', null, 'Parakeet'], ['Beantwoord 50 Papiamentu-vragen goed', null, 'Answer 50 Papiamentu questions right'], d => d.counters.pap >= 50],
@@ -126,9 +126,10 @@ function calendarHTML(y, m) {
 }
 function progressExtras(el) {
   const now = new Date(), h = $('.sect', el); if (!h) return;
-  h.insertAdjacentHTML('afterend', `<div class="pbtns"><button class="btn" id="toalbum">📒 ${t('albumTitle')}</button><button class="btn" id="tobook">📖 ${t('bookTitle')}</button></div>${calendarHTML(now.getFullYear(), now.getMonth())}`);
+  h.insertAdjacentHTML('afterend', `<div class="pbtns"><button class="btn" id="toalbum">📒 ${t('albumTitle')}</button><button class="btn" id="tobook">📖 ${t('bookTitle')}</button><button class="btn" id="tofriends">🧙 ${t('friendsTitle')}</button></div>${calendarHTML(now.getFullYear(), now.getMonth())}`);
   $('#toalbum', el).onclick = () => { SND.click(); openAlbum(); };
   $('#tobook', el).onclick = () => { SND.click(); openBook(); };
+  $('#tofriends', el).onclick = () => { SND.click(); openFriends(); };
 }
 function openBook() {
   const el = $('#book'), now = new Date(), y = now.getFullYear(), m = now.getMonth(), ym = `${y}-${pad2(m + 1)}`;

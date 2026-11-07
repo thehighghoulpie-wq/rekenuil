@@ -468,6 +468,8 @@ const PIP_MOODS = ['blij', 'lach', 'oeps', 'slaap', 'wow', 'hart', 'cool', 'zwaa
 
 /* ---------- de leraren ---------- */
 function teacherSVG(id, cls = '') {
+  if (typeof CASTIMG !== 'undefined' && CASTIMG[id]) return castImg(id, cls);   // nieuwe vriendjes (js/cast.js)
+  if (id === 'yuana_oud') id = 'yuana-oud';
   if (id === 'uil') return `<svg class="teacher ${cls}" viewBox="0 0 120 130" role="img" aria-label="Professor Uilenbal">
     <ellipse cx="60" cy="124" rx="30" ry="4" fill="#000" opacity=".08"/>
     <ellipse cx="60" cy="76" rx="40" ry="44" fill="#7C5CD6"/><path d="M22 80 Q14 96 30 108 Q28 92 34 82Z M98 80 Q106 96 90 108 Q92 92 86 82Z" fill="#6A4BC4"/>

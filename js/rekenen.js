@@ -852,8 +852,8 @@ const emojiRows = (rows, n, e) => `<div class="emorows">${Array.from({ length: r
 
 registerSubject({
   id: 'rekenen', name: 'Getallenmagie', school: 'Rekenen', ico: '🔢', place: 'toren', placeName: 'De Getallentoren',
-  teacher: 'uil', teacherName: 'Professor Uilenbal', color: '#8B6CF0', light: '#F1ECFF', dark: '#5B47C9',
-  hello: 'Hoe-hoe! Welkom in de Getallentoren. Hier toveren we met getallen. Kies een spreukenboek!'
+  teacher: 'kiko', teacherName: 'Professor Kiko', color: '#8B6CF0', light: '#F1ECFF', dark: '#5B47C9',
+  hello: 'Klik-klak! Welkom in de Getallentoren. Hier toveren we met getallen. Kies een spreukenboek!'
 });
 
 registerTopic('rekenen', { id: 'tafels', name: 'Tafels', sub: '1 t/m 10', ico: '✖️', gen: genTafels, pace: { easy: 15, medium: 12, hard: 9 }, comma: false, lesson: [

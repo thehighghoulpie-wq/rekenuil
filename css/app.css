@@ -1074,3 +1074,20 @@ body.noanim .egg.hatch { animation: none; }
 
 .ei-house { max-width: 100%; max-height: 100%; }
 .island-wrap { overflow-x: hidden; }
+
+/* ---------- de vriendjes (cast v2) ---------- */
+.cast-img { display: block; height: auto; object-fit: contain; user-select: none; -webkit-user-drag: none; }
+.classhead .teacher.cast-img { width: 150px; }
+.teacher.small.cast-img { width: 84px; }
+.teacher.tiny.cast-img { width: 64px; }
+.coach .teacher.tiny.cast-img { width: 52px; }
+.castbox .cast-img.cast-cheer { width: 84px; }
+.friends { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 14px; margin-top: 12px; }
+.friend { border: 0; text-align: center; padding: 12px 10px 14px; display: flex; flex-direction: column; align-items: center; gap: 4px; font: inherit; color: var(--ink); cursor: pointer; background: linear-gradient(180deg, #fff, color-mix(in srgb, var(--fc) 12%, #fff)); box-shadow: 0 5px 0 color-mix(in srgb, var(--fc) 35%, #fff), var(--shadow); }
+.friend .fimg { width: 170px; max-width: 100%; animation: bob 3.8s ease-in-out infinite; }
+.friend b { font-size: 1.15rem; color: var(--fc); }
+.friend .fjob { font-weight: 700; font-size: .95rem; }
+.friend .fbuddy { font-size: .85rem; color: var(--muted); }
+.friend .fline { display: none; margin-top: 6px; text-align: left; }
+.friend.open .fline { display: block; }
+@media (prefers-reduced-motion: reduce) { .friend .fimg { animation: none; } }
