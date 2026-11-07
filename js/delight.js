@@ -261,8 +261,10 @@ function startTour() {
   const steps = [['.potcard', 'tour1'], ['.questcard', 'tour2'], ['.map .place', 'tour3'], ['#meact', 'tour4']].filter(([s]) => $(s));
   let i = 0;
   const card = document.createElement('div'); card.className = 'tourcard card';
-  document.body.appendChild(card);
-  const end = () => { $$('.tourspot').forEach(x => x.classList.remove('tourspot')); card.remove(); D.toured = 1; save(); };
+  document.body.appendChild(card); document.body.classList.add('has-tour');   // de uitleg dekt niets af: er komt ruimte onderaan
+  let guard = 0;
+  const end = () => { clearInterval(guard); document.body.classList.remove('has-tour'); $$('.tourspot').forEach(x => x.classList.remove('tourspot')); card.remove(); D.toured = 1; save(); };
+  guard = setInterval(() => { if (current !== 'map' || !card.isConnected) end(); }, 300);   // verlaat ze de kaart, dan verdwijnt de uitleg
   const draw = () => {
     $$('.tourspot').forEach(x => x.classList.remove('tourspot'));
     if (i >= steps.length || current !== 'map') return end();

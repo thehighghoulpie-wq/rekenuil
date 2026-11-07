@@ -204,7 +204,7 @@ function countUp(el, to, ms = 700) {
   if (!D.settings.anim || to <= 0) { el.textContent = pre + to; return; }
   (function f(now) { const p = Math.min(1, (now - t0) / ms); el.textContent = pre + Math.round(to * (1 - Math.pow(1 - p, 3))); if (p < 1) requestAnimationFrame(f); })(t0);
 }
-function toast(html, ms = 2600) {
+function toast(html, ms = 2200) {
   const t = $('#toast'); t.innerHTML = html; t.classList.add('show');
   clearTimeout(toast.tid); toast.tid = setTimeout(() => t.classList.remove('show'), ms);
 }

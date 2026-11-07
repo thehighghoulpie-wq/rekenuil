@@ -29,6 +29,7 @@ const BROWS = ['zacht', 'recht', 'boog', 'dik'];
 const GLASSES = ['geen', 'rond', 'ster', 'hart'];
 const EARRINGS = ['geen', 'knopje', 'ring', 'ster', 'gehoor'];   // gehoor = gehoorapparaatje
 const BEARDS = ['geen', 'stoppel', 'snor', 'baard'];
+const AHOGE = ['staarten', 'lang', 'golf', 'bob', 'pixie', 'knot', 'spacebuns', 'zijstaart', 'vlechten', 'kort', 'puffs'];   // het plukje dat omhoog steekt
 const LEGS = ['geen', 'been'];   // been = prothese
 const WINGS = ['geen', 'vlinder', 'engel', 'draak', 'fee'];
 const TAILS = ['geen', 'kat', 'vos', 'draak', 'pluim'];
@@ -142,7 +143,7 @@ function animeEye(x, y, col, s = 1, mood = 'blij', o = {}) {
   if (mood === 'oeps') return `<path d="M${x - 8 * s} ${y - 7 * s} L${x + 6 * s} ${y} L${x - 8 * s} ${y + 7 * s}" stroke="#2B2140" stroke-width="${3.4 * s}" fill="none" stroke-linecap="round" stroke-linejoin="round" transform="${x > 100 ? `rotate(180 ${x} ${y})` : ''}"/>`;
   const big = mood === 'wow' ? 1.12 : 1, sh = o.shape || 'rond', k = sh === 'slaperig' ? .78 : 1, side = x > 100 ? 1 : -1;
   const lid = sh === 'slaperig' ? `<path d="M${x - 12 * s} ${y - 5 * s} Q${x} ${y - 12 * s} ${x + 12 * s} ${y - 5 * s}" stroke="#2B2140" stroke-width="${4 * s}" fill="none" stroke-linecap="round"/>`
-    : `<path d="M${x - 12 * s} ${y - 8 * s} Q${x} ${y - 20 * s} ${x + 12 * s} ${y - 8 * s}" stroke="#2B2140" stroke-width="${3.4 * s}" fill="none" stroke-linecap="round"/>`;
+    : `<path d="M${x - 12 * s} ${y - 8 * s} Q${x} ${y - 20 * s} ${x + 12 * s} ${y - 8 * s}" stroke="#2B2140" stroke-width="${4.8 * s}" fill="none" stroke-linecap="round"/>`;
   const flick = sh === 'kat' ? `<path d="M${x + side * 10 * s} ${y - 10 * s} L${x + side * 17 * s} ${y - 15 * s}" stroke="#2B2140" stroke-width="${3 * s}" stroke-linecap="round"/>` : '';
   const lash = o.lashes ? `<path d="M${x + side * 9 * s} ${y - 13 * s} l${side * 5 * s} ${-5 * s} M${x + side * 4 * s} ${y - 16 * s} l${side * 3 * s} ${-6 * s}" stroke="#2B2140" stroke-width="${2.2 * s}" stroke-linecap="round"/>` : '';
   const extra = sh === 'sprank' ? `<path d="M${x - 4 * s} ${y + 1 * s} l${1.2 * s} ${2.8 * s} l${2.8 * s} ${1.2 * s} l${-2.8 * s} ${1.2 * s} l${-1.2 * s} ${2.8 * s} l${-1.2 * s} ${-2.8 * s} l${-2.8 * s} ${-1.2 * s} l${2.8 * s} ${-1.2 * s}Z" fill="#fff"/>` : sh === 'ster' ? sparkle(x - 4.5 * s, y + 2 * s, 4.6 * s, '#fff') : sh === 'hart' ? `<path d="${heartPath(x - 4 * s, y + 3.5 * s, .55 * s)}" fill="#FFB3D1"/>` : '';
@@ -154,6 +155,7 @@ function animeEye(x, y, col, s = 1, mood = 'blij', o = {}) {
     <ellipse cx="${x}" cy="${y + 8 * s * k}" rx="${rx - 4.5 * s}" ry="${4.4 * s}" fill="${shade(col, .42)}" opacity=".8"/>
     <ellipse cx="${x}" cy="${y + 3 * s}" rx="${5.2 * s}" ry="${6.8 * s * k}" fill="#1E1630"/>
     <ellipse cx="${x + 4 * s}" cy="${y - 5 * s * k}" rx="${4.3 * s}" ry="${4.8 * s}" fill="#fff"/><circle cx="${x - 4.2 * s}" cy="${y + 6.4 * s * k}" r="${2 * s}" fill="#fff"/><circle cx="${x + 5.4 * s}" cy="${y + 4.4 * s}" r="${1 * s}" fill="#fff" opacity=".9"/>
+    <path d="M${x - 8 * s} ${y + 10.5 * s * k} Q${x} ${y + 15.5 * s * k} ${x + 8 * s} ${y + 10.5 * s * k}" stroke="#fff" stroke-width="${1.7 * s}" fill="none" opacity=".42" stroke-linecap="round"/>
     ${extra}${lid}${flick}${lash}${flick2}</g>`;
 }
 function mouth(x, y, mood, s = 1) {
@@ -162,7 +164,7 @@ function mouth(x, y, mood, s = 1) {
   if (mood === 'verlegen') return `<path d="M${x - 6 * s} ${y + 4 * s} q${3 * s} ${3 * s} ${6 * s} 0 q${3 * s} ${-3 * s} ${6 * s} 0" stroke="#7A2E3A" stroke-width="${2.6 * s}" fill="none" stroke-linecap="round"/>`;
   if (mood === 'slaap') return `<ellipse cx="${x}" cy="${y + 5 * s}" rx="${3.4 * s}" ry="${4 * s}" fill="#7A2E3A"/>`;
   if (mood === 'lach' || mood === 'sterogen' || mood === 'hartogen') return `<path d="M${x - 9 * s} ${y} Q${x} ${y + 13 * s} ${x + 9 * s} ${y} Z" fill="#7A2E3A"/><path d="M${x - 5 * s} ${y + 6 * s} Q${x} ${y + 10 * s} ${x + 5 * s} ${y + 6 * s}" fill="#FF8FA3"/>`;
-  return `<path d="M${x - 7.5 * s} ${y} Q${x} ${y + 2.5 * s} ${x + 7.5 * s} ${y} Q${x + 5.5 * s} ${y + 11 * s} ${x} ${y + 11 * s} Q${x - 5.5 * s} ${y + 11 * s} ${x - 7.5 * s} ${y}Z" fill="#6B2535" stroke="#4A1624" stroke-width="${1.2 * s}" stroke-linejoin="round"/><ellipse cx="${x}" cy="${y + 8 * s}" rx="${3.6 * s}" ry="${2.3 * s}" fill="#FF8FA3"/>`;
+  return `<path d="M${x - 7.5 * s} ${y} Q${x} ${y + 2.5 * s} ${x + 7.5 * s} ${y} Q${x + 5.5 * s} ${y + 11 * s} ${x} ${y + 11 * s} Q${x - 5.5 * s} ${y + 11 * s} ${x - 7.5 * s} ${y}Z" fill="#6B2535" stroke="#4A1624" stroke-width="${1.2 * s}" stroke-linejoin="round"/><path d="M${x - 6.4 * s} ${y + 1.2 * s} Q${x} ${y + 3.6 * s} ${x + 6.4 * s} ${y + 1.2 * s} L${x + 5.6 * s} ${y + 4.2 * s} Q${x} ${y + 6.2 * s} ${x - 5.6 * s} ${y + 4.2 * s}Z" fill="#fff"/><ellipse cx="${x}" cy="${y + 8 * s}" rx="${3.6 * s}" ry="${2.3 * s}" fill="#FF8FA3"/>`;
 }
 const blush = (x1, x2, y, s = 1, op = .38) => op ? `<ellipse cx="${x1}" cy="${y}" rx="${9 * s}" ry="${5 * s}" fill="#FF7FA8" opacity="${op}"/><ellipse cx="${x2}" cy="${y}" rx="${9 * s}" ry="${5 * s}" fill="#FF7FA8" opacity="${op}"/>` : '';
 const sparkle = (x, y, r, col = '#FFE27A') => `<path d="M${x} ${y - r} Q${x + r * .18} ${y - r * .18} ${x + r} ${y} Q${x + r * .18} ${y + r * .18} ${x} ${y + r} Q${x - r * .18} ${y + r * .18} ${x - r} ${y} Q${x - r * .18} ${y - r * .18} ${x} ${y - r}Z" fill="${col}"/>`;
@@ -341,14 +343,16 @@ function robeSVG(L) {
     case 'sterren': emb = [[84, 182, 4], [112, 178, 5], [100, 200, 6], [76, 210, 3.5], [124, 206, 4]].map(([x, y, r]) => `<path d="${starPath(x, y, r)}" fill="${t}"/>`).join(''); break;
   }
   const frill = `<path d="M52 226 ${'q4.8 9 9.6 0 '.repeat(10)}L148 226Z" fill="#FFF8F2" ${ol('#2B2147', 1.2, .4)}/>`;
+  const shadeR = L.body === 'jongen' ? `<path d="M58 198 Q100 208 142 198 L142 212 Q100 222 58 212Z" fill="#000" opacity=".12"/><path d="M84 176 Q80 196 74 210 M116 176 Q120 196 126 210" stroke="#fff" stroke-opacity=".22" stroke-width="2.4" fill="none" stroke-linecap="round"/>` : `<path d="M54 208 Q100 218 146 208 L148 228 Q100 240 52 228Z" fill="#000" opacity=".12"/><path d="M84 178 Q80 204 72 228 M116 178 Q120 204 128 228" stroke="#fff" stroke-opacity=".22" stroke-width="2.4" fill="none" stroke-linecap="round"/>`;
+  const bottle = `<g transform="translate(70 206)"><rect x="-5" y="-8" width="10" height="14" rx="4" fill="#7FE3F0" ${ol('#2B2147', 1.2, .55)}/><rect x="-3" y="-12.5" width="6" height="5" rx="1.5" fill="#B8864A"/><path d="${starPath(0, -1, 3.2)}" fill="#fff" opacity=".9"/></g>`;
   const gear = `<rect x="72" y="199" width="56" height="5" rx="2" fill="#6B4A2E" opacity=".9"/><rect x="95" y="197.5" width="10" height="8" rx="2" fill="#FFD36E" stroke="#C99A2A" stroke-width="1"/>`;
   const collar = `<path d="M66 158 Q100 148 134 158 L128 175 Q100 186 72 175Z" fill="#fff" fill-opacity=".22" stroke="#FFD36E" stroke-width="2"/><path d="${starPath(100, 178, 6)}" fill="#FFD36E" stroke="#C99A2A" stroke-width="1"/>`;
   if (L.body === 'jongen') return `<path d="M70 158 Q100 146 130 158 L142 212 Q100 222 58 212Z" fill="${c}"/>
     <path d="M59 206 Q100 216 141 206 L142 212 Q100 222 58 212Z" fill="${t}" opacity=".9"/><path d="M58 212 Q100 222 142 212" stroke="#FFD36E" stroke-width="2.2" fill="none"/>
-    <path d="M86 152 L100 170 L114 152Z" fill="${t}"/>${gear}${emb}${collar}`;
+    <path d="M86 152 L100 170 L114 152Z" fill="${t}"/>${gear}${emb}${shadeR}${collar}${bottle}`;
   return frill + `<path d="M70 158 Q100 146 130 158 L148 228 Q100 240 52 228Z" fill="${c}"/>
     <path d="M53 222 Q100 234 147 222 L148 228 Q100 240 52 228Z" fill="${t}" opacity=".9"/><path d="M52 228 Q100 240 148 228" stroke="#FFD36E" stroke-width="2.4" fill="none"/>
-    <path d="M86 152 L100 170 L114 152Z" fill="${t}"/>${gear}${emb}${collar}`;
+    <path d="M86 152 L100 170 L114 152Z" fill="${t}"/>${gear}${emb}${shadeR}${collar}${bottle}`;
 }
 
 /* ---------- wenkbrauwen, bril, oorbellen, haarspeldjes ---------- */
@@ -399,7 +403,7 @@ function clipSVG(id) {
 let avatarN = 0;
 function avatarSVG(look = DEFAULT_LOOK, mood = 'blij', cls = '') {
   const gid = 'rb' + (++avatarN);
-  return avatarSVG0(look, mood, cls).replace(/id="(rb|tp|fc)"/g, `id="$1${gid}"`).replace(/url\(#(rb|tp|fc)\)/g, `url(#$1${gid})`);
+  return avatarSVG0(look, mood, cls).replace(/id="(rb|tp|fc|lit)"/g, `id="$1${gid}"`).replace(/url\(#(rb|tp|fc|lit)\)/g, `url(#$1${gid})`);
 }
 function avatarSVG0(look, mood, cls) {
   const L = Object.assign({}, DEFAULT_LOOK, look), wink = mood === 'knipoog';
@@ -408,14 +412,17 @@ function avatarSVG0(look, mood, cls) {
   const skin = shade(colOf(L, 'skin', SKINS[L.skin] || SKINS[3]), (L.tint || 0) * .05), skinD = shade(skin, -.12);
   const H = colOf(L, 'hair', HAIRCOLORS[L.hairColor] || HAIRCOLORS[0]), eye = colOf(L, 'eyes', EYECOLORS[L.eyes] || EYECOLORS[0]), tip = L.tips >= 0 ? HAIRCOLORS[L.tips] : '';
   const vormT = `translate(100 0) scale(${({ smal: .88, breed: 1.14 })[L.vorm] || 1} 1) translate(-100 0)`;
-  const hatBlock = `<g ${ol('#2B2147', 1.6, .5)}>${hatSVG(L.hat)}</g>`;
+  const HT = 'translate(100 152) scale(1.1) translate(-100 -152)';   // groter hoofd: dat maakt het een echt personage
+  const lit = !/mini/.test(cls || ''), LA = lit ? ' filter="url(#lit)"' : '';
+  const LITDEF = lit ? `<filter id="lit" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="2.8" result="b"/><feSpecularLighting in="b" surfaceScale="3" specularConstant=".52" specularExponent="24" lighting-color="#fff" result="s"><feDistantLight azimuth="235" elevation="58"/></feSpecularLighting><feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/><feComposite in="SourceGraphic" in2="s2" operator="arithmetic" k1="0" k2="1" k3=".6" k4="0"/></filter>` : '';
+  const hatBlock = `<g${LA} ${ol('#2B2147', 1.6, .5)}>${hatSVG(L.hat)}</g>`;
   const wandHand = mood === 'oeps' ? '' : `<g class="wand"><line x1="146" y1="196" x2="172" y2="150" stroke="#7A4E2D" stroke-width="5" stroke-linecap="round"/>${wandTip(L.wand, 174, 146)}</g>`;
-  return `<svg class="avatar ${cls}" viewBox="0 -34 200 284" role="img" aria-label="Jouw tovenaarsleerling">
-    <defs><radialGradient id="fc" cx=".5" cy=".38" r=".72"><stop offset=".55" stop-color="${skin}"/><stop offset="1" stop-color="${skinD}"/></radialGradient><linearGradient id="rb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7A9C"/><stop offset=".33" stop-color="#FFC75A"/><stop offset=".66" stop-color="#6FD3B0"/><stop offset="1" stop-color="#7E8CF4"/></linearGradient>
+  return `<svg class="avatar ${cls}" viewBox="-6 -50 212 300" role="img" aria-label="Jouw tovenaarsleerling">
+    <defs>${LITDEF}<radialGradient id="fc" cx=".5" cy=".38" r=".72"><stop offset=".55" stop-color="${skin}"/><stop offset="1" stop-color="${skinD}"/></radialGradient><linearGradient id="rb" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FF7A9C"/><stop offset=".33" stop-color="#FFC75A"/><stop offset=".66" stop-color="#6FD3B0"/><stop offset="1" stop-color="#7E8CF4"/></linearGradient>
       ${tip ? `<linearGradient id="tp" gradientUnits="userSpaceOnUse" x1="0" y1="90" x2="0" y2="230"><stop offset="0" stop-color="${tip}" stop-opacity="0"/><stop offset="1" stop-color="${tip}"/></linearGradient>` : ''}</defs>
     <ellipse cx="100" cy="242" rx="56" ry="7" fill="#000" opacity=".1"/>
-    ${wingsSVG(L)}${tailSVG(L)}${capeSVG(L)}
-    <g class="hair hair-b" ${ol(hairTone(H, -.55), 1.5)}>${hairBack(L.hair, H)}${tip ? hairBack(L.hair, 'url(#tp)') : ''}</g>
+    <g${LA}>${wingsSVG(L)}${tailSVG(L)}${capeSVG(L)}
+    <g transform="${HT}"><g class="hair hair-b" ${ol(hairTone(H, -.55), 1.5)}>${hairBack(L.hair, H)}${tip ? hairBack(L.hair, 'url(#tp)') : ''}</g></g>
     ${L.body === 'jongen' ? `<rect x="84" y="200" width="15" height="37" rx="6" fill="#3B3F6B"/><rect x="101" y="200" width="15" height="37" rx="6" fill="#3B3F6B"/>` : `<rect x="86" y="214" width="11" height="22" rx="5" fill="${skinD}"/><rect x="103" y="214" width="11" height="22" rx="5" fill="${skinD}"/><rect x="85" y="223" width="13" height="13" rx="4" fill="#FFF6EE" ${ol('#2B2147', 1.2, .35)}/><rect x="102" y="223" width="13" height="13" rx="4" fill="#FFF6EE" ${ol('#2B2147', 1.2, .35)}/>`}
     <path d="M79 230 Q79 240 81 243 L101 243 Q103 236 100 230Z" fill="#4A39AE" ${ol('#2B2147', 1.4, .55)}/><rect x="80" y="228" width="20" height="5" rx="2.5" fill="#FFD36E" stroke="#C99A2A" stroke-width="1"/><path d="${starPath(90, 238, 3.6)}" fill="#FFD36E"/><path d="M99 230 Q99 240 101 243 L121 243 Q123 236 120 230Z" fill="#4A39AE" ${ol('#2B2147', 1.4, .55)}/><rect x="100" y="228" width="20" height="5" rx="2.5" fill="#FFD36E" stroke="#C99A2A" stroke-width="1"/><path d="${starPath(110, 238, 3.6)}" fill="#FFD36E"/>
     <g ${ol('#2B2147', 1.4, .45)} transform="${vormT}">${robeSVG(L)}
@@ -425,18 +432,24 @@ function avatarSVG0(look, mood, cls) {
     ${wandHand}<ellipse cx="144" cy="190" rx="10" ry="5.4" fill="#FFF6EE" transform="rotate(-30 144 190)"/><circle cx="146" cy="197" r="8" fill="${skin}"/></g>
     ${L.prothese === 'been' ? `<rect x="${L.body === 'jongen' ? 103 : 105}" y="214" width="8" height="22" rx="3" fill="#B9C2D0"/><rect x="101" y="232" width="16" height="5" rx="2" fill="#7D8798"/>` : ''}
     <rect x="92" y="140" width="16" height="16" rx="6" fill="${skinD}"/>
+    <g transform="${HT}">
     ${L.hatBack ? hatBlock : ''}
     <circle cx="36" cy="104" r="10" fill="${skin}"/><circle cx="164" cy="104" r="10" fill="${skin}"/>${earSVG(L.oorbel)}
     <ellipse cx="100" cy="94" rx="64" ry="60" fill="url(#fc)" ${ol(shade(skin, -.42), 1.6)}/>
+    <path d="M44 106 Q100 178 156 106 Q150 152 100 157 Q50 152 44 106Z" fill="${skinD}" opacity=".2"/>
     ${blush(60, 140, 126, 1, mood === 'verlegen' ? .75 : [0, .38, .62][L.blush == null ? 1 : L.blush])}${L.blush || mood === 'verlegen' ? `<path d="M57 121 l3 -4 M62 122 l3 -4 M67 121 l3 -4 M133 121 l3 -4 M138 122 l3 -4 M143 121 l3 -4" stroke="#FF5F8F" stroke-width="1.4" stroke-linecap="round" opacity=".6"/>` : ''}<path d="M97.5 117 q2.5 2.6 5 0" stroke="${shade(skin, -.4)}" stroke-width="1.8" fill="none" stroke-linecap="round"/>
+    ${L.blush || mood === 'verlegen' ? '<circle cx="57" cy="124" r="2.2" fill="#fff" opacity=".55"/><circle cx="143" cy="124" r="2.2" fill="#fff" opacity=".55"/>' : ''}
     ${L.sproet ? [[58, 116], [66, 120], [62, 124], [134, 116], [142, 120], [138, 124]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="1.8" fill="${shade(skin, -.35)}"/>`).join('') : ''}
-    <g class="eyes">${animeEye(74, 109, eye, 1.2, mood, { shape: L.eyeShape, lashes: L.lashes })}${animeEye(126, 109, eye, 1.2, wink ? 'lach' : mood, { shape: L.eyeShape, lashes: L.lashes })}</g>
+    </g></g>
+    <g transform="${HT}"><g class="eyes">${animeEye(74, 109, eye, 1.2, mood, { shape: L.eyeShape, lashes: L.lashes })}${animeEye(126, 109, eye, 1.2, wink ? 'lach' : mood, { shape: L.eyeShape, lashes: L.lashes })}</g>
     ${beardSVG(L.baard, H)}${mouth(100, 131, mood)}
     ${mood === 'oeps' ? `<path d="M156 66 q6 10 0 14 q-6 -4 0 -14Z" fill="#7FD3F7"/>` : ''}
     <path d="M42 80 Q100 60 158 80 L158 98 Q100 78 42 98Z" fill="${skinD}" opacity=".22"/>
-    <g class="hair hair-f" ${ol(hairTone(H, -.55), 1.5)}>${hairFront(L.hair, H)}</g>
+    <g class="hair hair-f"${LA} ${ol(hairTone(H, -.55), 1.5)}>${hairFront(L.hair, H)}</g>
     <g transform="translate(0 -5)">${browSVG(L.brows, shade(H, -.2))}</g>${glassesSVG(L.bril)}${clipSVG(L.clip)}
+    ${AHOGE.includes(L.hair) ? `<path d="M100 38 C90 8 128 0 114 26" stroke="${H}" stroke-width="5.5" fill="none" stroke-linecap="round"/>` : ''}
     ${L.hatBack ? '' : hatBlock}
+    </g>
   </svg>`;
 }
 
@@ -584,3 +597,18 @@ function placeArt(id) {
   return `<svg viewBox="0 0 100 92" aria-hidden="true">${A[id] || ''}</svg>`;
 }
 const STARICO = (on = true) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path class="${on ? 's-on' : 's-off'}" d="M12 2.4l2.95 6 6.6.95-4.78 4.65 1.13 6.57L12 17.47l-5.9 3.1 1.13-6.57L2.45 9.35l6.6-.95z"/></svg>`;
+
+/* ---------- dezelfde glans en diepte voor Pip, huisdieren en de oude leraren ---------- */
+let glossN = 0;
+function glossy(svg) {
+  if (/class="[^"]*\bmini\b/.test(svg)) return svg;
+  const id = 'gl' + (++glossN);
+  const def = `<defs><filter id="${id}" x="-4%" y="-4%" width="108%" height="108%" color-interpolation-filters="sRGB"><feGaussianBlur in="SourceAlpha" stdDeviation="2.4" result="b"/><feSpecularLighting in="b" surfaceScale="3" specularConstant=".5" specularExponent="24" lighting-color="#fff" result="s"><feDistantLight azimuth="235" elevation="58"/></feSpecularLighting><feComposite in="s" in2="SourceAlpha" operator="in" result="s2"/><feComposite in="SourceGraphic" in2="s2" operator="arithmetic" k1="0" k2="1" k3=".55" k4="0"/></filter></defs>`;
+  return svg.replace(/(<svg[^>]*>)([\s\S]*)(<\/svg>)/, (m, a, b, c) => `${a}${def}<g filter="url(#${id})">${b}</g>${c}`);
+}
+{
+  const _pip = pipSVG, _pet = petSVG, _teach = teacherSVG;
+  pipSVG = (...a) => glossy(_pip(...a));
+  petSVG = (...a) => glossy(_pet(...a));
+  teacherSVG = (...a) => { const r = _teach(...a); return /^<svg/.test(r) ? glossy(r) : r; };
+}
