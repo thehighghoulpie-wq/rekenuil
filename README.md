@@ -29,6 +29,7 @@ App-taal: Nederlands, Papiamentu of English (de lessen en vragen zelf zijn Neder
 - `js/voice.js` – familie-stemmen: opnemen en afspelen (IndexedDB, blijft op de tablet)
 - `js/theme.js` – dag en nacht volgens de klok van de tablet (ouders kunnen het vastzetten) en de havenscène
 - `js/motion.js` – veerkrachtige bewegingen (knoppen, Pip, sterren); uit met "Animaties" of "minder beweging"
+- Mijn Eiland (`js/eiland.js`) heeft 5 werelden (strand, bos, stad, rif, ruimte), elk met eigen voorwerpen en bord, en tover-regels (lichtknop, feestknop, regenwolk). Werelden gaan open door lessen af te maken.
 - `js/garden.js` – Geheime Tuin: elk onderwerp is een plant van Curaçao die in 4 stappen groeit
 - `js/delight.js` – plezier: Pip-gezichtjes en praten, bliksem bij 5/10 goed, labeltjes, uitdagingsmodus, figuurtjes op de kaart, feestdagen, welkom, voorlezen, Toverspiegel 3.0
 - `js/collect.js` – dagopdrachtjes, Eilandalbum (stickers), karnavalskostuum, Toverboek en stempelkalender

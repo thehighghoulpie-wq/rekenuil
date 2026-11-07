@@ -11,7 +11,7 @@ function defaults() {
     v: 1, profile: null, stars: 0, starsTotal: 0,
     owned: { outfit: ['paars'], hat: ['geen', 'puntmuts'], wand: ['ster'], pet: ['geen'] },
     topics: {}, highs: {}, badges: {}, days: [], lessons: {}, jokes: [], games: {}, unlocked: [], gifts: {},
-    island: { cells: {}, floor: {}, tod: 'dag', owned: [], got: 0 }, parentStars: [], chars: [], colorPresets: [], strips: [],
+    island: { cells: {}, floor: {}, world: 'strand', worlds: {}, tod: 'dag', owned: [], got: 0 }, parentStars: [], chars: [], colorPresets: [], strips: [],
     grade: 6, niveau: { rekenen: 0, taal: 0, papiamentu: 0 }, daylog: {}, review: {}, potion: { streak: 0, last: '', best: 0, total: 0, got: {}, freezeWeek: '' },
     settings: { sound: true, anim: !(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches), big: false, jokes: true, lang: 'nl', dailyGoal: 10, theme: 'auto', vibrate: false, play: { on: false, from: '07:00', to: '19:30', max: 0 } },
     counters: { correct: 0, answered: 0, quizzes: 0, perfect: 0, bestStreak: 0, timed: 0, pap: 0, hard3: 0, purchases: 0, pets: 0, lessonRuns: 0, games: 0, garden: 0, walks: 0, calls: 0, challenge: 0, secret: 0, piano: 0, questAll: 0 },
@@ -36,10 +36,15 @@ function cleanSave(d) {
   if (!d || typeof d !== 'object') return def;
   const out = def;
   out.stars = num(d.stars); out.starsTotal = num(d.starsTotal); out.grade = num(d.grade || 6, 1, 8);
-  { const I = obj(d.island), cells = {}, floor = {};
-    for (const [k, v] of Object.entries(obj(I.cells)).slice(0, 80)) { const m = /^(\d),(\d)$/.exec(k), it = obj(v); if (m && +m[1] < 8 && +m[2] < 6 && /^[a-z]{2,12}$/.test(String(it.id))) cells[k] = { id: it.id, st: num(it.st, 0, 3), c: num(it.c, 0, 7) }; }
-    for (const [k, v] of Object.entries(obj(I.floor)).slice(0, 80)) if (/^\d,\d$/.test(k)) floor[k] = num(v, 0, 2);
-    out.island = { cells, floor, tod: pick(I.tod, ['dag', 'avond', 'nacht'], 'dag'), owned: (Array.isArray(I.owned) ? I.owned : []).filter(x => typeof x === 'string' && /^[a-z]{2,12}$/.test(x)).slice(0, 20), got: num(I.got, 0, 9999) }; }
+  { const I = obj(d.island), WID = ['strand', 'bos', 'stad', 'rif', 'ruimte'];
+    const cleanBoard = bd => { bd = obj(bd); const cells = {}, floor = {};
+      for (const [k, v] of Object.entries(obj(bd.cells)).slice(0, 80)) { const m = /^(\d),(\d)$/.exec(k), it = obj(v); if (m && +m[1] < 8 && +m[2] < 6 && /^[a-z]{2,12}$/.test(String(it.id))) cells[k] = { id: it.id, st: num(it.st, 0, 3), c: num(it.c, 0, 7) }; }
+      for (const [k, v] of Object.entries(obj(bd.floor)).slice(0, 80)) if (/^\d,\d$/.test(k)) floor[k] = num(v, 0, 2);
+      return { cells, floor }; };
+    const act = cleanBoard(I), worlds = {}, world = pick(I.world, WID, 'strand');
+    for (const [k, v] of Object.entries(obj(I.worlds)).slice(0, 6)) if (WID.includes(k)) worlds[k] = cleanBoard(v);
+    worlds[world] = act;   // het open eiland en zijn bewaarde plek zijn hetzelfde
+    out.island = { cells: act.cells, floor: act.floor, world, worlds, tod: pick(I.tod, ['dag', 'avond', 'nacht'], 'dag'), owned: (Array.isArray(I.owned) ? I.owned : []).filter(x => typeof x === 'string' && /^[a-z]{2,12}$/.test(x)).slice(0, 20), got: num(I.got, 0, 9999) }; }
   out.parentStars = (Array.isArray(d.parentStars) ? d.parentStars : []).slice(0, 30).map(x => { x = obj(x); return { d: isDay(x.d) ? x.d : '', n: num(x.n, 1, 3), who: str(x.who, 12), why: str(x.why, 80), seen: !!x.seen }; }).filter(x => x.d);
   out.niveau = { rekenen: num((+obj(d.niveau).rekenen) || 0, -3, 3), taal: num((+obj(d.niveau).taal) || 0, -3, 3), papiamentu: num((+obj(d.niveau).papiamentu) || 0, -3, 3) }; out.created = num(d.created, 0, 1e13) || Date.now();
   const cleanLook = lk => {

@@ -1196,3 +1196,10 @@ body.noanim .avatar[class*="pose-"] { animation: none; } @media (prefers-reduced
 .sp-say { display: flex; align-items: center; gap: 12px; font-size: 2rem; } .sp-btns { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; } .recording { background: var(--bad) !important; }
 .wotd { background: #FFF6D6; } .wotd-e { font-size: 2rem; }
 .rankcard { display: flex; align-items: center; gap: 14px; padding: 14px; margin-bottom: 10px; } .rk-ico { font-size: 2.6rem; } .rankcard b { display: block; font-size: 1.2rem; } .rk-bar { width: 200px; max-width: 60vw; height: 10px; border-radius: 6px; background: var(--line); margin: 4px 0; overflow: hidden; } .rk-bar i { display: block; height: 100%; background: var(--gold); }
+
+/* ---------- werelden voor Mijn Eiland ---------- */
+.ei-worlds { margin-bottom: 8px; } .ei-worlds .chip.locked { opacity: .6; }
+.ei-board.w-bos .eic.z-lucht { background: linear-gradient(#CFEFD0, #E8F7D8); } .ei-board.w-bos .eic.z-land:not([class*="fl-"]) { background: #4E9A55; } .ei-board.w-bos .eic.z-water { background: linear-gradient(#7FD3E8, #5BB8D4); }
+.ei-board.w-stad .eic.z-lucht { background: linear-gradient(#FFD9B8, #FFEBD2); } .ei-board.w-stad .eic.z-land:not([class*="fl-"]) { background: #CDBFAE; } .ei-board.w-stad .eic.z-water { background: linear-gradient(#5A8FD0, #4676B8); }
+.ei-board.w-rif .eic.z-lucht { background: linear-gradient(#7FD3F7, #4FB8EE); } .ei-board.w-rif .eic.z-land:not([class*="fl-"]) { background: #F3DFA2; } .ei-board.w-rif .eic.z-water { background: linear-gradient(#2F7FC0, #1D5A9A); }
+.ei-board.w-ruimte .eic.z-lucht { background: linear-gradient(#0E1250, #1B1F6E); } .ei-board.w-ruimte .eic.z-land:not([class*="fl-"]) { background: #8E8EA2; } .ei-board.w-ruimte .eic.z-water { background: linear-gradient(#0A0A33, #15154D); }

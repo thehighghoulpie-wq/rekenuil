@@ -38,6 +38,29 @@ const EI_ITEMS = [
   { id: 'ik', cat: 'vrienden', zone: 'land', name: 'Ik', me: true, act: 'hop' },
   { id: 'pip', cat: 'vrienden', zone: 'land', name: 'Pip', pip: true, act: 'dance' },
   { id: 'huisdier', cat: 'vrienden', zone: 'land', name: 'Mijn huisdier', pet: true, act: 'hop' },
+  // werelden: eigen voorwerpen per eiland (ws = in welke werelden het te vinden is)
+  { id: 'den', cat: 'land', zone: 'land', name: 'Dennenboom', e: '🌲', act: 'dance', ws: ['bos'] }, { id: 'eik', cat: 'land', zone: 'land', name: 'Eikenboom', e: '🌳', act: 'dance', ws: ['bos'] },
+  { id: 'paddo', cat: 'land', zone: 'land', name: 'Paddenstoel', e: '🍄', act: 'pop', ws: ['bos'] }, { id: 'vosje', cat: 'land', zone: 'land', name: 'Vosje', e: '🦊', act: 'hop', ws: ['bos'] },
+  { id: 'hert', cat: 'land', zone: 'land', name: 'Hert', e: '🦌', act: 'dance', ws: ['bos'] }, { id: 'eekhoorn', cat: 'land', zone: 'land', name: 'Eekhoorn', e: '🐿️', act: 'hop', ws: ['bos'] },
+  { id: 'tent', cat: 'land', zone: 'land', name: 'Tent', e: '⛺', act: 'pop', ws: ['bos'] }, { id: 'stam', cat: 'land', zone: 'land', name: 'Boomstam', e: '🪵', act: 'pop', ws: ['bos'] },
+  { id: 'uil', cat: 'lucht', zone: 'lucht', name: 'Uil', e: '🦉', act: 'hop', ws: ['bos'] }, { id: 'vlinder', cat: 'lucht', zone: 'lucht', name: 'Vlinder', e: '🦋', act: 'dance', ws: ['bos', 'strand'] },
+  { id: 'kikker', cat: 'water', zone: 'water', name: 'Kikker', e: '🐸', act: 'hop', ws: ['bos'] },
+  { id: 'fiets', cat: 'land', zone: 'land', name: 'Fiets', e: '🚲', act: 'dance', ws: ['stad'] }, { id: 'bus', cat: 'land', zone: 'land', name: 'Bus', e: '🚌', act: 'jelly', ws: ['stad'] },
+  { id: 'stoplicht', cat: 'land', zone: 'land', name: 'Stoplicht', states: ['🚦', '🚦'], act: 'pop', ws: ['stad'] }, { id: 'museum', cat: 'land', zone: 'land', name: 'Museum', e: '🏛️', act: 'pop', ws: ['stad'] },
+  { id: 'winkel', cat: 'land', zone: 'land', name: 'Winkel', e: '🏪', act: 'pop', ws: ['stad'] }, { id: 'toren', cat: 'land', zone: 'land', name: 'Toren', e: '🗼', act: 'pop', ws: ['stad'] },
+  { id: 'brugje', cat: 'water', zone: 'water', name: 'Brug', e: '🌉', act: 'jelly', ws: ['stad'] }, { id: 'veerboot', cat: 'water', zone: 'water', name: 'Veerboot', e: '⛴️', act: 'dance', ws: ['stad'] },
+  { id: 'koraal', cat: 'land', zone: 'land', name: 'Koraal', e: '🪸', act: 'dance', ws: ['rif'] }, { id: 'schelp', cat: 'land', zone: 'land', name: 'Schelp', e: '🐚', act: 'pop', ws: ['rif', 'strand'] },
+  { id: 'krab', cat: 'land', zone: 'land', name: 'Krab', e: '🦀', act: 'hop', ws: ['rif', 'strand'] }, { id: 'octopus', cat: 'water', zone: 'water', name: 'Octopus', e: '🐙', act: 'dance', ws: ['rif'] },
+  { id: 'dolfijn', cat: 'water', zone: 'water', name: 'Dolfijn', e: '🐬', act: 'hop', ws: ['rif'] }, { id: 'tropvis', cat: 'water', zone: 'water', name: 'Tropenvis', e: '🐠', act: 'dance', ws: ['rif'] },
+  { id: 'haai', cat: 'water', zone: 'water', name: 'Vriendelijke haai', e: '🦈', act: 'dance', ws: ['rif'] }, { id: 'bubbel', cat: 'lucht', zone: 'lucht', name: 'Bubbels', e: '🫧', act: 'jelly', ws: ['rif'] },
+  { id: 'raket', cat: 'land', zone: 'land', name: 'Raket', e: '🚀', act: 'hop', ws: ['ruimte'] }, { id: 'astronaut', cat: 'land', zone: 'land', name: 'Astronaut', e: '🧑‍🚀', act: 'hop', ws: ['ruimte'] },
+  { id: 'robot', cat: 'land', zone: 'land', name: 'Robot', e: '🤖', act: 'dance', ws: ['ruimte'] }, { id: 'krater', cat: 'land', zone: 'land', name: 'Krater', e: '🕳️', act: 'pop', ws: ['ruimte'] },
+  { id: 'ufo', cat: 'lucht', zone: 'lucht', name: 'Ufo', e: '🛸', act: 'dance', ws: ['ruimte'] }, { id: 'planeet', cat: 'lucht', zone: 'lucht', name: 'Planeet', e: '🪐', act: 'jelly', ws: ['ruimte'] },
+  { id: 'ster', cat: 'lucht', zone: 'lucht', name: 'Ster', e: '⭐', act: 'pop', ws: ['ruimte'] }, { id: 'komeet', cat: 'lucht', zone: 'lucht', name: 'Komeet', e: '☄️', act: 'dance', ws: ['ruimte'] },
+  { id: 'satelliet', cat: 'lucht', zone: 'lucht', name: 'Satelliet', e: '🛰️', act: 'dance', ws: ['ruimte'] }, { id: 'melkweg', cat: 'water', zone: 'water', name: 'Melkweg', e: '🌌', act: 'jelly', ws: ['ruimte'] },
+  // tover-regels: tik erop en er gebeurt iets op het hele eiland
+  { id: 'lichtknop', cat: 'regels', zone: 'land', name: 'Lichtknop', e: '🔘', act: 'pop', rule: 'licht' }, { id: 'feestknop', cat: 'regels', zone: 'land', name: 'Feestknop', e: '🥁', act: 'pop', rule: 'feest' },
+  { id: 'regenknop', cat: 'regels', zone: 'lucht', name: 'Regenwolk', e: '🌦️', act: 'jelly', rule: 'regen' },
   // cadeautjes van Pip de postbode
   { id: 'draak', cat: 'cadeaus', zone: 'land', name: 'Drakentje', e: '🐉', act: 'dance', gift: true },
   { id: 'regenboog', cat: 'cadeaus', zone: 'lucht', name: 'Regenboog', e: '🌈', act: 'jelly', gift: true },
@@ -48,7 +71,38 @@ const EI_ITEMS = [
 ];
 const EI_BY = Object.fromEntries(EI_ITEMS.map(i => [i.id, i]));
 const EI_GIFTS = EI_ITEMS.filter(i => i.gift).map(i => i.id);
-const EI_CATS = [['land', '🏝️'], ['water', '🌊'], ['lucht', '☁️'], ['vrienden', '🧒'], ['cadeaus', '🎁']];
+const EI_CATS = [['land', '🏝️'], ['water', '🌊'], ['lucht', '☁️'], ['vrienden', '🧒'], ['regels', '⚙️'], ['cadeaus', '🎁']];
+// werelden: elk eiland heeft een eigen uiterlijk en eigen voorwerpen; ze gaan open door lessen af te maken (nooit voor geld)
+const EI_WORLDS = [['strand', '🏝️', ['Strand', 'Playa', 'Beach'], 0], ['bos', '🌲', ['Bos', 'Mondi', 'Forest'], 4], ['stad', '🏙️', ['Stad', 'Stat', 'City'], 8], ['rif', '🐠', ['Koraalrif', 'Rif di koral', 'Reef'], 12], ['ruimte', '🚀', ['Ruimte', 'Espasio', 'Space'], 16]];
+const EI_ALLW = EI_WORLDS.map(w => w[0]);
+const EI_WS = { palm: ['strand', 'stad'], kadushi: ['strand'], flamingo: ['strand'], parasol: ['strand', 'stad'], geit: ['strand', 'bos'], leguaan: ['strand', 'bos'], huis: ['strand', 'bos', 'stad'], bloem: ['strand', 'bos', 'stad'], bank: ['strand', 'bos', 'stad'], lamp: ['strand', 'bos', 'stad', 'ruimte'], fontein: ['strand', 'stad'], boot: ['strand', 'stad'], vis: ['strand', 'bos', 'rif'], schildpad: ['strand', 'rif'], kano: ['strand', 'bos'], wolk: ['strand', 'bos', 'stad'], vlieger: ['strand', 'stad'], ballon: ['strand', 'stad'], vogel: ['strand', 'bos', 'stad'] };
+EI_ITEMS.forEach(i => { if (!i.ws) i.ws = EI_WS[i.id] || EI_ALLW; });
+const eiWorldOpen = id => eiLessons() >= ((EI_WORLDS.find(w => w[0] === id) || [0, 0, 0, 0])[3]);
+function eiSwitchWorld(id) {
+  const I = D.island; eiRestore(); I.worlds = I.worlds || {};
+  I.worlds[I.world || 'strand'] = { cells: I.cells, floor: I.floor };
+  const w = I.worlds[id] = I.worlds[id] || { cells: {}, floor: {} };
+  I.cells = w.cells; I.floor = w.floor; I.world = id; EI.undo = []; EI.sel = null; EI.tool = null; EI.tab = 'land';
+  save(); renderIsland();
+}
+// tover-regels: "als dit, dan dat"
+function eiRule(r) {
+  const board = $('.ei-board'); if (!board) return; const els = $$('.ei-it', board);
+  if (r === 'licht') {
+    const lamps = Object.values(D.island.cells).filter(c => c.id === 'lamp');
+    if (!lamps.length) { toast(tri(['Zet eerst een lampje neer.', 'Pon un lampi promé.', 'Place a lamp first.']), 2200); return; }
+    const on = lamps.some(c => !c.st); lamps.forEach(c => { c.st = on ? 1 : 0; }); save(); renderIsland(); tone(on ? [660, 880] : [880, 660], .1, 'triangle', .05); return;
+  }
+  if (r === 'feest') {
+    els.forEach((el, i) => setTimeout(() => { const it = EI_BY[el.dataset.id]; if (it && !it.rule && el.isConnected) { move(el, it.act === 'mail' ? 'pop' : (it.act || 'hop')); sparkleBurst(el, 4, ['🎉', '✨']); } }, i * 90));
+    [523, 659, 784, 1047].forEach((f, i) => setTimeout(() => tone([f], .14, 'triangle', .05), i * 120)); return;
+  }
+  if (r === 'regen') {
+    const grow = ['bloem', 'den', 'eik', 'palm', 'koraal', 'paddo', 'kadushi'];
+    els.forEach((el, i) => setTimeout(() => { if (el.isConnected && grow.includes(el.dataset.id)) { sparkleBurst(el, 6, ['💧', '✨']); move(el, 'pop'); } }, i * 120));
+    [392, 330, 262].forEach((f, i) => setTimeout(() => tone([f], .16, 'sine', .05), i * 160));
+  }
+}
 const EI_TOD = [['dag', '☀️'], ['avond', '🌇'], ['nacht', '🌙']];
 
 const eiLessons = () => Object.keys(D.lessons || {}).length;
@@ -101,11 +155,12 @@ function renderIsland() {
     const ok = EI.sel && !locked && !cell && EI_BY[EI.sel].zone === z;
     grid += `<button class="eic z-${z} ${locked ? 'locked' : ''} ${ok ? 'ok' : ''} ${fl != null && z === 'land' ? 'fl-' + EI_FLOOR[fl][0] : ''}" data-x="${x}" data-y="${y}" aria-label="${locked ? tri(['Nog dicht', 'Ainda sera', 'Still closed']) : z}">${locked ? '🔒' : cell ? `<span class="ei-it" data-id="${cell.id}">${eiArt(EI_BY[cell.id], cell)}</span>` : ''}</button>`;
   }
-  const items = EI_ITEMS.filter(i => i.cat === EI.tab && (!i.gift || eiOwns(i.id)) && !(i.pet && false));
+  const items = EI_ITEMS.filter(i => i.cat === EI.tab && (!i.gift || eiOwns(i.id)) && i.ws.includes(I.world || 'strand'));
   el.innerHTML = backbar('🏝️ ' + t('pl_eiland')) + `<div class="wrap island-wrap">
+    <div class="chips ei-worlds">${EI_WORLDS.map(([id, e, nm]) => `<button class="chip ${(I.world || 'strand') === id ? 'on' : ''} ${eiWorldOpen(id) ? '' : 'locked'}" data-world="${id}">${eiWorldOpen(id) ? e : '🔒'} ${tri(nm)}</button>`).join('')}</div>
     <div class="ei-bar"><div class="chips"><button class="chip ${EI.mode === 'bouw' ? 'on' : ''}" data-mode="bouw">🪄 ${tri(['Bouwen', 'Traha', 'Build'])}</button><button class="chip ${EI.mode === 'speel' ? 'on' : ''}" data-mode="speel">▶️ ${tri(['Spelen', 'Hunga', 'Play'])}</button></div>
       <div class="chips"><button class="chip" data-undo aria-label="undo">↶</button>${EI_TOD.map(([id, e]) => `<button class="chip ${I.tod === id ? 'on' : ''}" data-tod="${id}" aria-label="${id}">${e}</button>`).join('')}</div></div>
-    <div class="ei-board tod-${I.tod} ${EI.mode}">${grid}${I.tod === 'nacht' ? '<i class="ei-stars"></i>' : ''}</div>
+    <div class="ei-board tod-${I.tod} ${EI.mode} w-${I.world || 'strand'}">${grid}${I.tod === 'nacht' ? '<i class="ei-stars"></i>' : ''}</div>
     ${cols < EI_COLS ? `<p class="muted center">🔒 ${tri(['Maak lessen af om meer eiland open te maken.', 'Kaba lès pa habri mas isla.', 'Finish lessons to open more island.'])}</p>` : ''}
     ${pending > 0 ? `<button class="btn primary wide" id="eigift">🎁 ${tri(['Pip de postbode heeft een cadeautje voor je!', 'Pip e kartero tin un regalo pa bo!', 'Pip the postman has a gift for you!'])}</button>` : ''}
     ${EI.mode === 'bouw' ? `<div class="ei-drawer card">
@@ -119,6 +174,7 @@ function renderIsland() {
   bindCommon(el); eiBind(el);
 }
 function eiBind(el) {
+  $$('[data-world]', el).forEach(b => b.onclick = () => { const id = b.dataset.world, need = (EI_WORLDS.find(w => w[0] === id) || [0, 0, 0, 0])[3]; if (!eiWorldOpen(id)) { shake(b); toast(tri([`Maak nog ${need - eiLessons()} lessen af om dit eiland te openen.`, `Kaba ainda ${need - eiLessons()} lès pa habri e isla aki.`, `Finish ${need - eiLessons()} more lessons to open this island.`]), 3000); return; } if (id !== (D.island.world || 'strand')) { SND.pop(); eiSwitchWorld(id); } });
   $$('[data-mode]', el).forEach(b => b.onclick = () => { eiRestore(); EI.mode = b.dataset.mode; EI.sel = null; EI.tool = null; SND.click(); renderIsland(); });
   $$('[data-tab]', el).forEach(b => b.onclick = () => { eiRestore(); EI.tab = b.dataset.tab; EI.tool = null; SND.click(); renderIsland(); });
   $$('[data-tool]', el).forEach(b => b.onclick = () => { eiRestore(); EI.tool = EI.tool === b.dataset.tool ? null : b.dataset.tool; EI.sel = null; if (EI.tool === 'verf' && !EI.colour) EI.colour = 'h0'; SND.click(); renderIsland(); });
@@ -161,6 +217,7 @@ function eiCell(c) {
 function eiPlay(c, cell, k) {
   const it = EI_BY[cell.id], n = $('.ei-it', c); SND.pop();
   if (it.act === 'mail') { if (typeof openBrievenbus === 'function') openBrievenbus(); return; }
+  if (it.rule) { if (n) move(n, 'pop'); return eiRule(it.rule); }
   if (it.states) { cell.st = ((cell.st || 0) + 1) % it.states.length; save(); renderIsland(); const nn = $(`.eic[data-x="${c.dataset.x}"][data-y="${c.dataset.y}"] .ei-it`); if (nn) move(nn, it.act); return; }
   if (it.splash) sparkleBurst(n, 10, ['💧', '💦']);
   else if (it.me || it.pip || it.pet) sparkleBurst(n, 8, glitterSyms());
