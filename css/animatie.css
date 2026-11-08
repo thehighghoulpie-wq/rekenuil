@@ -1,0 +1,32 @@
+/* Levende schermen (v24). Alleen transform en opacity, dus soepel op de tablet. */
+/* de plaatjes op de kaart leven: vlag, zon, palm, ballonnen, bloemen en sterretjes */
+.a-flag { transform-box: fill-box; transform-origin: 0 60%; animation: aFlag 1.8s ease-in-out infinite; }
+.a-sun { transform-box: fill-box; transform-origin: center; animation: aSun 3.2s ease-in-out infinite; }
+.a-sway { transform-box: fill-box; transform-origin: 50% 100%; animation: aSway 3.4s ease-in-out infinite; }
+.a-balloon { transform-box: fill-box; transform-origin: 50% 100%; animation: aBob 3.2s ease-in-out infinite; }
+.a-balloon.b2 { animation-delay: -1.4s; }
+.a-twinkle { transform-box: fill-box; transform-origin: center; animation: aTwinkle 2.4s ease-in-out infinite; }
+.a-twinkle.t2 { animation-delay: -1.2s; }
+@keyframes aFlag { 0%, 100% { transform: skewY(0) scaleX(1); } 50% { transform: skewY(-9deg) scaleX(.86); } }
+@keyframes aSun { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
+@keyframes aSway { 0%, 100% { transform: rotate(-3deg); } 50% { transform: rotate(3deg); } }
+@keyframes aBob { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-4px) rotate(3deg); } }
+@keyframes aTwinkle { 0%, 100% { transform: scale(1) rotate(0); opacity: 1; } 50% { transform: scale(.55) rotate(20deg); opacity: .55; } }
+
+/* een tik: kringetje en vijf sterretjes */
+.tapfx { position: fixed; z-index: 90; width: 0; height: 0; pointer-events: none; }
+.tapfx .ring { position: absolute; left: -22px; top: -22px; width: 44px; height: 44px; border-radius: 50%; border: 3px solid rgba(255, 201, 60, .9); animation: tapRing .55s ease-out forwards; }
+.tapfx b { position: absolute; left: -7px; top: -9px; font-size: 14px; color: #FFC93C; text-shadow: 0 0 6px rgba(255, 201, 60, .8); animation: tapStar .6s ease-out forwards; }
+@keyframes tapRing { from { transform: scale(.3); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+@keyframes tapStar { from { transform: rotate(var(--a)) translateY(0) scale(.6); opacity: 1; } to { transform: rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1); opacity: 0; } }
+
+/* een vallende ster */
+.shoot { position: fixed; z-index: 0; width: 90px; height: 3px; border-radius: 3px; pointer-events: none; background: linear-gradient(90deg, rgba(255, 255, 255, 0), #fff 70%, #FFE9A8); filter: drop-shadow(0 0 5px #fff); transform: rotate(-28deg); animation: shootGo 1.3s ease-in forwards; }
+@keyframes shootGo { from { transform: translate(0, 0) rotate(-28deg); opacity: 0; } 12% { opacity: 1; } to { transform: translate(-260px, 140px) rotate(-28deg); opacity: 0; } }
+
+/* goed antwoord: een gouden golf */
+.winwave { position: fixed; left: 0; right: 0; bottom: -20vh; height: 60vh; z-index: 40; pointer-events: none; background: radial-gradient(60% 60% at 50% 100%, rgba(255, 214, 90, .55), rgba(255, 214, 90, 0) 70%); animation: winWave .8s ease-out forwards; }
+@keyframes winWave { from { transform: translateY(40%); opacity: 0; } 30% { opacity: 1; } to { transform: translateY(-10%); opacity: 0; } }
+
+body.noanim .tapfx, body.noanim .shoot, body.noanim .winwave { display: none; }
+@media (prefers-reduced-motion: reduce) { .tapfx, .shoot, .winwave { display: none; } }
